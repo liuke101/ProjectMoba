@@ -1,0 +1,25 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "SimpleScreenMove",
+  "Description": "You can move the screen.",
+  "Category": "RenZhai",
+  "CreatedBy": "Other Courses",
+  "CreatedByURL": "https://renzhai.net/",
+  "DocsURL": "https://renzhai.net/173.html",
+  "MarketplaceURL": "https://www.aboutcg.org/courseDetails/354/introduce",
+  "SupportURL": "https://renzhai.net/51.html",
+  "EngineVersion": "5.2.0",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Installed": true,
+  "Modules": [
+    {
+      "Name": "SimpleScreenMove",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
+}

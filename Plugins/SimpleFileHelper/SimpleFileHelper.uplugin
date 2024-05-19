@@ -1,0 +1,25 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SimpleFileHelper",
+	"Description": "You can read project files to blueprints .",
+	"Category": "RenZhai",
+	"CreatedBy": "Other Courses",
+	"CreatedByURL": "http://renzhai.net/",
+	"DocsURL": "https://zhuanlan.zhihu.com/p/60117613",
+	"MarketplaceURL": "",
+	"SupportURL": "https://www.aboutcg.org/courseDetails/764/introduce",
+	"EngineVersion": "5.2.0",
+	"CanContainContent": true,
+	"IsExperimentalVersion": false,
+	"IsBetaVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "SimpleFileHelper",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen"
+		}
+	]
+}
