@@ -18,9 +18,9 @@ class PROJECTMOBA_API AMobaGameState : public AGameStateBase
 public:
 	AMobaGameState();
 
+	const TArray<FCharacterTable*>* GetCharacterTables();
+	const FCharacterTable* GetCharacterTable(const int64& InID);
 	
-	//const FCharacterTable* GetCharacterTable(const int64& InID);
-	//const TArray<FCharacterTable*>* GetCharacterTables();
 protected:
 	UPROPERTY()
     TObjectPtr<UDataTable> CharacterTablePtr;

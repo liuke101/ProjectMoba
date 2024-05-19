@@ -3,6 +3,7 @@
 
 #include "Game/MobaGameMode.h"
 
+#include "Game/MobaGameState.h"
 #include "ProjectMoba/ProjectMobaPlayerController.h"
 
 AMobaGameMode::AMobaGameMode()
@@ -20,4 +21,6 @@ AMobaGameMode::AMobaGameMode()
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
 	}
+
+	GameStateClass = AMobaGameState::StaticClass();
 }

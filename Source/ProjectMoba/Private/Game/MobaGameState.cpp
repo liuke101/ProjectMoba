@@ -5,25 +5,37 @@
 
 AMobaGameState::AMobaGameState()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterTableObject(TEXT("DataTable'/Game/DataTable/CharacterTable.CharacterTable'"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterTableObject(TEXT("/Game/Table/DT_CharacterTable"));
 	
 	if (CharacterTableObject.Succeeded())
 	{
 		CharacterTablePtr = CharacterTableObject.Object;
 	}
 }
-//
-// const FCharacterTable* AMobaGameState::GetCharacterTable(const int64& InID)
-// {
-// }
-//
-// const TArray<FCharacterTable*>* AMobaGameState::GetCharacterTables()
-// {
-// 	if(!CacheCharacterTables.IsEmpty())
-// 	{
-// 		if(CharacterTablePtr)
-// 		{
-// 			
-// 		}
-// 	}
-// }
+
+const TArray<FCharacterTable*>* AMobaGameState::GetCharacterTables()
+{
+	if(CacheCharacterTables.IsEmpty())
+	{
+		if(CharacterTablePtr)
+		{
+			CharacterTablePtr->GetAllRows(TEXT("Character Table"), CacheCharacterTables);
+		}
+	}
+
+	return &CacheCharacterTables;
+}
+
+const FCharacterTable* AMobaGameState::GetCharacterTable(const int64& InID)
+{
+	for(auto &Tmp : *GetCharacterTables())
+	{
+		if(Tmp->CharacterID == InID)
+		{
+			return Tmp;
+		}
+	}
+
+	return nullptr;
+}
+

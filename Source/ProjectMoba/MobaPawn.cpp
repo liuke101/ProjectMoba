@@ -2,7 +2,9 @@
 
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Camera/CameraComponent.h"
+#include "Common/MethodUnit.h"
 #include "Components/BoxComponent.h"
+#include "Game/MobaGameState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "ProjectMoba/ProjectMobaCharacter.h"
 
@@ -47,10 +49,24 @@ void AMobaPawn::BeginPlay()
 
 	if(GetLocalRole() == ROLE_Authority) // 相当于 if (HasAuthority())
 	{
-		if(DefaultPawnClass)
+		// 从txt读取角色ID，然后根据角色ID生成角色
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 		{
-			MobaCharacter = GetWorld()->SpawnActor<AProjectMobaCharacter>(DefaultPawnClass, GetActorLocation(), GetActorRotation());
+			FString NumberString;
+			FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); //从txt读取角色ID
+			const int32 CharacterID = FCString::Atoi64(*NumberString);
+			if(const FCharacterTable* CharacterTable = MobaGameState->GetCharacterTable(CharacterID))
+			{
+				DefaultPawnClass = CharacterTable->CharacterClass;
+			}
+
+			if(DefaultPawnClass)
+			{
+				MobaCharacter = GetWorld()->SpawnActor<AProjectMobaCharacter>(DefaultPawnClass, GetActorLocation(), GetActorRotation());
+			}
 		}
+		
+		
 	}
 	
 }
