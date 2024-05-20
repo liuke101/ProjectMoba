@@ -8,4 +8,6 @@
 namespace MethodUnit
 {
 	AMobaGameState* GetMobaGameState(const UWorld* InWorld);
+
+	const FCharacterTable* GetCharacterTable(const UWorld* InWorld, int32 CharacterID);
 }

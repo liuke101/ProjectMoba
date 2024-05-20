@@ -5,12 +5,7 @@
 
 AMobaGameState::AMobaGameState()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> CharacterTableObject(TEXT("/Game/Table/DT_CharacterTable"));
-	
-	if (CharacterTableObject.Succeeded())
-	{
-		CharacterTablePtr = CharacterTableObject.Object;
-	}
+
 }
 
 const TArray<FCharacterTable*>* AMobaGameState::GetCharacterTables()
@@ -28,11 +23,11 @@ const TArray<FCharacterTable*>* AMobaGameState::GetCharacterTables()
 
 const FCharacterTable* AMobaGameState::GetCharacterTable(const int64& InID)
 {
-	for(auto &Tmp : *GetCharacterTables())
+	for(auto &Table : *GetCharacterTables())
 	{
-		if(Tmp->CharacterID == InID)
+		if(Table->CharacterID == InID)
 		{
-			return Tmp;
+			return Table;
 		}
 	}
 

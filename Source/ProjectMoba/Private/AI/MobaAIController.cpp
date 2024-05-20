@@ -1,12 +1,11 @@
 ﻿#include "AI/MobaAIController.h"
 
 #include "Character/MobaCharacter.h"
-#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AMobaAIController::AMobaAIController()
 {
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BT_AI(TEXT("/Game/ProjectMoba/Character/AI/BT_AI"));
-	BehaviorTree = BT_AI.Object;
+	
 }
 
 void AMobaAIController::BeginPlay()
@@ -28,6 +27,25 @@ void AMobaAIController::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 		MobaCharacter->NormalAttack(Target);
 	}
 }
+
+void AMobaAIController::SetTarget(AMobaCharacter* InTarget)
+{
+	GetBlackboardComponent()->SetValueAsObject("Target", InTarget);
+	Target = InTarget;
+}
+
+AMobaCharacter* AMobaAIController::FindTarget()
+{
+	return nullptr;
+}
+
+void AMobaAIController::MoveToLocation(const FVector& Destination)
+{
+	SetTarget(nullptr);
+	GetBlackboardComponent()->SetValueAsVector("Location", Destination);
+}
+
+
 
 
 

@@ -2,6 +2,7 @@
 
 #include "Character/MobaPawn.h"
 
+#include "AI/MobaAIController.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Character/MobaCharacter.h"
@@ -13,13 +14,6 @@
 
 AMobaPawn::AMobaPawn()
 {
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDown/Blueprints/BP_TopDownCharacter"));
-	if (PlayerPawnBPClass.Class != nullptr)
-	{
-		DefaultPawnClass = PlayerPawnBPClass.Class;
-	}
-	
-	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -27,21 +21,18 @@ AMobaPawn::AMobaPawn()
 	RootBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RootBox"));
 	RootComponent = RootBox;
 	
-	// Create a camera boom...
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
+	CameraBoom->SetUsingAbsoluteRotation(true); 
 	CameraBoom->TargetArmLength = 800.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
-	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
+	CameraBoom->bDoCollisionTest = false; 
 
-	// Create a camera...
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
+	TopDownCameraComponent->bUsePawnControlRotation = false; 
 	
-	// Activate ticking in order to update the cursor every frame.
+	// Tick
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
@@ -50,7 +41,7 @@ void AMobaPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(GetLocalRole() == ROLE_Authority) // 相当于 if (HasAuthority())
+	if(GetLocalRole() == ROLE_Authority) 
 	{
 		// 从txt读取角色ID，然后根据角色ID生成角色
 		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
@@ -58,14 +49,19 @@ void AMobaPawn::BeginPlay()
 			FString NumberString;
 			FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); //从txt读取角色ID
 			const int32 CharacterID = FCString::Atoi64(*NumberString);
+			
 			if(const FCharacterTable* CharacterTable = MobaGameState->GetCharacterTable(CharacterID))
 			{
-				DefaultPawnClass = CharacterTable->CharacterClass;
+				DefaultCharacterClass = CharacterTable->CharacterClass;
 			}
 
-			if(DefaultPawnClass)
+			if(DefaultCharacterClass)
 			{
-				MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultPawnClass, GetActorLocation(), GetActorRotation());
+				MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
+				if(MobaCharacter)
+				{
+					MobaCharacter->InitCharacterID(CharacterID);
+				}
 			}
 		}
 		
@@ -79,14 +75,13 @@ void AMobaPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		if(DefaultPawnClass)
+		if(DefaultCharacterClass)
 		{
 			if(MobaCharacter)
 			{
 				MobaCharacter->Destroy();
 				MobaCharacter = nullptr;
 			}
-			
 		}
 	}
 }
@@ -101,16 +96,31 @@ void AMobaPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-bool AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Validate(const FVector& Destination, AMobaPawn* TargetPawn)
+void AMobaPawn::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const
+{
+	if(MobaCharacter)
+	{
+		MobaCharacter->SkillAttack(SkillKey, InTarget);
+	}
+}
+
+bool AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Validate(const FVector& Destination, const APawn* TargetPawn)
 {
 	// 如果目标角色不为空，且目标角色不是自己则通过验证
-	return TargetPawn != nullptr && TargetPawn != this;
+	//return TargetPawn != nullptr && TargetPawn != MobaCharacter;
+	return true;
 }
 
 void AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Implementation(const FVector& Destination,
-                                                                       AMobaPawn* TargetPawn)
+                                                                       const APawn* TargetPawn)
 {
-	
+	if(MobaCharacter)
+	{
+		if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(MobaCharacter->GetController()))
+		{
+			MobaAIController->SetTarget(Cast<AMobaCharacter>(const_cast<APawn*>(TargetPawn)));
+		}
+	}
 }
 
 void AMobaPawn::CharacterMoveToOnServer_Implementation(const FVector& Destination)
@@ -118,9 +128,14 @@ void AMobaPawn::CharacterMoveToOnServer_Implementation(const FVector& Destinatio
 	if(MobaCharacter)
 	{
 		const float Distance = FVector::Dist(MobaCharacter->GetActorLocation(), Destination);
-		if(Distance>120.0f)
+		//打印Destination
+		if(Distance > 120.0f)
 		{
-			UAIBlueprintHelperLibrary::SimpleMoveToLocation(MobaCharacter->GetController(), Destination);
+			if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(MobaCharacter->GetController()))
+			{
+				MobaAIController->MoveToLocation(Destination);
+				///UAIBlueprintHelperLibrary::SimpleMoveToLocation(MobaAIController,Destination);
+			}
 		}
 	}
 }

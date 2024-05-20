@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AI/Task/BTTask_Attack.h"
+#include "AI/Task/BTTask_MobaAttack.h"
 
 #include "AI/MobaAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -9,17 +9,17 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "Character/MobaCharacter.h"
 
-EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTask_MobaAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	if(Blackboard_Actor.SelectedKeyType = UBlackboardKeyType_Object::StaticClass())
+	if(Blackboard_Target.SelectedKeyType = UBlackboardKeyType_Object::StaticClass())
 	{
 		if(UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent())
 		{
 			if(AMobaAIController* AIController = Cast<AMobaAIController>(OwnerComp.GetOwner()))
 			{
-				if(AMobaCharacter* Target = Cast<AMobaCharacter>(BlackboardComponent->GetValueAsObject(Blackboard_Actor.SelectedKeyName)))
+				if(AMobaCharacter* Target = Cast<AMobaCharacter>(BlackboardComponent->GetValueAsObject(Blackboard_Target.SelectedKeyName)))
 				{
 					AIController->NormalAttack(Target);
 					return EBTNodeResult::Succeeded;
@@ -30,12 +30,12 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	return EBTNodeResult::Failed;
 }
 
-void UBTTask_Attack::InitializeFromAsset(UBehaviorTree& Asset)
+void UBTTask_MobaAttack::InitializeFromAsset(UBehaviorTree& Asset)
 {
 	Super::InitializeFromAsset(Asset);
 
 	if(UBlackboardData* BBAsset = GetBlackboardAsset())
 	{
-		Blackboard_Actor.ResolveSelectedKey(*BBAsset);
+		Blackboard_Target.ResolveSelectedKey(*BBAsset);
 	}
 }

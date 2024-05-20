@@ -4,13 +4,12 @@
 #include "Character/MobaPlayerController.h"
 
 #include "GameFramework/Pawn.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
-#include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Character/MobaCharacter.h"
 #include "Character/MobaPawn.h"
 
 #include "GameFramework/HUD.h"
@@ -21,14 +20,7 @@
 AMobaPlayerController::AMobaPlayerController()
 {
 	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Default;
-	CachedDestination = FVector::ZeroVector;
-	FollowTime = 0.f;
-}
-
-void AMobaPlayerController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
 void AMobaPlayerController::PlayerTick(float DeltaTime)
@@ -37,6 +29,11 @@ void AMobaPlayerController::PlayerTick(float DeltaTime)
 
 	if(GetLocalRole() == ROLE_AutonomousProxy)
 	{
+		if(bMoveToMouseCursor)
+		{
+			MoveToMouseCursor();
+		}
+		
 		//屏幕移动插件
 		FScreenMoveUnits().ListenScreenMove(this, 10.0f);
 	}
@@ -61,25 +58,23 @@ void AMobaPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AMobaPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &AMobaPlayerController::OnSetDestinationTriggered);
+		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AMobaPlayerController::OnSetDestinationPressed);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AMobaPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AMobaPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(W_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnWPressed);
+		EnhancedInputComponent->BindAction(W_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnWReleased);
+		EnhancedInputComponent->BindAction(E_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnEPressed);
+		EnhancedInputComponent->BindAction(E_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnEReleased);
+		EnhancedInputComponent->BindAction(R_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnRPressed);
+		EnhancedInputComponent->BindAction(R_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnRReleased);
+		EnhancedInputComponent->BindAction(F_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnFPressed);
+		EnhancedInputComponent->BindAction(F_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnFReleased);
+		EnhancedInputComponent->BindAction(Space_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnSpacePressed);
+		EnhancedInputComponent->BindAction(Space_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnSpaceReleased);
 	}
 }
 
-void AMobaPlayerController::OnInputStarted()
+void AMobaPlayerController::MoveToMouseCursor()
 {
-	StopMovement();
-}
-
-// Triggered every frame when the input is held down
-void AMobaPlayerController::OnSetDestinationTriggered()
-{
-	// We flag that the input is being pressed
-	FollowTime += GetWorld()->GetDeltaSeconds();
-
-	//if(GetLocalRole()==ROLE_AutonomousProxy)
 	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
 	{
 		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
@@ -88,51 +83,120 @@ void AMobaPlayerController::OnSetDestinationTriggered()
 			FVector2D MousePosition;
 			if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
 			{
-				// MousePosition为客户端鼠标在屏幕上的位置，需要转换成世界坐标传给服务端(参考GetHitResultAtScreenPosition函数的实现)
-				if (GetHUD() != NULL && GetHUD()->GetHitBoxAtCoordinates(MousePosition, true))
+				
+				if (GetHUD() != nullptr && GetHUD()->GetHitBoxAtCoordinates(MousePosition, true))
 				{
-					return ;
+					return;
 				}
 
+				// MousePosition为客户端鼠标在屏幕上的位置，需要转换成世界坐标传给服务端(参考GetHitResultAtScreenPosition函数的实现)
 				FVector WorldOrigin;
 				FVector WorldDirection;
 				if (UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldOrigin, WorldDirection) == true)
 				{
 					VerifyMouseWorldPositionClickOnServer(WorldOrigin, WorldDirection);
-					//MobaPawn->CharacterMoveToOnServer(Hit.Location);
-					//CachedDestination = Hit.Location;
 				}
 			}
 		}
 	}
 }
 
+void AMobaPlayerController::OnSetDestinationPressed()
+{
+	bMoveToMouseCursor = true;
+	// 点击特效
+	if(GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		SpawnNavigateClickFX();
+	}
+}
+
 void AMobaPlayerController::OnSetDestinationReleased()
 {
-	if(GetLocalRole()==ROLE_AutonomousProxy)
+	bMoveToMouseCursor = false;
+}
+
+
+void AMobaPlayerController::OnWPressed_Implementation()
+{
+	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
 	{
-		// If it was a short press
-		if (FollowTime <= ShortPressThreshold)
+		MobaPawn->SkillAttack(ESkillKey::ESK_W, nullptr);
+	}
+}
+
+void AMobaPlayerController::OnWReleased()
+{
+}
+
+void AMobaPlayerController::OnEPressed_Implementation()
+{
+	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
+	{
+		MobaPawn->SkillAttack(ESkillKey::ESK_E, nullptr);
+	}
+}
+
+void AMobaPlayerController::OnEReleased()
+{
+}
+
+void AMobaPlayerController::OnRPressed_Implementation()
+{
+	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
+	{
+		MobaPawn->SkillAttack(ESkillKey::ESK_R, nullptr);
+	}
+}
+
+void AMobaPlayerController::OnRReleased()
+{
+}
+
+void AMobaPlayerController::OnFPressed_Implementation()
+{
+	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
+	{
+		MobaPawn->SkillAttack(ESkillKey::ESK_F, nullptr);
+	}
+}
+
+void AMobaPlayerController::OnFReleased()
+{
+}
+
+void AMobaPlayerController::OnSpacePressed_Implementation()
+{
+	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
+	{
+		MobaPawn->SkillAttack(ESkillKey::ESK_Space, nullptr);
+	}
+}
+
+void AMobaPlayerController::OnSpaceReleased()
+{
+}
+
+void AMobaPlayerController::SpawnNavigateClickFX()
+{
+	if(FXCursor)
+	{
+		FHitResult HitResult;
+		GetHitResultUnderCursor(ECC_Visibility, true, HitResult);
+		if(HitResult.bBlockingHit)
 		{
-			// We move there and spawn some particles
-			Cast<AMobaPawn>(GetPawn())->CharacterMoveToOnServer(CachedDestination); //Server RPC
-			
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
-		
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, HitResult.ImpactPoint, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 		}
 	}
-
-	FollowTime = 0.f;
 }
 
 bool AMobaPlayerController::VerifyMouseWorldPositionClickOnServer_Validate(const FVector& WorldOrigin,
-	const FVector& WorldDirection)
+                                                                           const FVector& WorldDirection)
 {
 	return true;
 }
 
-void AMobaPlayerController::VerifyMouseWorldPositionClickOnServer_Implementation(const FVector& WorldOrigin,
-                                                                                        const FVector& WorldDirection)
+void AMobaPlayerController::VerifyMouseWorldPositionClickOnServer_Implementation(const FVector& WorldOrigin, const FVector& WorldDirection)
 {
 	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
 	{
@@ -147,13 +211,18 @@ void AMobaPlayerController::VerifyMouseWorldPositionClickOnServer_Implementation
 		{
 			if(HitResult.bBlockingHit) // 检测到就移动攻击
 			{
-				MobaPawn->CharacterMoveToTargetWithAttackOnServer(HitResult.ImpactPoint, Cast<AMobaPawn>(HitResult.GetActor()));
+				MobaPawn->CharacterMoveToTargetWithAttackOnServer(HitResult.ImpactPoint, Cast<APawn>(HitResult.GetActor()));
+				return;
 			}
 		}
 
 		if(TracePos(ECC_Visibility))
 		{
-			MobaPawn->CharacterMoveToOnServer(HitResult.ImpactPoint);
+			if(HitResult.bBlockingHit)
+			{
+				MobaPawn->CharacterMoveToOnServer(HitResult.ImpactPoint);
+				return;
+			}
 		}
 	}
 

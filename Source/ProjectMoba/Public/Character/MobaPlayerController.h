@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
-#include "InputActionValue.h"
 #include "MobaPlayerController.generated.h"
 
-/** Forward declaration to improve compiling times */
+class UInputAction;
+class UInputMappingContext;
 class UNiagaraSystem;
 
 UCLASS()
@@ -19,46 +19,73 @@ class AMobaPlayerController : public APlayerController
 public:
 	AMobaPlayerController();
 
-	virtual void Tick(float DeltaTime) override;
     virtual void PlayerTick(float DeltaTime) override;
-	/** Time Threshold to know if it was a short press */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	float ShortPressThreshold;
-
-	/** FX Class that we will spawn when clicking */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UNiagaraSystem* FXCursor;
-
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
-	
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* SetDestinationClickAction;
 
 protected:
-	/** True if the controlled character should navigate to the mouse cursor. */
-	uint32 bMoveToMouseCursor : 1;
-
+	virtual void BeginPlay() override; // To add mapping context
 	virtual void SetupInputComponent() override;
+
+public:
+	/** MappingContext */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputMappingContext* DefaultMappingContext = nullptr;
 	
-	// To add mapping context
-	virtual void BeginPlay();
-	
+	/** Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SetDestinationClickAction = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* W_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* E_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* R_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* F_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* Space_Action;
+
+protected:
+	/** 如果Character应该移动到鼠标光标. */
+	bool bMoveToMouseCursor = false;
+
+	/** 在PlayerTick中由本地客户端调用，导航到鼠标光标位置 */
+	void MoveToMouseCursor();
+
 	/** Input handlers for SetDestination action. */
-	void OnInputStarted();
-	void OnSetDestinationTriggered();
+	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
+
+	UFUNCTION(Server, Reliable)
+	void OnWPressed();
+	void OnWReleased();
+
+	UFUNCTION(Server, Reliable)
+	void OnEPressed();
+	void OnEReleased();
+
+	UFUNCTION(Server, Reliable)
+	void OnRPressed();
+	void OnRReleased();
+
+	UFUNCTION(Server, Reliable)
+	void OnFPressed();
+	void OnFReleased();
+	
+	UFUNCTION(Server, Reliable)
+	void OnSpacePressed();
+	void OnSpaceReleased();
+	
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void VerifyMouseWorldPositionClickOnServer(const FVector& WorldOrigin, const FVector& WorldDirection);
 
-	
+	void SpawnNavigateClickFX();
 private:
-	FVector CachedDestination;
+	/** 点击粒子特效 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|FX", meta = (AllowPrivateAccess = "true"))
+	UNiagaraSystem* FXCursor = nullptr;
 	
-	float FollowTime; // For how long it has been pressed
 };
 
 

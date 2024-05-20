@@ -2,6 +2,8 @@
 
 
 #include "Character/MobaCharacter.h"
+
+#include "Common/MethodUnit.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -10,6 +12,9 @@
 #include "Engine/World.h"
 
 AMobaCharacter::AMobaCharacter()
+	: bAttacking(false),
+	  AttackCount(0),
+	  CharacterID(INDEX_NONE)
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -17,7 +22,7 @@ AMobaCharacter::AMobaCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
@@ -26,26 +31,94 @@ AMobaCharacter::AMobaCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
-void AMobaCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if(GetLocalRole()==ROLE_AutonomousProxy)
-	{
-		SpawnDefaultController();
-	}
-}
-
 void AMobaCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+void AMobaCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if(GetLocalRole()==ROLE_Authority)
+	{
+		SpawnDefaultController();
+	}
 }
 
 void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 {
 	if(InTarget.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NormalAttack"));
+		if(const FCharacterTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterTable(CharacterID))
+		{
+			if(AttackCount<CharacterTable->NormalAttackMontages.Num())
+			{
+				if(UAnimMontage* Montage = CharacterTable->NormalAttackMontages[AttackCount])
+				{
+					if(AttackCount == CharacterTable->NormalAttackMontages.Num()-1)
+					{
+						AttackCount = 0;
+					}
+					else
+					{
+						AttackCount++;
+					}
+
+					//广播动画
+					MultiCastPlayerAnimMontage(Montage);
+				}
+			}
+		}
+	}
+}
+
+void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget)
+{
+	if(const FCharacterTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterTable(CharacterID))
+	{
+		if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
+		{
+			//广播动画
+			MultiCastPlayerAnimMontage(Montage);
+		}
+	}
+}
+
+UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
+{
+	if(const FCharacterTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterTable(CharacterID))
+	{
+		switch (SkillKey)
+		{
+		case ESkillKey::ESK_W:
+			return CharacterTable->W_SkillMontage;
+		case ESkillKey::ESK_E:
+			return CharacterTable->E_SkillMontage;
+		case ESkillKey::ESK_R:
+			return CharacterTable->R_SkillMontage;
+		case ESkillKey::ESK_F:
+			return CharacterTable->F_SkillMontage;
+		case ESkillKey::ESK_Space:
+			return CharacterTable->Space_SkillMontage;
+		}
+	}
+	return nullptr;
+}
+
+void AMobaCharacter::InitCharacterID(const int64& InCharacterID)
+{
+	CharacterID = InCharacterID;
+}
+
+
+void AMobaCharacter::MultiCastPlayerAnimMontage_Implementation(UAnimMontage* InAnimMontage, float InPlayRate,
+                                                               FName StartSectionName)
+{
+	if(InAnimMontage)
+	{
+		PlayAnimMontage(InAnimMontage, InPlayRate, StartSectionName);
+		//是否完成播放
+		
 	}
 }
 

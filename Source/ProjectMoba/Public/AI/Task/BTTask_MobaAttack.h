@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_Attack.generated.h"
+#include "BTTask_MobaAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UBTTask_Attack : public UBTTaskNode
+class PROJECTMOBA_API UBTTask_MobaAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
 
@@ -19,5 +19,5 @@ public:
 	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
 
 	UPROPERTY(EditAnywhere, Category = "Blackboard")
-	FBlackboardKeySelector Blackboard_Actor;
+	FBlackboardKeySelector Blackboard_Target;
 };

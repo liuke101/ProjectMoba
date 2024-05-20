@@ -4,8 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "ProjectMoba/MobaType.h"
 #include "MobaPawn.generated.h"
 
+class UNiagaraSystem;
+class UBoxComponent;
+class USpringArmComponent;
+class UCameraComponent;
 class AMobaCharacter;
 
 UCLASS()
@@ -26,33 +31,32 @@ public:
 
 public:
 	/** 相机与角色解耦 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Classes)
-	TSubclassOf<APawn> DefaultPawnClass;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Class")
+	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
-	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
+	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
+	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	
 	UFUNCTION(Server, Reliable)
 	void CharacterMoveToOnServer(const FVector& Destination);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, AMobaPawn* TargetPawn);
+	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, const APawn* TargetPawn);
 
+	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const;
 protected:
 	UPROPERTY() // 防止被GC回收
 	AMobaCharacter* MobaCharacter;
-	
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* RootBox;
+	UBoxComponent* RootBox;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* TopDownCameraComponent;
+	UCameraComponent* TopDownCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
-
+	USpringArmComponent* CameraBoom;
 	
-
 	
 };

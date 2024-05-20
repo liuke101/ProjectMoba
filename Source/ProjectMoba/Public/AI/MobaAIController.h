@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Character/MobaCharacter.h"
 #include "MobaAIController.generated.h"
 
 class AMobaCharacter;
@@ -20,11 +21,13 @@ protected:
 
 public:
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
-	
+	void SetTarget(AMobaCharacter* InTarget);
+	AMobaCharacter* FindTarget();
+	void MoveToLocation(const FVector& Destination);
 protected:
 	TWeakObjectPtr<AMobaCharacter> Target;
 
 private:
-	UPROPERTY()
-	UBehaviorTree* BehaviorTree;
+	UPROPERTY(EditDefaultsOnly, Category = "BehaviorTree")
+	UBehaviorTree* BehaviorTree = nullptr;
 };

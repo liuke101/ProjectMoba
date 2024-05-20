@@ -22,7 +22,7 @@ public:
 	const FCharacterTable* GetCharacterTable(const int64& InID);
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly, Category = "CharacterTable")
     TObjectPtr<UDataTable> CharacterTablePtr;
 	
 private:
