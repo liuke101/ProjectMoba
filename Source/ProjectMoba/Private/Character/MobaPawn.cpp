@@ -128,13 +128,12 @@ void AMobaPawn::CharacterMoveToOnServer_Implementation(const FVector& Destinatio
 	if(MobaCharacter)
 	{
 		const float Distance = FVector::Dist(MobaCharacter->GetActorLocation(), Destination);
-		//打印Destination
+		
 		if(Distance > 120.0f)
 		{
 			if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(MobaCharacter->GetController()))
 			{
 				MobaAIController->MoveToLocation(Destination);
-				///UAIBlueprintHelperLibrary::SimpleMoveToLocation(MobaAIController,Destination);
 			}
 		}
 	}

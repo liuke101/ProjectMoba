@@ -22,7 +22,9 @@ AMobaCharacter::AMobaCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true; 
+	//为了使用行为树的Rotate To Face BB Entry节点，旋转属性设置如下
+	GetCharacterMovement()->bOrientRotationToMovement = false;    //必须关闭
+	GetCharacterMovement()->bUseControllerDesiredRotation = true; //必须开启
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
