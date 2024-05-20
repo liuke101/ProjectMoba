@@ -3,12 +3,13 @@
 
 #include "Game/MobaGameMode.h"
 
+#include "Character/MobaPlayerController.h"
 #include "Game/MobaGameState.h"
-#include "ProjectMoba/ProjectMobaPlayerController.h"
+
 
 AMobaGameMode::AMobaGameMode()
 {
-	PlayerControllerClass = AProjectMobaPlayerController::StaticClass();
+	PlayerControllerClass = AMobaPlayerController::StaticClass();
 
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/TopDown/Blueprints/BP_MobaPlayer"));
 	if (PlayerPawnBPClass.Class != nullptr)
