@@ -27,8 +27,11 @@ private:
 	TObjectPtr<UImage> MiniMapImage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|MiniMap")
-	TSubclassOf<ASceneCapture2D> CapturClass;
+	TSubclassOf<ASceneCapture2D> SceneCapture2DClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|MiniMap")
 	TScriptInterface<UMaterialInterface> MiniMapMaterial;
+
+	
+	FVector2D MapSize;
 };
