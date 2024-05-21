@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "MobaGameMode.generated.h"
 
+class AMobaGameState;
 /**
  * 
  */
@@ -13,5 +14,30 @@ UCLASS()
 class PROJECTMOBA_API AMobaGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	AMobaGameMode();
 	
+	virtual void Tick(float DeltaSeconds) override;
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	UPROPERTY(Transient)
+    TObjectPtr<AMobaGameState> MobaGameState;
+	
+	/** 服务器调用所有PlayerController */
+	template<class T>
+	void ServerCallAllPlayerController(TFunction<void(T*)> InImplement);
+
+	/** 服务器调用所有PlayerController控制的Pawn */
+	template<class T>
+	void ServerCallAllPlayer(TFunction<void(T*)> InImplement);
+
+	/** 服务器调用所有CharacterAI */
+	template<class T>
+	void ServerCallAllCharacterAI(TFunction<void(T*)> InImplement);
 };
+
+

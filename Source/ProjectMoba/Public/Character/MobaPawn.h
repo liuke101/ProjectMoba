@@ -34,8 +34,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Class")
 	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
-	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
-	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	UPROPERTY() // 防止被GC回收
+	AMobaCharacter* MobaCharacter;
 	
 	UFUNCTION(Server, Reliable)
 	void CharacterMoveToOnServer(const FVector& Destination);
@@ -44,10 +44,9 @@ public:
 	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, const APawn* TargetPawn);
 
 	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const;
-protected:
-	UPROPERTY() // 防止被GC回收
-	AMobaCharacter* MobaCharacter;
 
+	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
+	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* RootBox;

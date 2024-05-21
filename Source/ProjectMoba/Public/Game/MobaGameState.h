@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
-#include "Table/CharacterTable.h"
 #include "MobaGameState.generated.h"
 
-struct FCharacterTable;
+struct FPlayerLocation;
+class UDataTable;
+struct FCharacterAttributeTable;
+struct FCharacterAssetTable;
 /**
  * 
  */
@@ -18,13 +20,31 @@ class PROJECTMOBA_API AMobaGameState : public AGameStateBase
 public:
 	AMobaGameState();
 
-	const TArray<FCharacterTable*>* GetCharacterTables();
-	const FCharacterTable* GetCharacterTable(const int64& InID);
-	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "CharacterTable")
-    TObjectPtr<UDataTable> CharacterTablePtr;
+	/** 复制 */
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+public:
+
+	const TArray<FCharacterAssetTable*>* GetCharacterAssetTables();
+	const TArray<FCharacterAttributeTable*>* GetCharacterAttributeTables();
+	const FCharacterAssetTable* GetCharacterAssetTable(const int32& InID);
+	const FCharacterAttributeTable* GetCharacterAttributeTable(const int32& InID);
+
+	void UpdateCharacterLocation(const int32 InID, const FVector& InLocation);
+	void AddCharacterLocation(const int32 InID, const FVector& InLocation);
 	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool GetCharacterLocation(const int32 InID, FVector& OutLocation) const;
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+    TObjectPtr<UDataTable> CharacterAssetTablePtr;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	TObjectPtr<UDataTable> CharacterAttributeTablePtr;
 private:
-	TArray<FCharacterTable*> CacheCharacterTables; //因为FCharacterTable有反射， 所以不能使用前置声明，直接include
+	TArray<FCharacterAssetTable*> CacheCharacterAssetTables; //因为FCharacterTable有反射， 所以不能使用前置声明，直接include????对吗??
+	TArray<FCharacterAttributeTable*> CacheCharacterAttributeTables;
+
+	UPROPERTY(Replicated)
+	TArray<FPlayerLocation> PlayerLocations; 
 };

@@ -3,13 +3,13 @@
 #include "Character/MobaPawn.h"
 
 #include "AI/MobaAIController.h"
-#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Character/MobaCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Components/BoxComponent.h"
 #include "Game/MobaGameState.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Table/CharacterAssetTable.h"
 
 
 AMobaPawn::AMobaPawn()
@@ -48,9 +48,9 @@ void AMobaPawn::BeginPlay()
 		{
 			FString NumberString;
 			FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); //从txt读取角色ID
-			const int32 CharacterID = FCString::Atoi64(*NumberString);
+			const int32 CharacterID = FCString::Atoi(*NumberString);
 			
-			if(const FCharacterTable* CharacterTable = MobaGameState->GetCharacterTable(CharacterID))
+			if(const FCharacterAssetTable* CharacterTable = MobaGameState->GetCharacterAssetTable(CharacterID))
 			{
 				DefaultCharacterClass = CharacterTable->CharacterClass;
 			}

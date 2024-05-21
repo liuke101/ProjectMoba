@@ -27,11 +27,11 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastPlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
 
-	void InitCharacterID(const int64& InCharacterID);
-	
+	void InitCharacterID(const int32& InCharacterID);
+	FORCEINLINE int32 GetCharacterID() const { return CharacterID; }
 private:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
-	int64 CharacterID;
+	int32 CharacterID;
 };
 

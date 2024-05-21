@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Table/CharacterAssetTable.h"
 
 AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
@@ -43,7 +44,7 @@ void AMobaCharacter::BeginPlay()
 	Super::BeginPlay();
 	if(GetLocalRole()==ROLE_Authority)
 	{
-		SpawnDefaultController();
+		SpawnDefaultController(); //生成AIController
 	}
 }
 
@@ -51,7 +52,7 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 {
 	if(InTarget.IsValid())
 	{
-		if(const FCharacterTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterTable(CharacterID))
+		if(const FCharacterAssetTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetTable(CharacterID))
 		{
 			if(AttackCount<CharacterTable->NormalAttackMontages.Num())
 			{
@@ -76,7 +77,7 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 
 void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget)
 {
-	if(const FCharacterTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterTable(CharacterID))
+	if(const FCharacterAssetTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetTable(CharacterID))
 	{
 		if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
 		{
@@ -88,7 +89,7 @@ void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharact
 
 UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
 {
-	if(const FCharacterTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterTable(CharacterID))
+	if(const FCharacterAssetTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetTable(CharacterID))
 	{
 		switch (SkillKey)
 		{
@@ -107,7 +108,7 @@ UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
 	return nullptr;
 }
 
-void AMobaCharacter::InitCharacterID(const int64& InCharacterID)
+void AMobaCharacter::InitCharacterID(const int32& InCharacterID)
 {
 	CharacterID = InCharacterID;
 }

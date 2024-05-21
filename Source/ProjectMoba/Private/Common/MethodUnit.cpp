@@ -12,11 +12,11 @@ AMobaGameState* MethodUnit::GetMobaGameState(const UWorld* InWorld)
 	return nullptr;
 }
 
-const FCharacterTable* MethodUnit::GetCharacterTable(const UWorld* InWorld, int32 CharacterID)
+const FCharacterAssetTable* MethodUnit::GetCharacterTable(const UWorld* InWorld, int32 CharacterID)
 {
 	if(AMobaGameState* MobaGameState = GetMobaGameState(InWorld))
 	{
-		return MobaGameState->GetCharacterTable(CharacterID);
+		return MobaGameState->GetCharacterAssetTable(CharacterID);
 	}
 	return nullptr;
 }
