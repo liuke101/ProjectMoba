@@ -28,6 +28,7 @@ public:
 	/** CharacterAsset */
 	const TArray<FCharacterAsset*>* GetCharacterAssetsTemplate();
 	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 InCharacterID);
+	const FCharacterAsset* GetCharacterAssetFromPlayerID(const int64 InPlayerID);
 	/** CharacterAttribute */
 	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 InCharacterID);
@@ -44,6 +45,9 @@ public:
 	bool GetCharacterLocation(const int64 InPlayerID, FVector& OutLocation) const;
 
 	FORCEINLINE const TArray<FPlayerLocation>& GetPlayerLocations() const { return PlayerLocations; }
+
+	/** ID */
+	int32 GetCharacterIDFromPlayerID(const int64 InPlayerID);
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
     TObjectPtr<UDataTable> DT_CharacterAsset;

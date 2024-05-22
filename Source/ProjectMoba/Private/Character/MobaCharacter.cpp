@@ -67,14 +67,13 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 {
 	if(InTarget.IsValid())
 	{
-		//TODO:BUG 
-		if(const FCharacterAsset* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetFromCharacterID(PlayerID))
+		if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
 		{
-			if(AttackCount<CharacterTable->NormalAttackMontages.Num())
+			if(AttackCount<CharacterAsset->NormalAttackMontages.Num())
 			{
-				if(UAnimMontage* Montage = CharacterTable->NormalAttackMontages[AttackCount])
+				if(UAnimMontage* Montage = CharacterAsset->NormalAttackMontages[AttackCount])
 				{
-					if(AttackCount == CharacterTable->NormalAttackMontages.Num()-1)
+					if(AttackCount == CharacterAsset->NormalAttackMontages.Num()-1)
 					{
 						AttackCount = 0;
 					}
@@ -93,32 +92,29 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 
 void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget)
 {
-	if(const FCharacterAsset* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetFromCharacterID(PlayerID))
+	if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
 	{
-		if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
-		{
-			//广播动画
-			MultiCastPlayerAnimMontage(Montage);
-		}
+		//广播动画
+		MultiCastPlayerAnimMontage(Montage);
 	}
 }
 
 UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
 {
-	if(const FCharacterAsset* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetFromCharacterID(PlayerID))
+	if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
 	{
 		switch (SkillKey)
 		{
 		case ESkillKey::ESK_W:
-			return CharacterTable->W_SkillMontage;
+			return CharacterAsset->W_SkillMontage;
 		case ESkillKey::ESK_E:
-			return CharacterTable->E_SkillMontage;
+			return CharacterAsset->E_SkillMontage;
 		case ESkillKey::ESK_R:
-			return CharacterTable->R_SkillMontage;
+			return CharacterAsset->R_SkillMontage;
 		case ESkillKey::ESK_F:
-			return CharacterTable->F_SkillMontage;
+			return CharacterAsset->F_SkillMontage;
 		case ESkillKey::ESK_Space:
-			return CharacterTable->Space_SkillMontage;
+			return CharacterAsset->Space_SkillMontage;
 		}
 	}
 	return nullptr;
@@ -144,7 +140,6 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 	{
 		MobaGameState->Add_PlayerID_To_CharacterAttribute(InPlayerID, InCharacterID);
 		MobaGameState->AddCharacterLocation(InPlayerID, GetActorLocation());
-
 		
 		// 使用计时器短暂延迟，保证客户端生成角色后再同步状态栏信息
 		GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaCharacter::InitCharacter, 0.5f, false);

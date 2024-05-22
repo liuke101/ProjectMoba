@@ -21,6 +21,15 @@ const FCharacterAsset* MethodUnit::GetCharacterAssetFromCharacterID(const UWorld
 	return nullptr;
 }
 
+const FCharacterAsset* MethodUnit::GetCharacterAssetFromPlayerID(const UWorld* InWorld, int64 PlayerID)
+{
+	if(AMobaGameState* MobaGameState = GetMobaGameState(InWorld))
+	{
+		return MobaGameState->GetCharacterAssetFromPlayerID(PlayerID);
+	}
+	return nullptr;
+}
+
 
 const FCharacterAttribute* MethodUnit::GetCharacterAttributeFromCharacterID(const UWorld* InWorld, const int32 CharacterID)
 {

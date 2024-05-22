@@ -66,6 +66,19 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const in
 	return nullptr;
 }
 
+const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64 InPlayerID)
+{
+	for(auto Asset : *GetCharacterAssetsTemplate())
+	{
+		if(Asset->CharacterID == GetCharacterIDFromPlayerID(InPlayerID))
+		{
+			return Asset;
+		}
+	}
+
+	return nullptr;
+}
+
 const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(const int32 InCharacterID)
 {
 	for(auto Attribute : *GetCharacterAttributesTemplate())
@@ -126,5 +139,14 @@ bool AMobaGameState::GetCharacterLocation(const int64 InPlayerID, FVector& OutLo
 		}
 	}
 	return false;
+}
+
+int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 InPlayerID) 
+{
+	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttributeFromPlayerID(InPlayerID))
+	{
+		return CharacterAttribute->CharacterID;
+	}
+	return INDEX_NONE;
 }
 
