@@ -7,7 +7,6 @@ class ASceneCapture2D;
 
 namespace RenderingUtils
 {
-	/** 捕获实时MiniMap */
 	struct FScreenShot
 	{
 		FScreenShot(
@@ -31,6 +30,7 @@ namespace RenderingUtils
 		UObject* Outer;
 		FString Filename;
 	};
-
+	
+	/** 捕获实时MiniMap */
 	ASceneCapture2D* SpawnSceneCapture2D(UWorld* World, UClass* SceneCaptureClass, FVector2D& MapSize, float Life = 0.f);
 }

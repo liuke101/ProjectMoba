@@ -13,6 +13,6 @@ struct FMobaTableBase : public FTableRowBase
 
 	FMobaTableBase();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
 	int32 CharacterID;
 };

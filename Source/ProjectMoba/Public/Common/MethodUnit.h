@@ -9,5 +9,10 @@ namespace MethodUnit
 {
 	AMobaGameState* GetMobaGameState(const UWorld* InWorld);
 
-	const FCharacterAssetTable* GetCharacterTable(const UWorld* InWorld, int32 CharacterID);
+	const FCharacterAsset* GetCharacterAssetFromCharacterID(const UWorld* InWorld, int32 CharacterID);
+	
+	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const UWorld* InWorld, int32 CharacterID);
+	const FCharacterAttribute* GetCharacterAttributeFromPlayerID(const UWorld* InWorld, int64 PlayerID);
+
+	
 }

@@ -75,12 +75,13 @@ namespace RenderingUtils
 			{
 				if (ALandscape* BigMap = *It)
 				{
-					//都是正方形
+					//正方形
 					FVector BigMapSize = BigMap->GetActorScale3D();
 					MapSize = FVector2D(BigMapSize.X * 40, BigMapSize.Y * 40);
 
 					FVector CenterPoint = FVector(MapSize.X / 2);
 
+					//正方形中心点上方生成SceneCapture2D
 					if (ASceneCapture2D* NewCarma = World->SpawnActor<ASceneCapture2D>(SceneCaptureClass, CenterPoint, FRotator(-90.f, 0.f, 0.f)))
 					{
 						if (Life != 0.f)

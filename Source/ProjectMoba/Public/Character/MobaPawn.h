@@ -44,9 +44,15 @@ public:
 	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, const APawn* TargetPawn);
 
 	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const;
-
+	
+	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
+	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
+	
 	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+protected:
+	int64 PlayerID;
+	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* RootBox;

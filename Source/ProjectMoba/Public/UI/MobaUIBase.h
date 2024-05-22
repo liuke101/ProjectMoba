@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MobaUIBase.generated.h"
 
+class AMobaHUD;
 /**
  * 
  */
@@ -13,4 +14,7 @@ UCLASS()
 class PROJECTMOBA_API UMobaUIBase : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	AMobaHUD* GetMobaHUD() const;
 };

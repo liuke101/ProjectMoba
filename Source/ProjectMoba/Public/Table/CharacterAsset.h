@@ -4,34 +4,34 @@
 
 #include "CoreMinimal.h"
 #include "MobaTableBase.h"
-#include "CharacterAssetTable.generated.h"
+#include "CharacterAsset.generated.h"
 
 USTRUCT(BlueprintType)
-struct FCharacterAssetTable : public FMobaTableBase
+struct FCharacterAsset : public FMobaTableBase
 {
 	GENERATED_USTRUCT_BODY()
 
-	FCharacterAssetTable();
+	FCharacterAsset();
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
 	TSubclassOf<APawn> CharacterClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Attack Montage")
 	TArray<TObjectPtr<UAnimMontage>> NormalAttackMontages;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
 	TObjectPtr<UAnimMontage> W_SkillMontage;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
 	TObjectPtr<UAnimMontage> E_SkillMontage;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
 	TObjectPtr<UAnimMontage> R_SkillMontage;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
 	TObjectPtr<UAnimMontage> F_SkillMontage;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
 	TObjectPtr<UAnimMontage> Space_SkillMontage;
 	
 };

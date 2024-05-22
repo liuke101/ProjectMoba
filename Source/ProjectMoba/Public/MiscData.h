@@ -11,19 +11,19 @@ struct FPlayerLocation
 	GENERATED_BODY()
 
 	FPlayerLocation()
-		: CharacterID(INDEX_NONE),
+		: playerID(INDEX_NONE),
 		  Location(FVector::ZeroVector)
 	{
 	};
 
-	FPlayerLocation(const int32 InCharacterID, const FVector& InLocation)
-		: CharacterID(InCharacterID),
+	FPlayerLocation(const int64 InplayerID, const FVector& InLocation)
+		: playerID(InplayerID),
 		  Location(InLocation)
 	{
 	}
 
 	UPROPERTY()
-	int32 CharacterID;
+	int64 playerID;
 
 	UPROPERTY()
 	FVector Location;

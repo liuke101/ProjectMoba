@@ -30,7 +30,7 @@ void AMobaGameMode::Tick(float DeltaSeconds)
 	{
 		ServerCallAllCharacterAI<AMobaCharacter>([&](const AMobaCharacter* MobaCharacter)
 		{
-			MobaGameState->UpdateCharacterLocation(MobaCharacter->GetCharacterID(), MobaCharacter->GetActorLocation());
+			MobaGameState->UpdateCharacterLocation(MobaCharacter->GetPlayerID(), MobaCharacter->GetActorLocation());
 		});
 	}
 }

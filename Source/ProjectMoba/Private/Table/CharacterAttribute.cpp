@@ -1,14 +1,14 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Table/CharacterAttributeTable.h"
+#include "Table/CharacterAttribute.h"
 
-FCharacterAttributeTable::FCharacterAttributeTable()
+FCharacterAttribute::FCharacterAttribute()
 {
-	InitAttributes();
+	InitAttribute();
 }
 
-void FCharacterAttributeTable::InitAttributes()
+void FCharacterAttribute::InitAttribute()
 {
 	Level = 1;
 	MaxHealth = 100.0f;
@@ -27,5 +27,5 @@ void FCharacterAttributeTable::InitAttributes()
 	AttackSpeed = 0.8f;
 	MaxEXP = 100.0f;
 	CurrentEXP = 0.0f;
-	
+	AttackRange = 1000.0f;
 }

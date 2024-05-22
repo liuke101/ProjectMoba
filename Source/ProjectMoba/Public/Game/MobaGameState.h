@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+#include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
 struct FPlayerLocation;
 class UDataTable;
-struct FCharacterAttributeTable;
-struct FCharacterAssetTable;
+struct FCharacterAsset;
 /**
  * 
  */
@@ -23,28 +23,39 @@ public:
 protected:
 	/** 复制 */
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 public:
 
-	const TArray<FCharacterAssetTable*>* GetCharacterAssetTables();
-	const TArray<FCharacterAttributeTable*>* GetCharacterAttributeTables();
-	const FCharacterAssetTable* GetCharacterAssetTable(const int32& InID);
-	const FCharacterAttributeTable* GetCharacterAttributeTable(const int32& InID);
+	const TArray<FCharacterAsset*>* GetCharacterAssetsTemplate();
+	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
+	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetPlayerID_To_CharacterAttribute() const { return &PlayerID_To_CharacterAttribute; }
 
-	void UpdateCharacterLocation(const int32 InID, const FVector& InLocation);
-	void AddCharacterLocation(const int32 InID, const FVector& InLocation);
+	void Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
+	
+	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 InCharacterID);
+	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 InCharacterID);
+	const FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 InPlayerID);
+
+	void UpdateCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
+	void AddCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool GetCharacterLocation(const int32 InID, FVector& OutLocation) const;
+	bool GetCharacterLocation(const int64 InPlayerID, FVector& OutLocation) const;
+
+	FORCEINLINE const TArray<FPlayerLocation>& GetPlayerLocations() const { return PlayerLocations; }
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
-    TObjectPtr<UDataTable> CharacterAssetTablePtr;
+    TObjectPtr<UDataTable> DT_CharacterAsset;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
-	TObjectPtr<UDataTable> CharacterAttributeTablePtr;
+	TObjectPtr<UDataTable> DT_CharacterAttribute;
 private:
-	TArray<FCharacterAssetTable*> CacheCharacterAssetTables; //因为FCharacterTable有反射， 所以不能使用前置声明，直接include????对吗??
-	TArray<FCharacterAttributeTable*> CacheCharacterAttributeTables;
+	TArray<FCharacterAsset*> CacheCharacterAssets; 
+	TArray<FCharacterAttribute*> CacheCharacterAttributes;
+	TMap<int64, FCharacterAttribute> PlayerID_To_CharacterAttribute;  //PlayerID用于识别局内对象，不同于CharacterID，ChracterID用于识别不同英雄
 
 	UPROPERTY(Replicated)
-	TArray<FPlayerLocation> PlayerLocations; 
+	TArray<FPlayerLocation> PlayerLocations;
+
+	
 };

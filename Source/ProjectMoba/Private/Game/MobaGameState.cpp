@@ -6,8 +6,7 @@
 #include "MiscData.h"
 #include "Engine/DataTable.h"
 #include "Net/UnrealNetwork.h"
-#include "Table/CharacterAttributeTable.h"
-#include "Table/CharacterAssetTable.h"
+#include "Table/CharacterAsset.h"
 
 AMobaGameState::AMobaGameState()
 {
@@ -24,85 +23,106 @@ void AMobaGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 }
 
 
-const TArray<FCharacterAssetTable*>* AMobaGameState::GetCharacterAssetTables()
+const TArray<FCharacterAsset*>* AMobaGameState::GetCharacterAssetsTemplate()
 {
-	if(CacheCharacterAssetTables.IsEmpty())
+	if(CacheCharacterAssets.IsEmpty())
 	{
-		checkf(CharacterAssetTablePtr, TEXT("CharacterAssetTable为空，请在BP_MobaGameState中配置"));
-		CharacterAssetTablePtr->GetAllRows(TEXT("Character Table"), CacheCharacterAssetTables);
+		checkf(DT_CharacterAsset, TEXT("CharacterAssetTable为空，请在BP_MobaGameState中配置"));
+		DT_CharacterAsset->GetAllRows(TEXT("Character Table"), CacheCharacterAssets);
 	}
 
-	return &CacheCharacterAssetTables;
+	return &CacheCharacterAssets;
 }
 
-const TArray<FCharacterAttributeTable*>* AMobaGameState::GetCharacterAttributeTables()
+const TArray<FCharacterAttribute*>* AMobaGameState::GetCharacterAttributesTemplate()
 {
-	if(CacheCharacterAttributeTables.IsEmpty())
+	if(CacheCharacterAttributes.IsEmpty())
 	{
-		checkf(CharacterAttributeTablePtr, TEXT("CharacterAttributeTable为空，请在BP_MobaGameState中配置"));
-		CharacterAttributeTablePtr->GetAllRows(TEXT("Character Attribute"), CacheCharacterAttributeTables);
+		checkf(DT_CharacterAttribute, TEXT("CharacterAttributeTable为空，请在BP_MobaGameState中配置"));
+		DT_CharacterAttribute->GetAllRows(TEXT("Character Attribute"), CacheCharacterAttributes);
 	}
 
-	return &CacheCharacterAttributeTables;
+	return &CacheCharacterAttributes;
 }
 
-const FCharacterAssetTable* AMobaGameState::GetCharacterAssetTable(const int32& InID)
+
+void AMobaGameState::Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID, const int32 InCharacterID)
 {
-	for(auto Table : *GetCharacterAssetTables())
+	if (!PlayerID_To_CharacterAttribute.Contains(InPlayerID))
 	{
-		if(Table->CharacterID == InID)
+		PlayerID_To_CharacterAttribute.Add(InPlayerID, *GetCharacterAttributeFromCharacterID(InCharacterID));
+	}
+}
+
+const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const int32 InCharacterID)
+{
+	for(auto Asset : *GetCharacterAssetsTemplate())
+	{
+		if(Asset->CharacterID == InCharacterID)
 		{
-			return Table;
+			return Asset;
 		}
 	}
 
 	return nullptr;
 }
 
-const FCharacterAttributeTable* AMobaGameState::GetCharacterAttributeTable(const int32& InID)
+const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(const int32 InCharacterID)
 {
-	for(auto Table : *GetCharacterAttributeTables())
+	for(auto Attribute : *GetCharacterAttributesTemplate())
 	{
-		if(Table->CharacterID == InID)
+		if(Attribute->CharacterID == InCharacterID)
 		{
-			return Table;
+			return Attribute;
 		}
 	}
 	return nullptr;
 }
 
-void AMobaGameState::UpdateCharacterLocation(const int32 InID, const FVector& InLocation)
+const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 InPlayerID)
 {
-	for(auto& PlayerLocation : PlayerLocations)
+	for(const auto& MAP : PlayerID_To_CharacterAttribute)
 	{
-		if(PlayerLocation.CharacterID == InID)
+		if(MAP.Key == InPlayerID)
 		{
-			PlayerLocation.Location = InLocation;
+			return &MAP.Value;
+		}
+	}
+	return nullptr;
+}
+
+void AMobaGameState::UpdateCharacterLocation(const int64 InPlayerID, const FVector& InLocation)
+{
+	for(auto& Location : PlayerLocations)
+	{
+		if(Location.playerID == InPlayerID)
+		{
+			Location.Location = InLocation;
 			break;
 		}
 	}
 }
 
-void AMobaGameState::AddCharacterLocation(const int32 InID, const FVector& InLocation)
+void AMobaGameState::AddCharacterLocation(const int64 InPlayerID, const FVector& InLocation)
 {
-	for(auto PlayerLocation : PlayerLocations)
+	for(auto Location : PlayerLocations)
 	{
-		if(PlayerLocation.CharacterID == InID)
+		if(Location.playerID == InPlayerID)
 		{
 			return;
 		}
 	}
 	// 如果没有找到，就添加
-	PlayerLocations.Add(FPlayerLocation(InID, InLocation));
+	PlayerLocations.Add(FPlayerLocation(InPlayerID, InLocation));
 }
 
-bool AMobaGameState::GetCharacterLocation(const int32 InID, FVector& OutLocation) const
+bool AMobaGameState::GetCharacterLocation(const int64 InPlayerID, FVector& OutLocation) const
 {
-	for(auto PlayerLocation : PlayerLocations)
+	for(auto Location : PlayerLocations)
 	{
-		if(PlayerLocation.CharacterID == InID)
+		if(Location.playerID == InPlayerID)
 		{
-			OutLocation = PlayerLocation.Location;
+			OutLocation = Location.Location;
 			return true;
 		}
 	}

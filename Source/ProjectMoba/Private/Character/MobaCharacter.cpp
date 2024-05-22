@@ -10,12 +10,12 @@
 #include "GameFramework/PlayerController.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
-#include "Table/CharacterAssetTable.h"
+#include "Table/CharacterAsset.h"
 
 AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
 	  AttackCount(0),
-	  CharacterID(INDEX_NONE)
+	  PlayerID(INDEX_NONE)
 {
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -52,7 +52,7 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 {
 	if(InTarget.IsValid())
 	{
-		if(const FCharacterAssetTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetTable(CharacterID))
+		if(const FCharacterAsset* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetFromCharacterID(PlayerID))
 		{
 			if(AttackCount<CharacterTable->NormalAttackMontages.Num())
 			{
@@ -77,7 +77,7 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 
 void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget)
 {
-	if(const FCharacterAssetTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetTable(CharacterID))
+	if(const FCharacterAsset* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetFromCharacterID(PlayerID))
 	{
 		if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
 		{
@@ -89,7 +89,7 @@ void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharact
 
 UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
 {
-	if(const FCharacterAssetTable* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetTable(CharacterID))
+	if(const FCharacterAsset* CharacterTable = MethodUnit::GetMobaGameState(GetWorld())->GetCharacterAssetFromCharacterID(PlayerID))
 	{
 		switch (SkillKey)
 		{
@@ -108,9 +108,29 @@ UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
 	return nullptr;
 }
 
-void AMobaCharacter::InitCharacterID(const int32& InCharacterID)
+void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID)
 {
-	CharacterID = InCharacterID;
+	SetPlayerID(InPlayerID);
+
+	
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		MobaGameState->Add_PlayerID_To_CharacterAttribute(InPlayerID, InCharacterID);
+	}
+}
+
+const FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() const
+{
+	return MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), PlayerID);
+}
+
+bool AMobaCharacter::IsDie() const
+{
+	if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
+	{
+		return true;
+	}
+	return false;
 }
 
 

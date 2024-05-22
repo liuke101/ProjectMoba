@@ -9,7 +9,7 @@
 #include "Components/BoxComponent.h"
 #include "Game/MobaGameState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Table/CharacterAssetTable.h"
+#include "Table/CharacterAsset.h"
 
 
 AMobaPawn::AMobaPawn()
@@ -35,6 +35,8 @@ AMobaPawn::AMobaPawn()
 	// Tick
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	PlayerID = FMath::RandRange(0,10000); //暂时随机生成一个PlayerID
 }
 
 void AMobaPawn::BeginPlay()
@@ -50,24 +52,22 @@ void AMobaPawn::BeginPlay()
 			FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); //从txt读取角色ID
 			const int32 CharacterID = FCString::Atoi(*NumberString);
 			
-			if(const FCharacterAssetTable* CharacterTable = MobaGameState->GetCharacterAssetTable(CharacterID))
+			if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
 			{
-				DefaultCharacterClass = CharacterTable->CharacterClass;
+				DefaultCharacterClass = CharacterAsset->CharacterClass;
 			}
 
+			/** 注册角色 */
 			if(DefaultCharacterClass)
 			{
 				MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
 				if(MobaCharacter)
 				{
-					MobaCharacter->InitCharacterID(CharacterID);
+					MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID); 
 				}
 			}
 		}
-		
-		
 	}
-	
 }
 
 void AMobaPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
