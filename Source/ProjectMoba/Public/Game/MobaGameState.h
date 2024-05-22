@@ -25,17 +25,18 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 public:
-
+	/** CharacterAsset */
 	const TArray<FCharacterAsset*>* GetCharacterAssetsTemplate();
-	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
-	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetPlayerID_To_CharacterAttribute() const { return &PlayerID_To_CharacterAttribute; }
-
-	void Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
-	
 	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 InCharacterID);
+	/** CharacterAttribute */
+	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 InCharacterID);
 	const FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 InPlayerID);
 
+	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetPlayerID_To_CharacterAttribute() const { return &PlayerID_To_CharacterAttribute; }
+	void Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
+
+	/** ChracterLocation */
 	void UpdateCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
 	void AddCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
 	
@@ -56,6 +57,4 @@ private:
 
 	UPROPERTY(Replicated)
 	TArray<FPlayerLocation> PlayerLocations;
-
-	
 };

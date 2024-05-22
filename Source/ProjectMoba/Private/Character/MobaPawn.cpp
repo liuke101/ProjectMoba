@@ -42,7 +42,7 @@ AMobaPawn::AMobaPawn()
 void AMobaPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	if(GetLocalRole() == ROLE_Authority) 
 	{
 		// 从txt读取角色ID，然后根据角色ID生成角色
@@ -60,6 +60,7 @@ void AMobaPawn::BeginPlay()
 			/** 注册角色 */
 			if(DefaultCharacterClass)
 			{
+				//服务器上生成的Character可能还未在客户端生成（同步），就调用了广播MulticastStatusBar，导致客户端无法同步状态栏信息。解决方法，在注册时用计时器短暂延迟。
 				MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
 				if(MobaCharacter)
 				{

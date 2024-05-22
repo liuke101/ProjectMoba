@@ -24,15 +24,15 @@ void AMobaGameMode::Tick(float DeltaSeconds)
 		MobaGameState = GetGameState<AMobaGameState>();
 	}
 
-	/** 每帧更新角色属性 */
+	/** 每帧更新角色属性, 也可以写在Character类的Tick中 */
 	/** GameMode仅存在于服务器, 不需要进行LocalRole判断 */
-	if(MobaGameState)
-	{
-		ServerCallAllCharacterAI<AMobaCharacter>([&](const AMobaCharacter* MobaCharacter)
-		{
-			MobaGameState->UpdateCharacterLocation(MobaCharacter->GetPlayerID(), MobaCharacter->GetActorLocation());
-		});
-	}
+	// if(MobaGameState)
+	// {
+	// 	ServerCallAllCharacterAI<AMobaCharacter>([&](const AMobaCharacter* MobaCharacter)
+	// 	{
+	// 		
+	// 	});
+	// }
 }
 
 void AMobaGameMode::BeginPlay()

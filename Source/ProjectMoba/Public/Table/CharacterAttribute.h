@@ -68,4 +68,9 @@ struct FCharacterAttribute : public FMobaTableBase
 	float AttackRange; //攻击范围
 
 	void InitAttribute();
+
+	float GetHealthPercent() const;
+	float GetManaPercent() const;
+	float GetEXPPercent() const;
+	float GetAngerPercent() const;
 };

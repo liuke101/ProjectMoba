@@ -29,3 +29,23 @@ void FCharacterAttribute::InitAttribute()
 	CurrentEXP = 0.0f;
 	AttackRange = 1000.0f;
 }
+
+float FCharacterAttribute::GetHealthPercent() const
+{
+	return FMath::Clamp(CurrentHealth / MaxHealth, 0.0f, 1.0f);
+}
+
+float FCharacterAttribute::GetManaPercent() const
+{
+	return FMath::Clamp(CurrentMana / MaxMana, 0.0f, 1.0f);
+}
+
+float FCharacterAttribute::GetEXPPercent() const
+{
+	return FMath::Clamp(CurrentEXP / MaxEXP, 0.0f, 1.0f);
+}
+
+float FCharacterAttribute::GetAngerPercent() const
+{
+	return FMath::Clamp(CurrentAnger / MaxAnger, 0.0f, 1.0f);
+}

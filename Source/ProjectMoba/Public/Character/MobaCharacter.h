@@ -7,6 +7,7 @@
 #include "ProjectMoba/MobaType.h"
 #include "MobaCharacter.generated.h"
 
+class UWidgetComponent;
 struct FCharacterAttribute;
 
 UCLASS(Blueprintable)
@@ -33,16 +34,27 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastPlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MultiCastStatusBar(float HealthPercent, float ManaPercent);
+	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
 	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID);
+	void InitCharacter();
 	
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
 	const FCharacterAttribute* GetCharacterAttribute() const;
 	bool IsDie() const;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
+	TObjectPtr<UWidgetComponent> StatusBarComponent;
 private:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
 	int64 PlayerID;
+
+	FTimerHandle InitTimerHandle;
+	
 };
 

@@ -10,8 +10,7 @@
 
 AMobaGameState::AMobaGameState()
 {
-	AddCharacterLocation(0, FVector::ZeroVector);
-	AddCharacterLocation(1, FVector::ZeroVector);
+	
 }
 
 

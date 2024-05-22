@@ -45,7 +45,9 @@ public:
 
 	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const;
 	
-	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
+	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|Class")
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
 	
 	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
@@ -62,6 +64,4 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
-	
-	
 };
