@@ -16,6 +16,7 @@ class PROJECTMOBA_API UBTTask_MobaMoveToAttackRange : public UBTTask_MoveTo
 
 protected:
 	virtual void InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTMemoryInit::Type InitType) const override;
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 };
