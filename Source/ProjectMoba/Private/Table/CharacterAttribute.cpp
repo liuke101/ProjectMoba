@@ -11,7 +11,7 @@ FCharacterAttribute::FCharacterAttribute()
 void FCharacterAttribute::InitAttribute()
 {
 	Level = 1;
-	MaxHealth = 100.0f;
+	MaxHealth = 1000.0f;
 	CurrentHealth = MaxHealth;
 	MaxMana = 100.0f;
 	CurrentMana = MaxMana;
@@ -29,6 +29,12 @@ void FCharacterAttribute::InitAttribute()
 	CurrentEXP = 0.0f;
 	AttackRange = 1000.0f;
 	CriticalRate = 0.0f;
+}
+
+void FCharacterAttribute::ResetAttribute()
+{
+	CurrentHealth = MaxHealth;
+	CurrentMana = MaxMana;
 }
 
 float FCharacterAttribute::GetHealthPercent() const

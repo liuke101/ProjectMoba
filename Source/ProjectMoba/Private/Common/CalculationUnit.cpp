@@ -4,11 +4,11 @@
 #include "Character/MobaCharacter.h"
 #include "Table/CharacterAttribute.h"
 
-float CalculationUnit::GetPhysicalArmor(const AMobaCharacter* InTarget, const AMobaCharacter* InEnemy)
+float CalculationUnit::GetPhysicalArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
-	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
+	if ( FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		if (const FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
+		if ( FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
 			return OriginalData->PhysicalArmor * (1.f - InEnemyData->PhysicalPenetration / 100.f);
 		}
@@ -17,7 +17,7 @@ float CalculationUnit::GetPhysicalArmor(const AMobaCharacter* InTarget, const AM
 	return 0;
 }
 
-float CalculationUnit::GetMagicArmor(const AMobaCharacter* InTarget, const AMobaCharacter* InEnemy)
+float CalculationUnit::GetMagicArmor(AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
 	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
@@ -30,7 +30,7 @@ float CalculationUnit::GetMagicArmor(const AMobaCharacter* InTarget, const AMoba
 	return 0;
 }
 
-float CalculationUnit::GetAttack(const AMobaCharacter* InOriginal)
+float CalculationUnit::GetAttack( AMobaCharacter* InOriginal)
 {
 	if (const FCharacterAttribute* OriginalData = InOriginal->GetCharacterAttribute())
 	{
@@ -40,7 +40,7 @@ float CalculationUnit::GetAttack(const AMobaCharacter* InOriginal)
 	return 0;
 }
 
-float CalculationUnit::GetPhysicalDamage(const AMobaCharacter* InTarget, const AMobaCharacter* InEnemy)
+float CalculationUnit::GetPhysicalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
 	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
@@ -50,7 +50,7 @@ float CalculationUnit::GetPhysicalDamage(const AMobaCharacter* InTarget, const A
 	return 0;
 }
 
-float CalculationUnit::GetMagicDamage(const AMobaCharacter* InTarget, const AMobaCharacter* InEnemy)
+float CalculationUnit::GetMagicDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
 	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
@@ -63,7 +63,7 @@ float CalculationUnit::GetMagicDamage(const AMobaCharacter* InTarget, const AMob
 	return 0;
 }
 
-float CalculationUnit::GetTotalDamage(const AMobaCharacter* InTarget, const AMobaCharacter* InEnemy)
+float CalculationUnit::GetTotalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
 	return GetPhysicalDamage(InTarget, InEnemy) + GetMagicDamage(InTarget, InEnemy);
 }

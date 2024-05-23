@@ -72,6 +72,9 @@ struct FCharacterAttribute : public FMobaTableBase
 
 	void InitAttribute();
 
+	/** 重置 */
+	void ResetAttribute();
+
 	float GetHealthPercent() const;
 	float GetManaPercent() const;
 	float GetEXPPercent() const;

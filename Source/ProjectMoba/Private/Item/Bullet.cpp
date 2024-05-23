@@ -4,6 +4,7 @@
 #include "Item/Bullet.h"
 
 #include "Character/MobaCharacter.h"
+#include "Common/CalculationUnit.h"
 #include "Components/BoxComponent.h"
 #include "Game/MobaGameMode.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -13,6 +14,7 @@
 ABullet::ABullet()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true; //开启复制
 
 	RootBullet = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 	RootComponent = RootBullet;
@@ -52,11 +54,17 @@ void ABullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(OtherActor))
 		{
+			float DamgeValue = CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter);
 			//排除自己和友军
 			if(InstigatorCharacter != TargetCharacter || InstigatorCharacter->GetTeamType() != TargetCharacter->GetTeamType()) 
 			{
 				//造成伤害
-				UGameplayStatics::ApplyDamage(TargetCharacter, 10.f, InstigatorCharacter->GetController(),InstigatorCharacter, UDamageType::StaticClass());
+				UGameplayStatics::ApplyDamage(
+					TargetCharacter,
+					DamgeValue,
+					InstigatorCharacter->GetController(),
+					InstigatorCharacter,
+					UDamageType::StaticClass());
 
 				//销毁子弹
 				Destroy();

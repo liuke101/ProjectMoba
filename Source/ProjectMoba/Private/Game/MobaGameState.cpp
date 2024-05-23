@@ -50,6 +50,7 @@ void AMobaGameState::Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID, 
 	if (!PlayerID_To_CharacterAttribute.Contains(InPlayerID))
 	{
 		PlayerID_To_CharacterAttribute.Add(InPlayerID, *GetCharacterAttributeFromCharacterID(InCharacterID));
+		PlayerID_To_CharacterAttribute[InPlayerID].ResetAttribute();
 	}
 }
 
@@ -91,9 +92,9 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 	return nullptr;
 }
 
-const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 InPlayerID)
+FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 InPlayerID)
 {
-	for(const auto& MAP : PlayerID_To_CharacterAttribute)
+	for(auto& MAP : PlayerID_To_CharacterAttribute)
 	{
 		if(MAP.Key == InPlayerID)
 		{

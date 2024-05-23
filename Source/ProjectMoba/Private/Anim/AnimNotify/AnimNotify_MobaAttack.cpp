@@ -3,6 +3,7 @@
 
 #include "Anim/AnimNotify/AnimNotify_MobaAttack.h"
 
+#include "Common/MethodUnit.h"
 #include "Item/Bullet.h"
 
 UAnimNotify_MobaAttack::UAnimNotify_MobaAttack()
@@ -49,17 +50,23 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	}
 #endif
 
+	
 	if(AActor* Character = Cast<AActor>(MeshComp->GetOuter()))
 	{
-		// 子弹来源
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = Character;  // 子弹的拥有者
-		SpawnParams.Instigator = Cast<APawn>(Character); // 子弹的发起者
-
-		// 生成子弹
-		if(ABullet* Bullet = Character->GetWorld()->SpawnActor<ABullet>(BulletClass, ComponentLocation, ComponentRotation, SpawnParams))
+		/** 在服务器上生成子弹 */
+		/** 在编辑器上用前一句判断，Runtime用后一句判断 */
+		if(Character->GetWorld()->IsServer() || Character->GetLocalRole() == ROLE_Authority)
 		{
+			// 子弹来源
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = Character;  // 子弹的拥有者
+			SpawnParams.Instigator = Cast<APawn>(Character); // 子弹的发起者
+
+			// 生成子弹
+			if(ABullet* Bullet = Character->GetWorld()->SpawnActor<ABullet>(BulletClass, ComponentLocation, ComponentRotation, SpawnParams))
+			{
 			
+			}
 		}
 	}
 

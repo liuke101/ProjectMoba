@@ -34,8 +34,17 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastPlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
 
+	/** 状态栏广播 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastStatusBar(float HealthPercent, float ManaPercent);
+	UFUNCTION(NetMulticast, Unreliable)
+	void MultiCastStatusBar_Health(float HealthPercent);
+	UFUNCTION(NetMulticast, Unreliable)
+	void MultiCastStatusBar_Mana(float ManaPercent);
+
+	/** 重生 */
+	UFUNCTION(NetMulticast, Unreliable)
+	void MultiCastReborn();
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
 	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType);
@@ -43,10 +52,10 @@ public:
 	
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
+
+	FCharacterAttribute* GetCharacterAttribute();
 	
-	const FCharacterAttribute* GetCharacterAttribute() const;
-	
-	bool IsDie() const;
+	bool IsDead();
 	
 	FORCEINLINE void SetTeamType(ETeamType InTeamType) { TeamType = InTeamType; }
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }

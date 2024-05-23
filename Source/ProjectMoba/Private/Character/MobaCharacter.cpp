@@ -137,6 +137,39 @@ void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, floa
 	}
 }
 
+void AMobaCharacter::MultiCastStatusBar_Health_Implementation(float HealthPercent)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		//更新HealthBar
+		if(UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI->SetHealthPercent(HealthPercent);
+		}
+	}
+}
+
+void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		//更新ManaBar
+		if(UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI->SetManaPercent(ManaPercent);
+		}
+	}
+}
+
+void AMobaCharacter::MultiCastReborn_Implementation()
+{
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		GetCharacterAttribute()->ResetAttribute();
+	}
+	StopAnimMontage(); //停止死亡动画
+}
+
 void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType)
 {
 	SetPlayerID(InPlayerID);
@@ -165,17 +198,18 @@ void AMobaCharacter::InitCharacter()
 	{
 		if(const FCharacterAttribute* Attribute = MobaGameState->GetCharacterAttributeFromPlayerID(PlayerID))
 		{
-			MultiCastStatusBar(Attribute->GetHealthPercent(), Attribute->GetManaPercent());
+			MultiCastStatusBar_Health(Attribute->GetHealthPercent());
+			MultiCastStatusBar_Mana(Attribute->GetManaPercent());
 		}
 	}
 }
 
-const FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() const
+FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() 
 {
 	return MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), PlayerID);
 }
 
-bool AMobaCharacter::IsDie() const
+bool AMobaCharacter::IsDead()
 {
 	if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
 	{
@@ -199,10 +233,14 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	if(GetLocalRole() == ROLE_Authority)
 	{
+		GetCharacterAttribute()->CurrentHealth += DamageAmount;
+		MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent());
+		
 		//攻击角色
-		if(IsDie())
+		if(IsDead())
 		{
 			//死亡动画广播到客户端
+			MultiCastPlayerAnimMontage(MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID)->DeathMontage);
 		}
 		else
 		{

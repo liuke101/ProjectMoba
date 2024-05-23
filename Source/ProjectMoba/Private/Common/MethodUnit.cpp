@@ -46,7 +46,7 @@ const FCharacterAttribute* MethodUnit::GetCharacterAttributeFromCharacterID(cons
 }
 
 
-const FCharacterAttribute* MethodUnit::GetCharacterAttributeFromPlayerID(const UWorld* InWorld, int64 PlayerID)
+FCharacterAttribute* MethodUnit::GetCharacterAttributeFromPlayerID(const UWorld* InWorld, int64 PlayerID)
 {
 	if(AMobaGameState* MobaGameState = GetMobaGameState(InWorld))
 	{

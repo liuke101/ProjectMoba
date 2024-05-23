@@ -32,7 +32,7 @@ public:
 	/** CharacterAttribute */
 	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 InCharacterID);
-	const FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 InPlayerID);
+	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 InPlayerID);
 
 	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetPlayerID_To_CharacterAttribute() const { return &PlayerID_To_CharacterAttribute; }
 	void Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
