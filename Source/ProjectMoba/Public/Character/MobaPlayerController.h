@@ -12,7 +12,7 @@ class UInputMappingContext;
 class UNiagaraSystem;
 
 UCLASS()
-class AMobaPlayerController : public APlayerController
+class PROJECTMOBA_API AMobaPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
@@ -32,7 +32,7 @@ public:
 	
 	/** Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationClickAction = nullptr;
+	UInputAction* RightClick_Action = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* W_Action;
@@ -52,9 +52,9 @@ protected:
 	/** 在PlayerTick中由本地客户端调用，导航到鼠标光标位置 */
 	void MoveToMouseCursor();
 
-	/** Input handlers for SetDestination action. */
-	void OnSetDestinationPressed();
-	void OnSetDestinationReleased();
+	/** Input Action 回调函数 */
+	void OnRightClickPressed();
+	void OnRightClickReleased();
 
 	UFUNCTION(Server, Reliable)
 	void OnWPressed();

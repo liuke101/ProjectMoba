@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FSimpleScreenMoveModule : public IModuleInterface
+class  FSimpleScreenMoveModule : public IModuleInterface
 {
 public:
 

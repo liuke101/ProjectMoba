@@ -4,13 +4,13 @@
 #include "Character/MobaCharacter.h"
 
 #include "Common/MethodUnit.h"
-#include "UObject/ConstructorHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Game/MobaGameState.h"
 #include "Table/CharacterAsset.h"
 #include "UI/ProgressBar/MobaStatusBarUI.h"
 
@@ -132,9 +132,10 @@ void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, floa
 	}
 }
 
-void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID)
+void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType)
 {
 	SetPlayerID(InPlayerID);
+	SetTeamType(InTeamType);
 	
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{

@@ -8,7 +8,7 @@ public class ProjectMoba : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput","GameplayTasks","SimpleScreenMove","UMG", "Landscape"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","HeadMountedDisplay", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput","GameplayTasks","UMG", "Landscape", "SimpleScreenMove"});
 		
 		//服务端所用模块
 		if (Target.bWithServerCode)

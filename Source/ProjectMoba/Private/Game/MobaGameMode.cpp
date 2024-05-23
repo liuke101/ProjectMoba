@@ -2,11 +2,7 @@
 
 
 #include "Game/MobaGameMode.h"
-
-#include "Character/MobaCharacter.h"
-#include "Character/MobaPawn.h"
 #include "Game/MobaGameState.h"
-
 
 AMobaGameMode::AMobaGameMode()
 {
@@ -38,40 +34,4 @@ void AMobaGameMode::Tick(float DeltaSeconds)
 void AMobaGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-template <class T>
-void AMobaGameMode::ServerCallAllPlayerController(TFunction<void(T*)> InImplement)
-{
-	for(auto it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
-	{
-		if(T* PlayerController = Cast<T>(*it))
-		{
-			InImplement(PlayerController);
-		}
-	}
-}
-
-template <class T>
-void AMobaGameMode::ServerCallAllPlayer(TFunction<void(T*)> InImplement)
-{
-	ServerCallAllPlayerController<APlayerController>([&](const APlayerController* PlayerController)
-	{
-		if(T* Pawn = Cast<T>(PlayerController->GetPawn()))
-		{
-			InImplement(Pawn);
-		}
-	});
-}
-
-template <class T>
-void AMobaGameMode::ServerCallAllCharacterAI(TFunction<void(T*)> InImplement)
-{
-	ServerCallAllPlayer<AMobaPawn>([&](AMobaPawn* MobaPawn)
-	{
-		if(T* CharacterAI = Cast<T>(MobaPawn->MobaCharacter))
-		{
-			InImplement(CharacterAI);
-		}
-	});
 }

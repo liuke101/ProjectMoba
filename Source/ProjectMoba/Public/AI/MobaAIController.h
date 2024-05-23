@@ -20,6 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	void InitMobaAIController();
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 	void SetTarget(AMobaCharacter* InTarget);
 	AMobaCharacter* FindTarget();
@@ -30,4 +31,7 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "BehaviorTree")
 	UBehaviorTree* BehaviorTree = nullptr;
+
+private:
+	FTimerHandle InitTimerHandle;
 };

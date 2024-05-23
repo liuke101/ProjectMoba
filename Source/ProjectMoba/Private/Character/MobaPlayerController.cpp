@@ -9,7 +9,6 @@
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Character/MobaCharacter.h"
 #include "Character/MobaPawn.h"
 
 #include "GameFramework/HUD.h"
@@ -58,8 +57,8 @@ void AMobaPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &AMobaPlayerController::OnSetDestinationPressed);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &AMobaPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(RightClick_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnRightClickPressed);
+		EnhancedInputComponent->BindAction(RightClick_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnRightClickReleased);
 		EnhancedInputComponent->BindAction(W_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnWPressed);
 		EnhancedInputComponent->BindAction(W_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnWReleased);
 		EnhancedInputComponent->BindAction(E_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnEPressed);
@@ -101,7 +100,7 @@ void AMobaPlayerController::MoveToMouseCursor()
 	}
 }
 
-void AMobaPlayerController::OnSetDestinationPressed()
+void AMobaPlayerController::OnRightClickPressed()
 {
 	bMoveToMouseCursor = true;
 	// 点击特效
@@ -111,7 +110,7 @@ void AMobaPlayerController::OnSetDestinationPressed()
 	}
 }
 
-void AMobaPlayerController::OnSetDestinationReleased()
+void AMobaPlayerController::OnRightClickReleased()
 {
 	bMoveToMouseCursor = false;
 }

@@ -13,7 +13,7 @@ EBTNodeResult::Type UBTTask_MobaAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	if(Blackboard_Target.SelectedKeyType = UBlackboardKeyType_Object::StaticClass())
+	if(Blackboard_Target.SelectedKeyType == UBlackboardKeyType_Object::StaticClass())
 	{
 		if(UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent())
 		{

@@ -12,6 +12,7 @@ class UBoxComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class AMobaCharacter;
+class UPlayerDataComponent;
 
 UCLASS()
 class PROJECTMOBA_API AMobaPawn : public APawn
@@ -24,6 +25,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void PossessedBy(AController* NewController) override;
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -35,7 +38,7 @@ public:
 	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
 	UPROPERTY() // 防止被GC回收
-	AMobaCharacter* MobaCharacter;
+	TObjectPtr<AMobaCharacter> MobaCharacter;
 	
 	UFUNCTION(Server, Reliable)
 	void CharacterMoveToOnServer(const FVector& Destination);
@@ -45,23 +48,26 @@ public:
 
 	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const;
 	
-	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|Class")
-	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
-	
 	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-protected:
-	int64 PlayerID;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|Class")
+	int64 GetPlayerID();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|Class")
+	FORCEINLINE int32 GetCharacterID() const { return CharacterID; }
+	
+	UPlayerDataComponent* GetPlayerDataComponent() const;
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* RootBox;
+	TObjectPtr<UBoxComponent> RootBox;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* TopDownCameraComponent;
+	TObjectPtr<UCameraComponent> TopDownCameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
+	TObjectPtr<USpringArmComponent> CameraBoom;
+	
+	int32 CharacterID;
 };

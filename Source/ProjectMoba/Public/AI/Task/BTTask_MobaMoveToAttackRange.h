@@ -4,17 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_MoveTo.h"
-#include "BTTask_MobaMoveTo.generated.h"
+#include "BTTask_MobaMoveToAttackRange.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UBTTask_MobaMoveTo : public UBTTask_MoveTo
+class PROJECTMOBA_API UBTTask_MobaMoveToAttackRange : public UBTTask_MoveTo
 {
 	GENERATED_BODY()
 
 protected:
+	virtual void InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTMemoryInit::Type InitType) const override;
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+
 };

@@ -11,6 +11,7 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "Character/MobaCharacter.h"
+#include "Table/CharacterAttribute.h"
 
 void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
@@ -20,30 +21,42 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 		Blackboard_Distance.SelectedKeyType == UBlackboardKeyType_Float::StaticClass() &&
 		Blackboard_Location.SelectedKeyType == UBlackboardKeyType_Vector::StaticClass())
 	{
-		if(AMobaAIController* OwnerAIController = Cast<AMobaAIController>(OwnerComp.GetOwner()))
+		if(AMobaAIController* OwnerAIController = OwnerComp.GetOwner<AMobaAIController>())
 		{
-			if(UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent())
-			{
-				AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
-				if(!Target)
+			// if(AMobaCharacter* OwnerCharacter = OwnerAIController->GetPawn<AMobaCharacter>())
+			// {
+				if(UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent())
 				{
-					Target = OwnerAIController->FindTarget();
-				}
-			
-				float Distance =  999999.0f;
-				if(Target)
-				{
-					Distance = FVector::Distance(OwnerAIController->GetPawn()->GetActorLocation(), Target->GetActorLocation());
-
-					/** 设置目标位置 */
-					FVector Location = Target->GetActorLocation();
-					Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, FVector(Location.X, Location.Y, FMath::Min(Location.Z, 100))); //限制一下X轴
-				}
+					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
+					if(!Target)
+					{
+						Target = OwnerAIController->FindTarget();
+					}
+		
+					float Distance =  999999.0f;
+					if(Target)
+					{
+						FVector TargetLocation = Target->GetActorLocation();
 				
-				/** 设置目标距离 */
-				Blackboard->SetValueAsFloat(Blackboard_Distance.SelectedKeyName, Distance);
+						//Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
+						float AttackRange = Target->GetCharacterAttribute()->AttackRange;
+						//如果距离大于攻击范围，就继续向目标移动
+						if(Distance > AttackRange)
+						{
+							Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, FVector(TargetLocation.X, TargetLocation.Y, FMath::Min(TargetLocation.Z, 100)));
+						}
+						// else //如果距离小于等于攻击范围，就停止移动
+						// {
+						// 	FVector OwnerLocation = OwnerCharacter->GetActorLocation();
+						// 	Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, FVector(OwnerLocation.X,OwnerLocation.Y, FMath::Min(OwnerLocation.Z, 100)));
+						// }
+					}
+			
+					/** 设置目标距离 */
+					Blackboard->SetValueAsFloat(Blackboard_Distance.SelectedKeyName, Distance);
+				}
 			}
-		}
+		//}
    }
 }
 

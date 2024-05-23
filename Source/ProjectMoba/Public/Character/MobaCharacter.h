@@ -11,7 +11,7 @@ class UWidgetComponent;
 struct FCharacterAttribute;
 
 UCLASS(Blueprintable)
-class AMobaCharacter : public ACharacter
+class PROJECTMOBA_API AMobaCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -38,13 +38,18 @@ public:
 	void MultiCastStatusBar(float HealthPercent, float ManaPercent);
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
-	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID);
+	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType);
 	void InitCharacter();
 	
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
+	
 	const FCharacterAttribute* GetCharacterAttribute() const;
+	
 	bool IsDie() const;
+	
+	FORCEINLINE void SetTeamType(ETeamType InTeamType) { TeamType = InTeamType; }
+	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
@@ -53,6 +58,7 @@ private:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
 	int64 PlayerID;
+	ETeamType TeamType;
 
 	FTimerHandle InitTimerHandle;
 	
