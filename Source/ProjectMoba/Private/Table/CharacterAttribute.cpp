@@ -28,6 +28,7 @@ void FCharacterAttribute::InitAttribute()
 	MaxEXP = 100.0f;
 	CurrentEXP = 0.0f;
 	AttackRange = 1000.0f;
+	CriticalRate = 0.0f;
 }
 
 float FCharacterAttribute::GetHealthPercent() const

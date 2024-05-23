@@ -4,6 +4,7 @@
 #include "Character/MobaCharacter.h"
 
 #include "Common/MethodUnit.h"
+#include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -12,13 +13,16 @@
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
 #include "Table/CharacterAsset.h"
-#include "UI/ProgressBar/MobaStatusBarUI.h"
+#include "UI/StatusBar/MobaStatusBarUI.h"
 
 AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
 	  AttackCount(0),
 	  PlayerID(INDEX_NONE)
 {
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	bUseControllerRotationPitch = false;
@@ -35,9 +39,10 @@ AMobaCharacter::AMobaCharacter()
 	// 状态栏
 	StatusBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("StatusBar"));
 	StatusBarComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	
-	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	//开火点
+	FirePointComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePoint"));
+	FirePointComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void AMobaCharacter::Tick(float DeltaSeconds)
@@ -177,6 +182,34 @@ bool AMobaCharacter::IsDie() const
 		return true;
 	}
 	return false;
+}
+
+FVector AMobaCharacter::GetFirePointLocation() const
+{
+	return FirePointComponent->GetComponentLocation();
+}
+
+FRotator AMobaCharacter::GetFirePointRotation() const
+{
+	return FirePointComponent->GetComponentRotation();
+}
+
+float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		//攻击角色
+		if(IsDie())
+		{
+			//死亡动画广播到客户端
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+		}
+	}
+	return 0.0f;
 }
 
 

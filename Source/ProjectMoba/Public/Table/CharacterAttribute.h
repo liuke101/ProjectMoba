@@ -67,6 +67,9 @@ struct FCharacterAttribute : public FMobaTableBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float AttackRange; //攻击范围
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
+	float CriticalRate; //暴击率
+
 	void InitAttribute();
 
 	float GetHealthPercent() const;

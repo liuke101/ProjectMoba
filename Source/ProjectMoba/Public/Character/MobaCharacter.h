@@ -51,9 +51,20 @@ public:
 	FORCEINLINE void SetTeamType(ETeamType InTeamType) { TeamType = InTeamType; }
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
 
+	FORCEINLINE UArrowComponent* GetFirePointComponent() const { return FirePointComponent; }
+	FVector GetFirePointLocation() const;
+	FRotator GetFirePointRotation() const;
 protected:
+	/** 状态栏 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
 	TObjectPtr<UWidgetComponent> StatusBarComponent;
+
+	/** 远程攻击 开火点 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
+	TObjectPtr<UArrowComponent> FirePointComponent;
+
+	/** 接收伤害 */
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 private:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
