@@ -8,8 +8,9 @@
 
 UAnimNotify_MobaAttack::UAnimNotify_MobaAttack()
 {
-#if WITH_EDITORONLY_DATA
 	SocketName = TEXT("OpenFire");
+	
+#if WITH_EDITORONLY_DATA
 	NotifyColor = FColor::Red;
 #endif
 	

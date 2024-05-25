@@ -26,14 +26,14 @@ public:
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	// 只需要同步一次: COND_InitialOnly
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	FName PlayerName = "DefaultName";
 
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	ETeamType TeamType = ETeamType::ETT_Neutral;
 
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
-	int64 PlayerID; //来自DB服务器
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int64 PlayerID; 
 	
 };

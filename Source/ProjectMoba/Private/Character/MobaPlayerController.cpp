@@ -9,7 +9,9 @@
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Character/MobaCharacter.h"
 #include "Character/MobaPawn.h"
+#include "Character/Hero/MobaHero.h"
 
 #include "GameFramework/HUD.h"
 #include "Kismet/GameplayStatics.h"
@@ -210,7 +212,12 @@ void AMobaPlayerController::VerifyMouseWorldPositionClickOnServer_Implementation
 		{
 			if(HitResult.bBlockingHit) // 检测到就移动攻击
 			{
-				MobaPawn->CharacterMoveToTargetWithAttackOnServer(HitResult.ImpactPoint, Cast<APawn>(HitResult.GetActor()));
+				AActor* HitActor = HitResult.GetActor();
+				if(Cast<AMobaHero>(HitActor) != MobaPawn->GetControlledMobaHero()) // 禁止攻击自己
+				{
+					MobaPawn->CharacterMoveToTargetWithAttackOnServer(HitResult.ImpactPoint, Cast<APawn>(HitActor));
+				}
+				
 				return;
 			}
 		}

@@ -18,12 +18,16 @@ class PROJECTMOBA_API UMobaStatusBarUI : public UMobaStatusBarUI_Health
 public:
 	virtual void NativeConstruct() override;
 
-	void SetTitle(const FString& InTitle) const;
+	void SetLevel(const int32 InLevel) const;
+	void SetName(const FString& InTitle) const;
 	void SetManaPercent(const float InPercent) const;
 
 private:
 	UPROPERTY(meta= (BindWidget))
-	TObjectPtr<UTextBlock> Title;
+	TObjectPtr<UTextBlock> LevelBar;
+	
+	UPROPERTY(meta= (BindWidget))
+	TObjectPtr<UTextBlock> NameBar;
 
 	UPROPERTY(meta= (BindWidget))
 	TObjectPtr<UProgressBar> ManaBar;

@@ -47,7 +47,7 @@ public:
 	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType, const ECharacterType InCharacterType);
 
 	UFUNCTION()
-	void InitCharacter();
+	virtual void InitCharacter();
 	
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
@@ -77,13 +77,15 @@ protected:
 	/** 接收伤害 */
 	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-private:
+
+protected:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
 	int64 PlayerID;
 	ETeamType TeamType;
 	ECharacterType CharacterType;
 
+private:
 	FTimerHandle InitCharacterTimerHandle;
 	FTimerHandle RebornTimerHandle;
 };

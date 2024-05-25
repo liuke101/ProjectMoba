@@ -26,9 +26,6 @@ public:
 	TSubclassOf<ABullet> BulletClass;
 
 //编辑器无法获取FirePoint组件位置, Runtime可以获取。为了表现一致，编辑器通过 Socket 获取位置
-#if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
 	FName SocketName;
-#endif
-	
 };

@@ -1,7 +1,14 @@
 ﻿#include "Character/Hero/MobaHero.h"
 
+#include "Character/MobaPawn.h"
 #include "Common/MethodUnit.h"
+#include "Component/PlayerDataComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Game/MobaPlayerState.h"
 #include "Table/CharacterAsset.h"
+
+#include "Game/MobaGameState.h"
+#include "UI/StatusBar/MobaStatusBarUI.h"
 
 
 AMobaHero::AMobaHero()
@@ -18,6 +25,52 @@ void AMobaHero::BeginPlay()
 void AMobaHero::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AMobaHero::InitCharacter()
+{
+	Super::InitCharacter();
+
+	//服务器同步玩家名字
+	 MethodUnit::ServerCallAllPlayer<AMobaPawn>(GetWorld(), [&](AMobaPawn* InPawn)-> MethodUnit::EServerCallType
+	 {
+	 	if(InPawn->GetPlayerID() == this->PlayerID)
+	 	{
+	 		if(const AMobaPlayerState* MobaPlayerState = InPawn->GetPlayerState<AMobaPlayerState>())
+	 		{
+	 			MultiCastStatusBar_PlayerName(MobaPlayerState->GetPlayerDataComponent()->PlayerName.ToString());
+	 		}
+	 		return MethodUnit::EServerCallType::ECT_ProgressComplete;
+	 	}
+	 	return MethodUnit::EServerCallType::ECT_InProgress;
+	 });
+
+	if(FCharacterAttribute* CharacterAttribute = MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), GetPlayerID()))
+	{
+		MultiCastStatusBar_Level(CharacterAttribute->Level);
+	}
+}
+
+void AMobaHero::MultiCastStatusBar_PlayerName_Implementation(const FString& PlayerName)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		if(const UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI->SetName(PlayerName); //设置玩家名字
+		}
+	}
+}
+
+void AMobaHero::MultiCastStatusBar_Level_Implementation(const int32 Level)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		if(const UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI->SetLevel(Level); //设置玩家名字
+		}
+	}
 }
 
 void AMobaHero::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHero> InTarget) 

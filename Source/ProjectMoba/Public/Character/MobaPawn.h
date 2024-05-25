@@ -38,8 +38,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Class")
 	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
-	UPROPERTY() // 防止被GC回收
-	TObjectPtr<AMobaHero> MobaCharacter;
+	FORCEINLINE AMobaHero* GetControlledMobaHero() const { return ControlledMobaHero; }
 	
 	UFUNCTION(Server, Reliable)
 	void CharacterMoveToOnServer(const FVector& Destination);
@@ -56,6 +55,10 @@ public:
 	int64 GetPlayerID();
 
 	UPlayerDataComponent* GetPlayerDataComponent() const;
+
+protected:
+	UPROPERTY() // 防止被GC回收
+	TObjectPtr<AMobaHero> ControlledMobaHero;
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

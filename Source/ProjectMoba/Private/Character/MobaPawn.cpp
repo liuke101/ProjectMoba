@@ -57,10 +57,10 @@ void AMobaPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		if(DefaultCharacterClass)
 		{
-			if(MobaCharacter)
+			if(ControlledMobaHero)
 			{
-				MobaCharacter->Destroy();
-				MobaCharacter = nullptr;
+				ControlledMobaHero->Destroy();
+				ControlledMobaHero = nullptr;
 			}
 		}
 	}
@@ -84,15 +84,15 @@ void AMobaPawn::PossessedBy(AController* NewController)
 			{
 				// 服务器上生成的Character可能还未在客户端生成（同步），就调用了广播MulticastStatusBar，导致客户端无法同步状态栏信息。解决方法，在注册时用计时器短暂延迟。(或者在AIController的OnRep_Pawn中执行？）
 				// 此外，刚生成Character时，Pawn可能还未被PlayerController持有，导致无法在 GetPlayerID 函数中获取 PlayerState。所以不能再BeginPlay中执行，在PossessBy中执行可以解决该问题。
-				MobaCharacter = GetWorld()->SpawnActor<AMobaHero>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
+				ControlledMobaHero = GetWorld()->SpawnActor<AMobaHero>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
 
 				/** 在服务器上注册角色信息 */
-				if(MobaCharacter)
+				if(ControlledMobaHero)
 				{
 					int64 PlayerID = GetPlayerID();
 					if(PlayerID != INDEX_NONE)
 					{
-						MobaCharacter->RegisterCharacterOnServer(PlayerID , CharacterID, GetPlayerDataComponent()->TeamType, CharacterAsset->CharacterType);
+						ControlledMobaHero->RegisterCharacterOnServer(PlayerID , CharacterID, GetPlayerDataComponent()->TeamType, CharacterAsset->CharacterType);
 					}
 				}
 			}
@@ -152,9 +152,9 @@ bool AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Validate(const FVector& 
 void AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Implementation(const FVector& Destination,
                                                                        const APawn* TargetPawn)
 {
-	if(MobaCharacter)
+	if(ControlledMobaHero)
 	{
-		if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(MobaCharacter->GetController()))
+		if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(ControlledMobaHero->GetController()))
 		{
 			MobaAIController->SetTarget(Cast<AMobaCharacter>(const_cast<APawn*>(TargetPawn)));
 		}
@@ -163,13 +163,13 @@ void AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Implementation(const FVe
 
 void AMobaPawn::CharacterMoveToOnServer_Implementation(const FVector& Destination)
 {
-	if(MobaCharacter)
+	if(ControlledMobaHero)
 	{
-		const float Distance = FVector::Dist(MobaCharacter->GetActorLocation(), Destination);
+		const float Distance = FVector::Dist(ControlledMobaHero->GetActorLocation(), Destination);
 		
 		if(Distance > 120.0f)
 		{
-			if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(MobaCharacter->GetController()))
+			if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(ControlledMobaHero->GetController()))
 			{
 				MobaAIController->MoveToLocation(Destination);
 			}

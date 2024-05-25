@@ -2,6 +2,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/MobaPawn.h"
+#include "Game/MobaPlayerState.h"
 
 
 class AMobaPlayerState;
@@ -40,10 +42,87 @@ namespace MethodUnit
 
 	template<class T>
 	void ServerCallAllPlayer(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
+	
 
 	template<class T>
 	void ServerCallAllCharacterAI(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
 
 }
+
+//模板声明和实现要写在一个文件中，否则 Error LNK2019
+template <class T>
+void MethodUnit::ServerCallAllPlayerController(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+{
+	// 令所有的PlayerController执行 void InImplement(T*) 函数
+	for(auto It = InWorld->GetPlayerControllerIterator(); It; ++It)
+	{
+		if(T* PlayerController = Cast<T>(*It))
+		{
+			if(InImplement(PlayerController) == EServerCallType::ECT_ProgressComplete)
+			{
+				break;  //如果完成，断开连接
+			}
+		}
+	}
+}
+
+template <class T>
+void MethodUnit::ServerCallAllPlayerState(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+{
+	// 令所有的PlayerController执行 Lambda 函数
+	// 通过该 Lambda 函数调用所有的PlayerState 执行 InImplement 函数
+	ServerCallAllPlayerController<APlayerController>(InWorld, [&](const APlayerController* PlayerController)->EServerCallType
+	{
+		if(T* PlayerState = PlayerController->GetPlayerState<T>())
+		{
+			return InImplement(PlayerState);
+		}
+
+		return EServerCallType::ECT_ProgressComplete;
+	});
+}
+
+template <class T>
+void MethodUnit::ServerCallAllPlayerDataComponent(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+{
+	ServerCallAllPlayerState<AMobaPlayerState>(InWorld, [&](const AMobaPlayerState* MobaPlayerState)->EServerCallType
+	{
+		if(T* DataComponent = Cast<T>(MobaPlayerState->GetPlayerDataComponent()))
+		{
+			return InImplement(DataComponent);
+		}
+		
+		return EServerCallType::ECT_ProgressComplete;
+	});
+}
+
+template <class T>
+void MethodUnit::ServerCallAllPlayer(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+{
+	ServerCallAllPlayerController<APlayerController>(InWorld, [&](const APlayerController* PlayerController)->EServerCallType
+	{
+		if(T* Pawn = PlayerController->GetPawn<T>())
+		{
+			return InImplement(Pawn);
+		}
+		
+		return EServerCallType::ECT_ProgressComplete;
+	});
+}
+
+template <class T>
+void MethodUnit::ServerCallAllCharacterAI(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+{
+	ServerCallAllPlayer<AMobaPawn>(InWorld, [&](const AMobaPawn* MobaPawn)->EServerCallType
+	{
+		if(T* CharacterAI = Cast<T>(MobaPawn->GetControlledMobaHero()))
+		{
+			return InImplement(CharacterAI);
+		}
+		return EServerCallType::ECT_ProgressComplete;
+	});
+}
+
+
 
 

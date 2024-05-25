@@ -10,9 +10,14 @@ void UMobaStatusBarUI::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UMobaStatusBarUI::SetTitle(const FString& InTitle) const
+void UMobaStatusBarUI::SetLevel(const int32 InLevel) const
 {
-	Title->SetText(FText::FromString(InTitle));
+	LevelBar->SetText(FText::FromString(FString::FromInt(InLevel)));
+}
+
+void UMobaStatusBarUI::SetName(const FString& InTitle) const
+{
+	NameBar->SetText(FText::FromString(InTitle));
 }
 
 void UMobaStatusBarUI::SetManaPercent(const float InPercent) const
