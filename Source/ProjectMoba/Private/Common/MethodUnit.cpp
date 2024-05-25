@@ -7,6 +7,7 @@
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AMobaGameState* MethodUnit::GetMobaGameState(const UWorld* InWorld)
 {
@@ -67,6 +68,12 @@ bool MethodUnit::IsPlayer(UWorld* InWorld, int64 InPlayerID)
 	});
 	
 	return false;
+}
+
+void MethodUnit::DelayCallFunction(UWorld* InWorld, const TCHAR* FuncName, UObject* CallbackTarget, float Duration)
+{
+	const FLatentActionInfo LatentInfo(0, FMath::Rand(), FuncName, CallbackTarget);
+	UKismetSystemLibrary::Delay(InWorld, Duration, LatentInfo);
 }
 
 

@@ -1,5 +1,6 @@
 ﻿#include "AI/MobaAIController.h"
 
+#include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -18,6 +19,7 @@ void AMobaAIController::BeginPlay()
 		//延迟运行行为树，否则 UUBTDecorator_MobaAttackRange::InitializeMemory 获取角色属性时崩溃
 		//失败的解决方法：在OnPossess中运行行为树，
 		GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaAIController::InitMobaAIController,0.1f, false);
+		//GThread::GetCoroutines().BindUObject(0.5f, this, &AMobaAIController::InitMobaAIController);
 	}
 }
 

@@ -55,7 +55,7 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	{
 		/** 在服务器上生成子弹 */
 		/** 在编辑器上用前一句判断，Runtime用后一句判断 */
-		if(Character->GetWorld()->IsServer() || Character->GetLocalRole() == ROLE_Authority)
+		if(Character->GetWorld()->IsNetMode(NM_DedicatedServer) || Character->GetLocalRole() == ROLE_Authority)
 		{
 			// 子弹来源
 			FActorSpawnParameters SpawnParams;

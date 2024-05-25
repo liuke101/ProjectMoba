@@ -43,6 +43,8 @@ namespace MethodUnit
 
 	template<class T>
 	void ServerCallAllCharacterAI(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
+
+	void DelayCallFunction(UWorld* InWorld, const TCHAR* FuncName, UObject* CallbackTarget, float Duration);
 	
 }
 

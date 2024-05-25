@@ -41,13 +41,17 @@ public:
 	void MultiCastStatusBar_Health(float HealthPercent);
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastStatusBar_Mana(float ManaPercent);
+	
 
 	/** 重生 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastReborn();
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
+	UFUNCTION()
 	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType);
+
+	UFUNCTION()
 	void InitCharacter();
 	
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
@@ -63,6 +67,7 @@ public:
 	FORCEINLINE UArrowComponent* GetFirePointComponent() const { return FirePointComponent; }
 	FVector GetFirePointLocation() const;
 	FRotator GetFirePointRotation() const;
+
 protected:
 	/** 状态栏 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
@@ -73,6 +78,7 @@ protected:
 	TObjectPtr<UArrowComponent> FirePointComponent;
 
 	/** 接收伤害 */
+	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 private:
 	bool bAttacking;
@@ -81,6 +87,7 @@ private:
 	ETeamType TeamType;
 
 	FTimerHandle InitTimerHandle;
+
 	
 };
 

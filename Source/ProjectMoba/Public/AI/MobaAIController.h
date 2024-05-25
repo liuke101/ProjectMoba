@@ -20,7 +20,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UFUNCTION()
 	void InitMobaAIController();
+	
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 	void SetTarget(AMobaCharacter* InTarget);
 	AMobaCharacter* FindTarget();

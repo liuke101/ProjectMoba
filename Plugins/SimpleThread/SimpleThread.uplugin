@@ -10,6 +10,7 @@
 	"DocsURL": "https://zhuanlan.zhihu.com/p/78023533",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/f842694afc354d25b1c3cb3a5397bd9d",
 	"SupportURL": "http://www.aboutcg.org/course/tut_ue4suite_190813/",
+	"EngineVersion": "5.2.0",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"Installed": true,
@@ -18,7 +19,7 @@
 			"Name": "SimpleThread",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [
+			"PlatformAllowList": [
 				"Win64"
 			]
 		}

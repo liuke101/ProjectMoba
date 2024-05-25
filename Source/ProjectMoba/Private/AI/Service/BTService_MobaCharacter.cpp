@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BTFunctionLibrary.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Float.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
@@ -19,7 +20,8 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 	
 	if(Blackboard_Target.SelectedKeyType == UBlackboardKeyType_Object::StaticClass() &&
 		Blackboard_Distance.SelectedKeyType == UBlackboardKeyType_Float::StaticClass() &&
-		Blackboard_Location.SelectedKeyType == UBlackboardKeyType_Vector::StaticClass())
+		Blackboard_Location.SelectedKeyType == UBlackboardKeyType_Vector::StaticClass() &&
+		Blackboard_Death.SelectedKeyType == UBlackboardKeyType_Bool::StaticClass())
 	{
 		if(AMobaAIController* OwnerAIController = OwnerComp.GetOwner<AMobaAIController>())
 		{
@@ -27,23 +29,48 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 			{
 				if(UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent())
 				{
+					Blackboard->SetValueAsBool(Blackboard_Death.SelectedKeyName, OwnerCharacter->IsDead());
+					if (OwnerCharacter->IsDead())
+					{
+						return;
+					}
+					
+
 					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
 					if(!Target)
 					{
 						Target = OwnerAIController->FindTarget();
+						if(Target)
+						{
+							Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
+						}
 					}
 		
 					float Distance =  999999.0f;
 					if(Target)
 					{
-						//如果角色死亡，就将目标置空
-						if(OwnerCharacter->IsDead())
+						Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
+						
+						//如果目标角色死亡，就将目标置空
+						if(Distance>2000.0f || Target->IsDead())
 						{
 							OwnerAIController->SetTarget(nullptr);
+							Distance = 999999.0f;
+
+							//一旦失去目标 我们要重新设定目标
+							if(Target->IsDead())
+							{
+								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, OwnerCharacter->GetActorLocation());
+							}
+							else
+							{
+								//我们要重新设定目标
+								//MyBlackBoard->SetValueAsVector(BlackBoardKey_Location.SelectedKeyName, InTarget->GetActorLocation());
+							}
 						}
 						else //如果角色没有死亡，追踪并攻击目标
 						{
-							Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
+							
 							float AttackRange = Target->GetCharacterAttribute()->AttackRange;
 							//如果距离大于攻击范围，就继续向目标移动
 							if(Distance > AttackRange)
@@ -59,6 +86,7 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 							}
 						}
 					}
+					
 			
 					/** 设置目标距离 */
 					Blackboard->SetValueAsFloat(Blackboard_Distance.SelectedKeyName, Distance);
@@ -77,5 +105,6 @@ void UBTService_MobaCharacter::InitializeFromAsset(UBehaviorTree& Asset)
 		Blackboard_Target.ResolveSelectedKey(*BBAsset);
 		Blackboard_Distance.ResolveSelectedKey(*BBAsset);
 		Blackboard_Location.ResolveSelectedKey(*BBAsset);
+		Blackboard_Death.ResolveSelectedKey(*BBAsset);
 	}
 }

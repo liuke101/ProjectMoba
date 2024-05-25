@@ -4,8 +4,6 @@
 #include "Abandonable/SimpleAbandonable.h"
 #include "Async/TaskGraphInterfaces.h"
 
-#define DDD(...) __VA_ARGS__
-
 DEFINE_LOG_CATEGORY_STATIC(SimpleThreadLOG, Log, All);
 
 #define MUTEX_LOCL FScopeLock ScopeLock(&Mutex) 
@@ -14,19 +12,19 @@ DEFINE_LOG_CATEGORY_STATIC(SimpleThreadLOG, Log, All);
 (new FAutoDeleteAsyncTask<FSimpleAbandonable>(ThreadDelegate))->StartBackgroundTask()
 
 #define ASYNCTASK_UOBJECT(Object,...) \
-USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateUObject(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateUObject(Object,##__VA_ARGS__))
 
 #define ASYNCTASK_Raw(Object,...) \
-USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateRaw(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateRaw(Object,##__VA_ARGS__))
 
 #define ASYNCTASK_SP(Object,...) \
-USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateSP(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateSP(Object,##__VA_ARGS__))
 
 #define ASYNCTASK_Lambda(...) \
-USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateLambda(__VA_ARGS__))
+USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateLambda(##__VA_ARGS__))
 
 #define ASYNCTASK_UFunction(Object,...) \
-USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateUFunction(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_ASYNCTASK(FSimpleDelegate::CreateUFunction(Object,##__VA_ARGS__))
 
 #define USE_UE_THREAD_POOL_SYNCTASK(ThreadDelegate) \
 {FAsyncTask<FSimpleAbandonable> *SimpleAbandonable = new FAsyncTask<FSimpleAbandonable>(ThreadDelegate); \
@@ -35,38 +33,38 @@ SimpleAbandonable->EnsureCompletion(); \
 delete SimpleAbandonable; }
 
 #define SYNCTASK_UOBJECT(Object,...) \
-USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateUObject(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateUObject(Object,##__VA_ARGS__))
 
 #define SYNCTASK_Raw(Object,...) \
-USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateRaw(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateRaw(Object,##__VA_ARGS__))
 
 #define SYNCTASK_SP(Object,...) \
-USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateSP(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateSP(Object,##__VA_ARGS__))
 
 #define SYNCTASK_Lambda(...) \
-USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateLambda(__VA_ARGS__))
+USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateLambda(##__VA_ARGS__))
 
 #define SYNCTASK_UFunction(Object,...) \
-USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateUFunction(Object,__VA_ARGS__))
+USE_UE_THREAD_POOL_SYNCTASK(FSimpleDelegate::CreateUFunction(Object,##__VA_ARGS__))
 
 //The calling thread can set the pre task 
 #define CALL_THREAD(OtherTask,CallThreadName,InTaskDeletegate) \
 FSimpleDelegateGraphTask::CreateAndDispatchWhenReady(InTaskDeletegate,TStatId(),OtherTask,CallThreadName);
 
 #define CALL_THREAD_UOBJECT(OtherTask,CallThreadName,Object,...) \
-CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateUObject(Object,__VA_ARGS__))
+CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateUObject(Object,##__VA_ARGS__))
 
 #define CALL_THREAD_Raw(OtherTask,CallThreadName,Object,...) \
-CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateRaw(Object,__VA_ARGS__))
+CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateRaw(Object,##__VA_ARGS__))
 
 #define CALL_THREAD_SP(OtherTask,CallThreadName,Object,...) \
-CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateSP(Object,__VA_ARGS__))
+CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateSP(Object,##__VA_ARGS__))
 
 #define CALL_THREAD_Lambda(OtherTask,CallThreadName,...) \
-CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateLambda(__VA_ARGS__))
+CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateLambda(##__VA_ARGS__))
 
 #define CALL_THREAD_UFunction(OtherTask,CallThreadName,Object,...) \
-CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateUFunction(Object,__VA_ARGS__))
+CALL_THREAD(OtherTask,CallThreadName,FSimpleDelegate::CreateUFunction(Object,##__VA_ARGS__))
 
 
 #define WAITING_OTHER_THREADS_COMPLETED(EventRef) \

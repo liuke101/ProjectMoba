@@ -25,4 +25,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Blackboard")
 	FBlackboardKeySelector Blackboard_Location;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Blackboard")
+	FBlackboardKeySelector Blackboard_Death;
 };

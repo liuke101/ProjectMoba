@@ -3,13 +3,12 @@
 
 #include "Character/MobaCharacter.h"
 
+#include "ThreadManage.h"
 #include "Common/MethodUnit.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
 #include "Table/CharacterAsset.h"
@@ -163,9 +162,18 @@ void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
 
 void AMobaCharacter::MultiCastReborn_Implementation()
 {
+	if(InitTimerHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(InitTimerHandle);
+	}
+	
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		GetCharacterAttribute()->ResetAttribute();
+		if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+		{
+			CharacterAttribute->ResetAttribute();
+			MultiCastStatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+		}
 	}
 	StopAnimMontage(); //停止死亡动画
 }
@@ -182,12 +190,14 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 		
 		// 使用计时器短暂延迟，保证客户端生成角色后再同步状态栏信息
 		GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaCharacter::InitCharacter, 0.5f, false);
+		//UKismetSystemLibrary::Delay(GetWorld(), 0.5f, FLatentActionInfo(0, FMath::Rand(), TEXT("InitCharacter"), this));
+		//GThread::GetCoroutines().BindUObject(0.5f, this, &AMobaCharacter::InitCharacter);
 	}
 }
 
 void AMobaCharacter::InitCharacter()
 {
-	// 关闭计时器
+	//关闭计时器
 	if(InitTimerHandle.IsValid())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(InitTimerHandle);
@@ -229,8 +239,10 @@ FRotator AMobaCharacter::GetFirePointRotation() const
 }
 
 float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
+                                 AActor* DamageCauser)
 {
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
 	if(GetLocalRole() == ROLE_Authority)
 	{
 		GetCharacterAttribute()->CurrentHealth += DamageAmount;
@@ -241,13 +253,18 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		{
 			//死亡动画广播到客户端
 			MultiCastPlayerAnimMontage(MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID)->DeathMontage);
+
+			//5s后重生
+			//UKismetSystemLibrary::Delay(GetWorld(), 5.0f, FLatentActionInfo(0, FMath::Rand(), TEXT("MultiCastReborn"), this));
+			GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);
+			//GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
 		}
 		else
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
 		}
 	}
-	return 0.0f;
+	return 0;
 }
 
 
