@@ -26,10 +26,6 @@ public:
 	/** 普通攻击 */
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 
-	/** 技能攻击 */
-	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget);
-	UAnimMontage* GetCurrentSkillMontage(ESkillKey SkillKey) const;
-
 	/** 动画广播 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastPlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
@@ -42,7 +38,6 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastStatusBar_Mana(float ManaPercent);
 	
-
 	/** 重生 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void MultiCastReborn();
@@ -88,7 +83,5 @@ private:
 
 	FTimerHandle InitCharacterTimerHandle;
 	FTimerHandle RebornTimerHandle;
-
-	
 };
 

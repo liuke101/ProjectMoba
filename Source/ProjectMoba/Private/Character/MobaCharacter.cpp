@@ -3,7 +3,6 @@
 
 #include "Character/MobaCharacter.h"
 
-#include "ThreadManage.h"
 #include "Common/MethodUnit.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -92,36 +91,6 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 			}
 		}
 	}
-}
-
-void AMobaCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget)
-{
-	if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
-	{
-		//广播动画
-		MultiCastPlayerAnimMontage(Montage);
-	}
-}
-
-UAnimMontage* AMobaCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
-{
-	if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
-	{
-		switch (SkillKey)
-		{
-		case ESkillKey::ESK_W:
-			return CharacterAsset->W_SkillMontage;
-		case ESkillKey::ESK_E:
-			return CharacterAsset->E_SkillMontage;
-		case ESkillKey::ESK_R:
-			return CharacterAsset->R_SkillMontage;
-		case ESkillKey::ESK_F:
-			return CharacterAsset->F_SkillMontage;
-		case ESkillKey::ESK_Space:
-			return CharacterAsset->Space_SkillMontage;
-		}
-	}
-	return nullptr;
 }
 
 void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, float ManaPercent)
@@ -257,7 +226,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			//5s后重生
 			//UKismetSystemLibrary::Delay(GetWorld(), 5.0f, FLatentActionInfo(0, FMath::Rand(), TEXT("MultiCastReborn"), this));
 			GetWorld()->GetTimerManager().SetTimer(RebornTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);
-			//GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
+			//GThread::Get()->GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
 		}
 		else
 		{

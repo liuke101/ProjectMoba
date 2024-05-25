@@ -7,6 +7,7 @@
 #include "ProjectMoba/MobaType.h"
 #include "MobaPawn.generated.h"
 
+class AMobaHero;
 class UNiagaraSystem;
 class UBoxComponent;
 class USpringArmComponent;
@@ -38,7 +39,7 @@ public:
 	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
 	UPROPERTY() // 防止被GC回收
-	TObjectPtr<AMobaCharacter> MobaCharacter;
+	TObjectPtr<AMobaHero> MobaCharacter;
 	
 	UFUNCTION(Server, Reliable)
 	void CharacterMoveToOnServer(const FVector& Destination);
@@ -46,7 +47,7 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, const APawn* TargetPawn);
 
-	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaCharacter> InTarget) const;
+	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHero> InTarget);
 	
 	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }

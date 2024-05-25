@@ -70,13 +70,6 @@ bool MethodUnit::IsPlayer(UWorld* InWorld, int64 InPlayerID)
 	return false;
 }
 
-void MethodUnit::DelayCallFunction(UWorld* InWorld, const TCHAR* FuncName, UObject* CallbackTarget, float Duration)
-{
-	const FLatentActionInfo LatentInfo(0, FMath::Rand(), FuncName, CallbackTarget);
-	UKismetSystemLibrary::Delay(InWorld, Duration, LatentInfo);
-}
-
-
 template <class T>
 void MethodUnit::ServerCallAllPlayerController(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
 {
