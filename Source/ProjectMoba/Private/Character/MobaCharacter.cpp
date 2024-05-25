@@ -220,9 +220,12 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		//攻击角色
 		if(IsDead())
 		{
-			//死亡动画广播到客户端
-			MultiCastPlayerAnimMontage(MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID)->DeathMontage);
-
+			//随机播放死亡动画广播到客户端
+			if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+			{
+				MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+			}
+			
 			//5s后重生
 			//UKismetSystemLibrary::Delay(GetWorld(), 5.0f, FLatentActionInfo(0, FMath::Rand(), TEXT("MultiCastReborn"), this));
 			GetWorld()->GetTimerManager().SetTimer(RebornTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);

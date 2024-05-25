@@ -2,7 +2,13 @@
 
 
 #include "Game/MobaGameMode.h"
+
+#include "Character/MobaCharacter.h"
+#include "Character/Tool/CharacterSpawnPoint.h"
+#include "Common/MethodUnit.h"
 #include "Game/MobaGameState.h"
+#include "Kismet/GameplayStatics.h"
+#include "Table/CharacterAsset.h"
 
 AMobaGameMode::AMobaGameMode()
 {
@@ -14,24 +20,41 @@ AMobaGameMode::AMobaGameMode()
 void AMobaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	if(MobaGameState == nullptr)
-	{
-		MobaGameState = GetGameState<AMobaGameState>();
-	}
-
-	/** 每帧更新角色属性, 也可以写在Character类的Tick中 */
-	/** GameMode仅存在于服务器, 不需要进行LocalRole判断 */
-	// if(MobaGameState)
-	// {
-	// 	ServerCallAllCharacterAI<AMobaCharacter>([&](const AMobaCharacter* MobaCharacter)
-	// 	{
-	// 		
-	// 	});
-	// }
+	
 }
 
 void AMobaGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/** GameMode仅存在于服务器, 不需要进行LocalRole判断 */
+	
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		AActor* CharacterSpawnPoint = UGameplayStatics::GetActorOfClass(GetWorld(),ACharacterSpawnPoint::StaticClass());
+		int32 CharacterID = 11110;
+	
+		//从txt读取角色ID，然后根据角色ID生成角色
+		// FString NumberString;
+		// FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); 
+		// CharacterID = FCString::Atoi(*NumberString);  
+
+		UClass* DefaultCharacterClass = nullptr;
+		if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
+		{
+			DefaultCharacterClass = CharacterAsset->CharacterClass;
+		}
+	 		
+		if(DefaultCharacterClass)
+		{
+			if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, CharacterSpawnPoint->GetActorLocation(), CharacterSpawnPoint->GetActorRotation()))
+			{
+				int64 PlayerID = 123456;
+				if(PlayerID!= INDEX_NONE)
+				{
+					MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, ETeamType::ETT_Red);
+				}
+			}
+		}
+	}
 }

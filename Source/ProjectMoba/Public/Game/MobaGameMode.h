@@ -6,7 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "MobaGameMode.generated.h"
 
-class AMobaGameState;
+class AMobaCharacter;
 /**
  * 
  */
@@ -24,10 +24,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(Transient)
-    TObjectPtr<AMobaGameState> MobaGameState;
-	
-	
 };
 
 

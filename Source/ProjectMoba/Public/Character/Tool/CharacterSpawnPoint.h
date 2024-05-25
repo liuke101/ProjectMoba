@@ -14,15 +14,18 @@ UCLASS()
 class PROJECTMOBA_API ACharacterSpawnPoint : public ATargetPoint
 {
 	GENERATED_BODY()
+
+public:
+	ACharacterSpawnPoint();
 public:
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Moba|Type")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Type")
 	ETeamType TeamType = ETeamType::ETT_None;
 
-	UPROPERTY(EditAnywhere, Category = "Moba|ype")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|ype")
 	ECharacterType CharacterType = ECharacterType::ECT_None;
 
 	

@@ -35,7 +35,7 @@ struct FCharacterAsset : public FMobaTableBase
 	TObjectPtr<UAnimMontage> Space_SkillMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Montage")
-	TObjectPtr<UAnimMontage> DeathMontage;
+	TArray<TObjectPtr<UAnimMontage>> DeathMontages;
 	
 };
 
