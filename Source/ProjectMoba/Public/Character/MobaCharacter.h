@@ -86,7 +86,8 @@ private:
 	int64 PlayerID;
 	ETeamType TeamType;
 
-	FTimerHandle InitTimerHandle;
+	FTimerHandle InitCharacterTimerHandle;
+	FTimerHandle RebornTimerHandle;
 
 	
 };

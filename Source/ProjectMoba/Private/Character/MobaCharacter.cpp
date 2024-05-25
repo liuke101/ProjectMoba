@@ -162,9 +162,9 @@ void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
 
 void AMobaCharacter::MultiCastReborn_Implementation()
 {
-	if(InitTimerHandle.IsValid())
+	if(RebornTimerHandle.IsValid())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(InitTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(RebornTimerHandle);
 	}
 	
 	if(GetLocalRole() == ROLE_Authority)
@@ -189,7 +189,7 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 		MobaGameState->AddCharacterLocation(InPlayerID, GetActorLocation());
 		
 		// 使用计时器短暂延迟，保证客户端生成角色后再同步状态栏信息
-		GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaCharacter::InitCharacter, 0.5f, false);
+		GetWorld()->GetTimerManager().SetTimer(InitCharacterTimerHandle, this, &AMobaCharacter::InitCharacter, 0.5f, false);
 		//UKismetSystemLibrary::Delay(GetWorld(), 0.5f, FLatentActionInfo(0, FMath::Rand(), TEXT("InitCharacter"), this));
 		//GThread::GetCoroutines().BindUObject(0.5f, this, &AMobaCharacter::InitCharacter);
 	}
@@ -198,9 +198,9 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 void AMobaCharacter::InitCharacter()
 {
 	//关闭计时器
-	if(InitTimerHandle.IsValid())
+	if(InitCharacterTimerHandle.IsValid())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(InitTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(InitCharacterTimerHandle);
 	}
 
 	// 广播状态栏
@@ -256,7 +256,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 			//5s后重生
 			//UKismetSystemLibrary::Delay(GetWorld(), 5.0f, FLatentActionInfo(0, FMath::Rand(), TEXT("MultiCastReborn"), this));
-			GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);
+			GetWorld()->GetTimerManager().SetTimer(RebornTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);
 			//GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
 		}
 		else
