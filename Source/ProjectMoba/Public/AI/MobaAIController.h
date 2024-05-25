@@ -21,7 +21,7 @@ protected:
 
 public:
 	UFUNCTION()
-	void InitMobaAIController();
+	virtual void InitMobaAIController();
 	
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 	void SetTarget(AMobaCharacter* InTarget);

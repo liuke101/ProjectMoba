@@ -35,7 +35,6 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 						return;
 					}
 					
-
 					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
 					if(!Target)
 					{
@@ -57,7 +56,8 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 							OwnerAIController->SetTarget(nullptr);
 							Distance = 999999.0f;
 
-							//一旦失去目标 我们要重新设定目标
+							//TOOD:一旦失去目标 我们要重新设定目标
+							
 							if(Target->IsDead())
 							{
 								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, OwnerCharacter->GetActorLocation());
@@ -70,18 +70,17 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 						}
 						else //如果角色没有死亡，追踪并攻击目标
 						{
-							
-							float AttackRange = Target->GetCharacterAttribute()->AttackRange;
+							float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
 							//如果距离大于攻击范围，就继续向目标移动
-							if(Distance > AttackRange)
+							if(Distance > AttackRange) 
 							{
 								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName,  Target->GetActorLocation());
 							}
-							else //如果距离小于等于攻击范围，就停止移动，只将角色面向转向目标
+							else//如果距离小于等于攻击范围，就停止移动，只将角色面向转向目标
 							{
 								FVector Dir = Target->GetActorLocation() - OwnerCharacter->GetActorLocation();
 								Dir.Normalize();
-								FVector FacePos = OwnerCharacter->GetActorLocation() + Dir * 20.0f;
+								FVector FacePos = OwnerCharacter->GetActorLocation() + Dir * 20.0f; //往前略微偏移，保证进入攻击范围
 								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, FacePos);
 							}
 						}

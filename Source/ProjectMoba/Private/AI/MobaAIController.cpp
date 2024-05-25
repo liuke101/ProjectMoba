@@ -1,6 +1,7 @@
 ﻿#include "AI/MobaAIController.h"
 
 #include "ThreadManage.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "Character/MobaCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -30,7 +31,8 @@ void AMobaAIController::InitMobaAIController()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(InitTimerHandle);
 	}
-	
+
+	checkf(BehaviorTree, TEXT("BehaviorTree为空，请在BP_AIController中配置"));
 	RunBehaviorTree(BehaviorTree);
 }
 

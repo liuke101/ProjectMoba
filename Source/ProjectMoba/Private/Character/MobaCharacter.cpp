@@ -185,13 +185,13 @@ void AMobaCharacter::InitCharacter()
 		GetWorld()->GetTimerManager().ClearTimer(InitCharacterTimerHandle);
 	}
 
-	// 广播状态栏
+	
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
 		if(const FCharacterAttribute* Attribute = MobaGameState->GetCharacterAttributeFromPlayerID(PlayerID))
 		{
-			MultiCastStatusBar_Health(Attribute->GetHealthPercent());
-			MultiCastStatusBar_Mana(Attribute->GetManaPercent());
+			GetCharacterMovement()->MaxWalkSpeed = Attribute->WalkSpeed;  //设置移动速度
+			MultiCastStatusBar(Attribute->GetHealthPercent(), Attribute->GetManaPercent()); // 广播状态栏
 		}
 	}
 }

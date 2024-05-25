@@ -41,6 +41,11 @@
 			"Name": "NodeGraphAssistant",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/d9baaaeadeaf41dcb52b3f6e134e9514"
+		},
+		{
+			"Name": "SimpleThread",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/f842694afc354d25b1c3cb3a5397bd9d"
 		}
 	]
 }

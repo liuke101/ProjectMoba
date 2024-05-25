@@ -15,9 +15,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:
-	virtual void Tick(float DeltaTime) override;
 
 public:
+	virtual void InitMobaAIController() override;
+	
 	virtual AMobaCharacter* FindTarget() override;
 };
