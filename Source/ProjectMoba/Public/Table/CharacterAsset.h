@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MobaTableBase.h"
+#include "ProjectMoba/MobaType.h"
 #include "CharacterAsset.generated.h"
 
 USTRUCT(BlueprintType)
@@ -15,6 +16,9 @@ struct FCharacterAsset : public FMobaTableBase
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
 	TSubclassOf<APawn> CharacterClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
+	ECharacterType CharacterType; //角色类型
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack Montage")
 	TArray<TObjectPtr<UAnimMontage>> NormalAttackMontages;

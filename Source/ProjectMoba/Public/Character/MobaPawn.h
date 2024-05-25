@@ -55,9 +55,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|Class")
 	int64 GetPlayerID();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|Class")
-	FORCEINLINE int32 GetCharacterID() const { return CharacterID; }
-	
 	UPlayerDataComponent* GetPlayerDataComponent() const;
 	
 private:
@@ -69,6 +66,4 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
-	
-	int32 CharacterID;
 };

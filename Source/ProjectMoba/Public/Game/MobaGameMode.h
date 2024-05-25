@@ -19,11 +19,15 @@ public:
 	AMobaGameMode();
 	
 	virtual void Tick(float DeltaSeconds) override;
+	
 
 protected:
 	virtual void BeginPlay() override;
 
-public:
+protected:
+	void SpawnMinions();
+private:
+	FTimerHandle SpawnTimerHandle;
 };
 
 

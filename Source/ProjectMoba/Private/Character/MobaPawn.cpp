@@ -46,25 +46,7 @@ void AMobaPawn::BeginPlay()
 
 	 if(GetLocalRole() == ROLE_Authority) 
 	 {
-	 	// 从txt读取角色ID，然后根据角色ID生成角色
-	 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
-	 	{
-	 		FString NumberString;
-	 		FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); 
-	 		CharacterID = FCString::Atoi(*NumberString);  
-	 		
-	 		if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
-	 		{
-	 			DefaultCharacterClass = CharacterAsset->CharacterClass;
-	 		}
-	 		
-	 		if(DefaultCharacterClass)
-	 		{
-	 			// 服务器上生成的Character可能还未在客户端生成（同步），就调用了广播MulticastStatusBar，导致客户端无法同步状态栏信息。解决方法，在注册时用计时器短暂延迟。(或者在AIController的OnRep_Pawn中执行？）
-	 			// 此外，刚生成Character时，Pawn可能还未被PlayerController持有，导致无法在 GetPlayerID 函数中获取 PlayerState。所以不能再BeginPlay中执行，在PossessBy中执行可以解决该问题。
-	 			MobaCharacter = GetWorld()->SpawnActor<AMobaHero>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
-	 		}
-	 	}
+	 	
 	 }
 }
 
@@ -88,15 +70,38 @@ void AMobaPawn::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	/** 在服务器上注册角色信息 */
-	if(MobaCharacter)
+	// 从txt读取角色ID，然后根据角色ID生成角色
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
-		int64 PlayerID = GetPlayerID();
-		if(PlayerID != INDEX_NONE)
+		FString NumberString;
+		FFileHelper::LoadFileToString(NumberString, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); 
+		int32 CharacterID = FCString::Atoi(*NumberString);  
+	 		
+		if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
 		{
-			MobaCharacter->RegisterCharacterOnServer(PlayerID , CharacterID, GetPlayerDataComponent()->TeamType);
+			DefaultCharacterClass = CharacterAsset->CharacterClass;
+			if(DefaultCharacterClass)
+			{
+				// 服务器上生成的Character可能还未在客户端生成（同步），就调用了广播MulticastStatusBar，导致客户端无法同步状态栏信息。解决方法，在注册时用计时器短暂延迟。(或者在AIController的OnRep_Pawn中执行？）
+				// 此外，刚生成Character时，Pawn可能还未被PlayerController持有，导致无法在 GetPlayerID 函数中获取 PlayerState。所以不能再BeginPlay中执行，在PossessBy中执行可以解决该问题。
+				MobaCharacter = GetWorld()->SpawnActor<AMobaHero>(DefaultCharacterClass, GetActorLocation(), GetActorRotation());
+
+				/** 在服务器上注册角色信息 */
+				if(MobaCharacter)
+				{
+					int64 PlayerID = GetPlayerID();
+					if(PlayerID != INDEX_NONE)
+					{
+						MobaCharacter->RegisterCharacterOnServer(PlayerID , CharacterID, GetPlayerDataComponent()->TeamType, CharacterAsset->CharacterType);
+					}
+				}
+			}
 		}
+
+		
 	}
+	
+	
 }
 
 void AMobaPawn::Tick(float DeltaTime)

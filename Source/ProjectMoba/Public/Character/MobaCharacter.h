@@ -44,7 +44,7 @@ public:
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
 	UFUNCTION()
-	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType);
+	void RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType, const ECharacterType InCharacterType);
 
 	UFUNCTION()
 	void InitCharacter();
@@ -58,6 +58,8 @@ public:
 	
 	FORCEINLINE void SetTeamType(ETeamType InTeamType) { TeamType = InTeamType; }
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
+	FORCEINLINE void SetCharacterType(ECharacterType InCharacterType) { CharacterType = InCharacterType; }
+	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
 
 	FORCEINLINE UArrowComponent* GetFirePointComponent() const { return FirePointComponent; }
 	FVector GetFirePointLocation() const;
@@ -80,6 +82,7 @@ private:
 	uint8 AttackCount; //攻击计数
 	int64 PlayerID;
 	ETeamType TeamType;
+	ECharacterType CharacterType;
 
 	FTimerHandle InitCharacterTimerHandle;
 	FTimerHandle RebornTimerHandle;

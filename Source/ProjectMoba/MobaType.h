@@ -5,40 +5,40 @@
 UENUM()
 enum class ESkillKey : uint8
 {
-	ESK_W,
-	ESK_E,
-	ESK_R,
-	ESK_F,
-	ESK_Space
+	ESK_W UMETA(DisplayName="W"),
+	ESK_E UMETA(DisplayName="E"),
+	ESK_R UMETA(DisplayName="R"),
+	ESK_F UMETA(DisplayName="F"),
+	ESK_Space UMETA(DisplayName="Space")
 };
 
 UENUM() // 需要同步，所以使用UENUM引入反射
 enum class ETeamType : uint8
 {
-	ETT_None,
+	ETT_None UMETA(DisplayName="None"),
 	
-	ETT_Red,
-	ETT_Blue,
-	ETT_Neutral
+	ETT_Red UMETA(DisplayName="Red"),
+	ETT_Blue UMETA(DisplayName="Blue"),
+	ETT_Neutral UMETA(DisplayName="Neutral")
 };
 
 UENUM()
 enum class ECharacterType : uint8
 {
-	ECT_None,
+	ECT_None UMETA(DisplayName="None"),
 	
-	ECT_Player,  //玩家
-	ECT_RemoteMinion, // 远程小兵
-	ECT_WarriorMinion, // 近战小兵
-	ECT_BigMinion, // 大兵
-	ECT_SuperMinion, // 超级兵
+	ECT_Player UMETA(DisplayName="Player"),  //玩家
+	ECT_RemoteMinion UMETA(DisplayName="RemoteMinion"), // 远程小兵
+	ECT_WarriorMinion UMETA(DisplayName="WarriorMinion"), // 近战小兵
+	ECT_BigMinion UMETA(DisplayName="BigMinion"), // 大兵
+	ECT_SuperMinion UMETA(DisplayName="SuperMinion"), // 超级兵
 
 	//炮塔
-	ECT_1st_Tower, // 1级塔
-	ECT_2nd_Tower, // 2级塔
-	ECT_3rd_Tower, // 3级塔
-	ECT_Base_Tower, // 4级塔
+	ECT_1st_Tower UMETA(DisplayName="1st_Tower"), // 1级塔
+	ECT_2nd_Tower UMETA(DisplayName="2nd_Tower"), // 2级塔
+	ECT_3rd_Tower UMETA(DisplayName="3rd_Tower"), // 3级塔
+	ECT_Base_Tower UMETA(DisplayName="Base_Tower"), // 4级塔
 
 	//野怪
-	ECT_WildMonster,
+	ECT_WildMonster UMETA(DisplayName="WildMonster"),
 };

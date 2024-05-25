@@ -3,13 +3,13 @@
 
 #include "UI/MiniMap/MobaMiniMapUI.h"
 
-#include "MiscData.h"
 #include "Common/RenderingUtils.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
 #include "Engine/SceneCapture2D.h"
 #include "Game/MobaGameState.h"
+#include "ProjectMoba/MiscData.h"
 #include "UI/MobaHUD.h"
 
 void UMobaMiniMapUI::NativeConstruct()

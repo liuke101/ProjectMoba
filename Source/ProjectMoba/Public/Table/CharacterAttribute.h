@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MobaTableBase.h"
+#include "ProjectMoba/MobaType.h"
 #include "CharacterAttribute.generated.h"
 
 USTRUCT(BlueprintType)

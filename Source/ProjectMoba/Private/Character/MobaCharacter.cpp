@@ -97,11 +97,19 @@ void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, floa
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{
+		//英雄的状态条
 		if(UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
 		{
 			StatusBarUI->SetHealthPercent(HealthPercent);
 			StatusBarUI->SetManaPercent(ManaPercent);
 		}
+		// 怪物的血条
+		else if(UMobaStatusBarUI_Health* StatusBarUI_Health = Cast<UMobaStatusBarUI_Health>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI_Health->SetHealthPercent(HealthPercent);
+		}
+
+		
 	}
 }
 
@@ -114,6 +122,12 @@ void AMobaCharacter::MultiCastStatusBar_Health_Implementation(float HealthPercen
 		{
 			StatusBarUI->SetHealthPercent(HealthPercent);
 		}
+		// 怪物的血条
+		else if(UMobaStatusBarUI_Health* StatusBarUI_Health = Cast<UMobaStatusBarUI_Health>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI_Health->SetHealthPercent(HealthPercent);
+		}
+
 	}
 }
 
@@ -147,10 +161,11 @@ void AMobaCharacter::MultiCastReborn_Implementation()
 	StopAnimMontage(); //停止死亡动画
 }
 
-void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType)
+void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType, const ECharacterType InCharacterType)
 {
 	SetPlayerID(InPlayerID);
 	SetTeamType(InTeamType);
+	SetCharacterType(InCharacterType);
 	
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
@@ -159,8 +174,6 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 		
 		// 使用计时器短暂延迟，保证客户端生成角色后再同步状态栏信息
 		GetWorld()->GetTimerManager().SetTimer(InitCharacterTimerHandle, this, &AMobaCharacter::InitCharacter, 0.5f, false);
-		//UKismetSystemLibrary::Delay(GetWorld(), 0.5f, FLatentActionInfo(0, FMath::Rand(), TEXT("InitCharacter"), this));
-		//GThread::GetCoroutines().BindUObject(0.5f, this, &AMobaCharacter::InitCharacter);
 	}
 }
 
