@@ -3,6 +3,7 @@
 
 #include "Item/Bullet.h"
 
+#include "AI/MobaAIController.h"
 #include "Character/MobaCharacter.h"
 #include "Common/CalculationUnit.h"
 #include "Components/BoxComponent.h"
@@ -27,8 +28,6 @@ ABullet::ABullet()
 	ProjectileMovementComponent->InitialSpeed = 1600.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f; //无重力
 	ProjectileMovementComponent->UpdatedComponent = BoxDamage;
-
-	InitialLifeSpan = 4.0f;
 }
 
 void ABullet::BeginPlay()
@@ -56,8 +55,20 @@ void ABullet::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		{
 			float DamgeValue = CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter);
 			//排除自己和友军
-			if(InstigatorCharacter != TargetCharacter || InstigatorCharacter->GetTeamType() != TargetCharacter->GetTeamType()) 
+			if(InstigatorCharacter != TargetCharacter && InstigatorCharacter->GetTeamType() != TargetCharacter->GetTeamType()) 
 			{
+				//单体目标检测
+				if(bSingleCheck)
+				{
+					if(AMobaAIController* AIController = Cast<AMobaAIController>(InstigatorCharacter->GetController()))
+					{
+						if(AIController->GetTarget() != TargetCharacter) 
+						{
+							return;
+						}
+					}
+				}
+				
 				//造成伤害
 				UGameplayStatics::ApplyDamage(
 					TargetCharacter,

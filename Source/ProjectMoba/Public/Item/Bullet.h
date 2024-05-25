@@ -23,10 +23,14 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	FORCEINLINE void SetRangeCheck(bool bCheck) { bSingleCheck = bCheck; }
+	
 protected:
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+
+	bool bSingleCheck = false; //如果为true则为单体检测，否则为范围检测
 private:
 	UPROPERTY()
 	TObjectPtr<USceneComponent> RootBullet;
@@ -37,7 +41,4 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
-	
-
-	
 };

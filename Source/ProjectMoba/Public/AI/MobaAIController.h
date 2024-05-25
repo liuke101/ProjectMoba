@@ -25,6 +25,8 @@ public:
 	
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 	void SetTarget(AMobaCharacter* InTarget);
+	FORCEINLINE AMobaCharacter* GetTarget() const { return Target.Get(); }
+	
 	virtual AMobaCharacter* FindTarget();
 	void MoveToLocation(const FVector& Destination);
 protected:

@@ -25,7 +25,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify",meta = (ExposeOnSpawn = true))
 	TSubclassOf<ABullet> BulletClass;
 
-//编辑器无法获取FirePoint组件位置, Runtime可以获取。为了表现一致，编辑器通过 Socket 获取位置
+	//编辑器无法获取FirePoint组件位置, Runtime可以获取。为了表现一致，编辑器通过 Socket 获取位置
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
-	FName SocketName;
+	FName SocketName = TEXT("OpenFire");
+
+	//是否为范围检测
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	bool bSingleCheck = false;
+
+	//子弹生命周期
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	float LifeSpan = 4.0f;
 };

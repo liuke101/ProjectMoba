@@ -8,8 +8,6 @@
 
 UAnimNotify_MobaAttack::UAnimNotify_MobaAttack()
 {
-	SocketName = TEXT("OpenFire");
-	
 #if WITH_EDITORONLY_DATA
 	NotifyColor = FColor::Red;
 #endif
@@ -66,7 +64,8 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 			// 生成子弹
 			if(ABullet* Bullet = Character->GetWorld()->SpawnActor<ABullet>(BulletClass, ComponentLocation, ComponentRotation, SpawnParams))
 			{
-			
+				Bullet->SetRangeCheck(false);
+				Bullet->SetLifeSpan(LifeSpan);
 			}
 		}
 	}
