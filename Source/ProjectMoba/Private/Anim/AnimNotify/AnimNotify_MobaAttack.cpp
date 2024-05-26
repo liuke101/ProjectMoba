@@ -3,7 +3,8 @@
 
 #include "Anim/AnimNotify/AnimNotify_MobaAttack.h"
 
-#include "Common/MethodUnit.h"
+#include "AI/MobaAIController.h"
+#include "Character/MobaCharacter.h"
 #include "Item/Bullet.h"
 #include "Item/DamageBox.h"
 
@@ -29,55 +30,49 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		return;
 	}
 	
-	FVector ComponentLocation = FVector::ZeroVector; 
-    FRotator ComponentRotation = FRotator::ZeroRotator;
-	
-#if WITH_EDITOR // 编辑器通过Socket获取组件位置
-	ComponentLocation = MeshComp->GetSocketLocation(SocketName);
-	ComponentRotation = MeshComp->GetSocketRotation(SocketName);
-#else // Runtime直接通过组件获取组件位置
-	if(AMobaCharacter* Character = Cast<AMobaCharacter>(MeshComp->GetOwner()))
+	if(AMobaCharacter* OwnerCharacter = Cast<AMobaCharacter>(MeshComp->GetOuter()))
 	{
-		ComponentLocation = Character->GetFirePointLocation();
-		ComponentRotation = Character->GetFirePointRotation();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("未能获取到 FirePointLocation"));
-		return;
-	}
-#endif
+		FVector ComponentLocation = MeshComp->GetSocketLocation(SocketName);
+		FRotator ComponentRotation =MeshComp->GetSocketRotation(SocketName);
 
-	if(AActor* Character = Cast<AActor>(MeshComp->GetOuter()))
-	{
-		/** 在服务器上生成damagebox */
-		/** 在编辑器上用前一句判断，Runtime用后一句判断 */
-		if(Character->GetWorld()->IsNetMode(NM_DedicatedServer) || Character->GetLocalRole() == ROLE_Authority)
+		if(OwnerCharacter->GetWorld()->IsNetMode(NM_DedicatedServer))
 		{
-			// 来源
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = Character;  // damagebox的拥有者
-			SpawnParams.Instigator = Cast<APawn>(Character); // damagebox的发起者
-
-			
-			if(ADamageBox* DamageBoxInstance = Character->GetWorld()->SpawnActor<ADamageBox>(DamageBoxClass, ComponentLocation, ComponentRotation, SpawnParams))
+			if(AMobaAIController* AIController = Cast<AMobaAIController>(OwnerCharacter->GetController()))
 			{
-				// 如果生成的是子弹
-				if(ABullet* Bullet = Cast<ABullet>(DamageBoxInstance))
+				if(AMobaCharacter* Target = AIController->GetTarget())
 				{
-					Bullet->SetRangeCheck(false);
-					Bullet->SetLifeSpan(LifeSpan);
-					//Bullet其他设置
-				}
-				else // 如果生成的是DamageBox
-				{
-					DamageBoxInstance->SetRangeCheck(false);
-					DamageBoxInstance->SetLifeSpan(LifeSpan);
-					//DamageBox其他设置
+					// 开火点朝向目标
+					ComponentRotation = (Target->GetActorLocation() - ComponentLocation).ToOrientationRotator();
+					if(OwnerCharacter->GetActorRotation() != FRotator::ZeroRotator)
+					{
+						ComponentRotation -= OwnerCharacter->GetActorRotation();
+					}
 				}
 			}
 		}
-	}
 
-	
+		// 来源
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = OwnerCharacter;  // damagebox的拥有者
+		SpawnParams.Instigator = Cast<APawn>(OwnerCharacter); // damagebox的发起者
+		
+		if(ADamageBox* DamageBoxInstance = OwnerCharacter->GetWorld()->SpawnActor<ADamageBox>(DamageBoxClass, ComponentLocation, ComponentRotation, SpawnParams))
+		{
+			// 如果生成的是子弹
+			if(ABullet* Bullet = Cast<ABullet>(DamageBoxInstance))
+			{
+				Bullet->SetRangeCheck(false);
+				Bullet->SetLifeSpan(LifeSpan);
+				//Bullet其他设置
+				// 
+				// 	Bullet->SetHomingTarget(AIController->GetTarget());
+			}
+			else // 如果生成的是DamageBox
+			{
+				DamageBoxInstance->SetRangeCheck(false);
+				DamageBoxInstance->SetLifeSpan(LifeSpan);
+				//DamageBox其他设置
+			}
+		}
+	}
 }

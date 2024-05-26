@@ -27,11 +27,7 @@ void ADamageBox::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// 只在服务器上注册重叠事件
-	if(GetLocalRole() == ROLE_Authority)
-	{
-		DamageBox->OnComponentBeginOverlap.AddDynamic(this, &ADamageBox::BeginOverlap);
-	}
+	DamageBox->OnComponentBeginOverlap.AddDynamic(this, &ADamageBox::BeginOverlap);
 }
 
 void ADamageBox::Tick(float DeltaTime)
@@ -46,18 +42,21 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(OtherActor))
 		{
-			float DamgeValue = CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter);
 			//排除自己和友军
-			if(InstigatorCharacter != TargetCharacter && InstigatorCharacter->GetTeamType() != TargetCharacter->GetTeamType()) 
+			if(InstigatorCharacter != TargetCharacter /*&& InstigatorCharacter->GetTeamType() != TargetCharacter->GetTeamType()*/) 
 			{
-				//单体目标检测
-				if(bSingleCheck)
+				//服务器端
+				if(GetWorld()->IsNetMode(NM_DedicatedServer))
 				{
-					if(AMobaAIController* AIController = Cast<AMobaAIController>(InstigatorCharacter->GetController()))
+					//单体目标检测
+					if(bSingleCheck)
 					{
-						if(AIController->GetTarget() != TargetCharacter) 
+						if(AMobaAIController* AIController = Cast<AMobaAIController>(InstigatorCharacter->GetController()))
 						{
-							return;
+							if(AIController->GetTarget() != TargetCharacter) 
+							{
+								return;
+							}
 						}
 					}
 				}
@@ -65,7 +64,7 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 				//造成伤害
 				UGameplayStatics::ApplyDamage(
 					TargetCharacter,
-					DamgeValue,
+					CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
 					InstigatorCharacter->GetController(),
 					InstigatorCharacter,
 					UDamageType::StaticClass());

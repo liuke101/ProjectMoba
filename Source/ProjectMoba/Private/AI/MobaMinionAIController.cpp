@@ -1,6 +1,6 @@
 ﻿#include "AI/MobaMinionAIController.h"
 
-#include "Character/Hero/MobaHero.h"
+#include "Character/Hero/MobaHeroCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -87,11 +87,6 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 								AITarget.WildMonsterMinDistance = Distance;
 								AITarget.WildMonster = TargetCharacter;
 							}
-						}
-						//优先级五：路径
-						else 
-						{
-							return nullptr;
 						}
 					}
 				}

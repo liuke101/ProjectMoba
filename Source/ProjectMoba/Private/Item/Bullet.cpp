@@ -3,24 +3,21 @@
 
 #include "Item/Bullet.h"
 
-#include "AI/MobaAIController.h"
-#include "Character/MobaCharacter.h"
-#include "Common/CalculationUnit.h"
-#include "Components/BoxComponent.h"
-#include "Game/MobaGameMode.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 
 ABullet::ABullet()
 {
-	bReplicates = true; //开启复制
-
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->MaxSpeed = 2000.f;
 	ProjectileMovementComponent->InitialSpeed = 1600.f;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f; //无重力
-	ProjectileMovementComponent->UpdatedComponent = DamageBox;
+	ProjectileMovementComponent->UpdatedComponent = RootComponent;
+
+	// // 开启追踪
+	// ProjectileMovementComponent->bIsHomingProjectile = true; 
+	// // 设置加速度
+	// ProjectileMovementComponent->HomingAccelerationMagnitude = 100.0f;
 }
 
 void ABullet::BeginPlay()
@@ -32,4 +29,13 @@ void ABullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+// void ABullet::SetHomingTarget(const AMobaCharacter* Target) const
+// {
+// 	if(Target)
+// 	{
+// 		ProjectileMovementComponent->HomingTargetComponent = Target->GetRootComponent();
+// 	}
+// }
+
 

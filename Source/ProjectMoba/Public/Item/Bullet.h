@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Bullet.generated.h"
 
+class AMobaCharacter;
 class UProjectileMovementComponent;
 class UBoxComponent;
 
@@ -24,8 +25,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	//void SetHomingTarget(const AMobaCharacter* Target) const;
 
-protected:
 	//投射物组件，用于远程攻击
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;

@@ -24,7 +24,7 @@ public:
 	virtual void InitMobaAIController();
 	
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
-	void SetTarget(AMobaCharacter* InTarget);
+	virtual void SetTarget(AMobaCharacter* InTarget);
 	FORCEINLINE AMobaCharacter* GetTarget() const { return Target.Get(); }
 	
 	virtual AMobaCharacter* FindTarget();

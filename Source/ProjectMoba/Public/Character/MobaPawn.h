@@ -7,7 +7,7 @@
 #include "ProjectMoba/MobaType.h"
 #include "MobaPawn.generated.h"
 
-class AMobaHero;
+class AMobaHeroCharacter;
 class UNiagaraSystem;
 class UBoxComponent;
 class USpringArmComponent;
@@ -38,7 +38,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Class")
 	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
-	FORCEINLINE AMobaHero* GetControlledMobaHero() const { return ControlledMobaHero; }
+	FORCEINLINE AMobaHeroCharacter* GetControlledMobaHero() const { return ControlledMobaHero; }
 	
 	UFUNCTION(Server, Reliable)
 	void CharacterMoveToOnServer(const FVector& Destination);
@@ -46,7 +46,7 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, const APawn* TargetPawn);
 
-	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHero> InTarget);
+	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHeroCharacter> InTarget);
 	
 	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -58,7 +58,7 @@ public:
 
 protected:
 	UPROPERTY() // 防止被GC回收
-	TObjectPtr<AMobaHero> ControlledMobaHero;
+	TObjectPtr<AMobaHeroCharacter> ControlledMobaHero;
 	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

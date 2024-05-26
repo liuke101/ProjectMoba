@@ -48,7 +48,8 @@ void AMobaGameMode::SpawnMinions()
 	{
 		TArray<AActor*> SpawnPoints;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACharacterSpawnPoint::StaticClass(),SpawnPoints);
-
+		int64 PlayerID = 123456; //暂时写死
+		
 		for(auto& SpawnPoint : SpawnPoints)
 		{
 			if(ACharacterSpawnPoint* CharacterSpawnPoint = Cast<ACharacterSpawnPoint>(SpawnPoint))
@@ -78,7 +79,7 @@ void AMobaGameMode::SpawnMinions()
 				{
 					if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, CharacterSpawnPoint->GetActorLocation(), CharacterSpawnPoint->GetActorRotation()))
 					{
-						int64 PlayerID = 123456; //暂时写死
+						PlayerID++; //保证每个实例的PlayerID不同
 				
 						if(PlayerID!= INDEX_NONE)
 						{
