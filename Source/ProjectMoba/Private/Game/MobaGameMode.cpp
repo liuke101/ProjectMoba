@@ -46,26 +46,50 @@ void AMobaGameMode::SpawnMinions()
 	//在服务器上生成小兵
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
-		AActor* CharacterSpawnPoint = UGameplayStatics::GetActorOfClass(GetWorld(),ACharacterSpawnPoint::StaticClass());
-		int32 CharacterID = 11110;  //暂时写死
-	
-		UClass* DefaultCharacterClass = nullptr;
-		if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
+		TArray<AActor*> SpawnPoints;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACharacterSpawnPoint::StaticClass(),SpawnPoints);
+
+		for(auto& SpawnPoint : SpawnPoints)
 		{
-			DefaultCharacterClass = CharacterAsset->CharacterClass;
-		}
-	 		
-		if(DefaultCharacterClass)
-		{
-			if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, CharacterSpawnPoint->GetActorLocation(), CharacterSpawnPoint->GetActorRotation()))
+			if(ACharacterSpawnPoint* CharacterSpawnPoint = Cast<ACharacterSpawnPoint>(SpawnPoint))
 			{
-				int64 PlayerID = 123456; //暂时写死
-				
-				if(PlayerID!= INDEX_NONE)
+				//根据角色类型生成不同的角色
+				int32 CharacterID = INDEX_NONE;
+				if(CharacterSpawnPoint->GetCharacterType() == ECharacterType::ECT_1st_Tower)
 				{
-					MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, ETeamType::ETT_None, ECharacterType::ECT_None);
+					CharacterID = 22220; //暂时写死
+				}
+				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WarriorMinion)
+				{
+					CharacterID = 11110;  
+				}
+				
+				UClass* DefaultCharacterClass = nullptr;
+				if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
+				{
+					DefaultCharacterClass = CharacterAsset->CharacterClass;
+				}
+				else
+				{
+					return;
+				}
+	 		
+				if(DefaultCharacterClass)
+				{
+					if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, CharacterSpawnPoint->GetActorLocation(), CharacterSpawnPoint->GetActorRotation()))
+					{
+						int64 PlayerID = 123456; //暂时写死
+				
+						if(PlayerID!= INDEX_NONE)
+						{
+							MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, ETeamType::ETT_None, ECharacterType::ECT_None);
+						}
+					}
 				}
 			}
+			
 		}
+		
+		
 	}
 }

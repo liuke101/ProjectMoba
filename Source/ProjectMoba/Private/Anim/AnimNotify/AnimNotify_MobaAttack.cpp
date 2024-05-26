@@ -5,6 +5,7 @@
 
 #include "Common/MethodUnit.h"
 #include "Item/Bullet.h"
+#include "Item/DamageBox.h"
 
 UAnimNotify_MobaAttack::UAnimNotify_MobaAttack()
 {
@@ -22,11 +23,9 @@ FString UAnimNotify_MobaAttack::GetNotifyName_Implementation() const
 void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
-	Super::Notify(MeshComp, Animation, EventReference);
-	
-	if(BulletClass == nullptr)
+	if(DamageBoxClass == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("BulletClass为空, 请在AnimNotify_Attack中设置BulletClass"));
+		UE_LOG(LogTemp, Error, TEXT("DamageBoxClass为空, 请在AnimNotify_Attack中设置DamageBoxClass"));
 		return;
 	}
 	
@@ -49,23 +48,33 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	}
 #endif
 
-	
 	if(AActor* Character = Cast<AActor>(MeshComp->GetOuter()))
 	{
-		/** 在服务器上生成子弹 */
+		/** 在服务器上生成damagebox */
 		/** 在编辑器上用前一句判断，Runtime用后一句判断 */
 		if(Character->GetWorld()->IsNetMode(NM_DedicatedServer) || Character->GetLocalRole() == ROLE_Authority)
 		{
-			// 子弹来源
+			// 来源
 			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = Character;  // 子弹的拥有者
-			SpawnParams.Instigator = Cast<APawn>(Character); // 子弹的发起者
+			SpawnParams.Owner = Character;  // damagebox的拥有者
+			SpawnParams.Instigator = Cast<APawn>(Character); // damagebox的发起者
 
-			// 生成子弹
-			if(ABullet* Bullet = Character->GetWorld()->SpawnActor<ABullet>(BulletClass, ComponentLocation, ComponentRotation, SpawnParams))
+			
+			if(ADamageBox* DamageBoxInstance = Character->GetWorld()->SpawnActor<ADamageBox>(DamageBoxClass, ComponentLocation, ComponentRotation, SpawnParams))
 			{
-				Bullet->SetRangeCheck(false);
-				Bullet->SetLifeSpan(LifeSpan);
+				// 如果生成的是子弹
+				if(ABullet* Bullet = Cast<ABullet>(DamageBoxInstance))
+				{
+					Bullet->SetRangeCheck(false);
+					Bullet->SetLifeSpan(LifeSpan);
+					//Bullet其他设置
+				}
+				else // 如果生成的是DamageBox
+				{
+					DamageBoxInstance->SetRangeCheck(false);
+					DamageBoxInstance->SetLifeSpan(LifeSpan);
+					//DamageBox其他设置
+				}
 			}
 		}
 	}

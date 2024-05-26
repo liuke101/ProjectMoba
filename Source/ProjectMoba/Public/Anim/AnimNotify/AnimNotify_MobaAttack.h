@@ -6,6 +6,7 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "AnimNotify_MobaAttack.generated.h"
 
+class ADamageBox;
 class ABullet;
 /**
  * 
@@ -23,7 +24,7 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify",meta = (ExposeOnSpawn = true))
-	TSubclassOf<ABullet> BulletClass;
+	TSubclassOf<ADamageBox> DamageBoxClass;
 
 	//编辑器无法获取FirePoint组件位置, Runtime可以获取。为了表现一致，编辑器通过 Socket 获取位置
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))

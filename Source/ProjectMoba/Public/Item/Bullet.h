@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DamageBox.h"
 #include "GameFramework/Actor.h"
 #include "Bullet.generated.h"
 
@@ -10,7 +11,7 @@ class UProjectileMovementComponent;
 class UBoxComponent;
 
 UCLASS()
-class PROJECTMOBA_API ABullet : public AActor
+class PROJECTMOBA_API ABullet : public ADamageBox
 {
 	GENERATED_BODY()
 
@@ -23,22 +24,9 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-public:
-	FORCEINLINE void SetRangeCheck(bool bCheck) { bSingleCheck = bCheck; }
-	
+
 protected:
-	UFUNCTION()
-	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	bool bSingleCheck = false; //如果为true则为单体检测，否则为范围检测
-private:
-	UPROPERTY()
-	TObjectPtr<USceneComponent> RootBullet;
-	
-	//碰撞盒, 不要将其设置为RootComponent，否则会导致无法调整大小
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> BoxDamage; 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet", meta = (AllowPrivateAccess = "true"))
+	//投射物组件，用于远程攻击
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 };
