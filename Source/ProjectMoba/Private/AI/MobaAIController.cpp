@@ -36,19 +36,29 @@ void AMobaAIController::InitMobaAIController()
 	RunBehaviorTree(BehaviorTree);
 }
 
-void AMobaAIController::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
+void AMobaAIController::NormalAttack()
 {
-	Target = InTarget;
 	if(AMobaCharacter* MobaCharacter = Cast<AMobaCharacter>(GetPawn()))
 	{
-		MobaCharacter->NormalAttack(Target);
+		MobaCharacter->NormalAttack(GetTarget());
 	}
 }
 
 void AMobaAIController::SetTarget(AMobaCharacter* InTarget)
 {
-	GetBlackboardComponent()->SetValueAsObject("Target", InTarget);
-	Target = InTarget;
+	if(GetBlackboardComponent())
+	{
+		GetBlackboardComponent()->SetValueAsObject("Target", InTarget);
+	}
+}
+
+AMobaCharacter* AMobaAIController::GetTarget() const
+{
+	if(GetBlackboardComponent())
+	{
+		return Cast<AMobaCharacter>(GetBlackboardComponent()->GetValueAsObject("Target"));
+	}
+	return nullptr;
 }
 
 AMobaCharacter* AMobaAIController::FindTarget()
@@ -59,7 +69,10 @@ AMobaCharacter* AMobaAIController::FindTarget()
 void AMobaAIController::MoveToLocation(const FVector& Destination)
 {
 	SetTarget(nullptr);
-	GetBlackboardComponent()->SetValueAsVector("Location", Destination);
+	if(GetBlackboardComponent())
+	{
+		GetBlackboardComponent()->SetValueAsVector("Location", Destination);
+	}
 }
 
 void AMobaAIController::StopAttackingRotate(bool bStopAttackRotate)

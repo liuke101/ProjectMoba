@@ -6,9 +6,9 @@
 
 float CalculationUnit::GetPhysicalArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
-	if ( FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
+	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		if ( FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
+		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
 			return OriginalData->PhysicalArmor * (1.f - InEnemyData->PhysicalPenetration / 100.f);
 		}
@@ -19,9 +19,9 @@ float CalculationUnit::GetPhysicalArmor( AMobaCharacter* InTarget,  AMobaCharact
 
 float CalculationUnit::GetMagicArmor(AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
-	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
+	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		if (const FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
+		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
 			return OriginalData->MagicArmor *(1.f - InEnemyData->MagicPenetration / 100.f);
 		}
@@ -32,7 +32,7 @@ float CalculationUnit::GetMagicArmor(AMobaCharacter* InTarget,  AMobaCharacter* 
 
 float CalculationUnit::GetAttack( AMobaCharacter* InOriginal)
 {
-	if (const FCharacterAttribute* OriginalData = InOriginal->GetCharacterAttribute())
+	if (FCharacterAttribute* OriginalData = InOriginal->GetCharacterAttribute())
 	{
 		return OriginalData->PhysicalAttack* (1 + OriginalData->CriticalRate) + OriginalData->Level;
 	}
@@ -42,7 +42,7 @@ float CalculationUnit::GetAttack( AMobaCharacter* InOriginal)
 
 float CalculationUnit::GetPhysicalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
-	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
+	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
 		return GetAttack(InEnemy) / ((GetPhysicalArmor(InTarget, InEnemy) / 100) - InEnemyData->Level * 2);
 	}
@@ -52,9 +52,9 @@ float CalculationUnit::GetPhysicalDamage( AMobaCharacter* InTarget,  AMobaCharac
 
 float CalculationUnit::GetMagicDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
-	if (const FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
+	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		if (const FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
+		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
 			return InEnemyData->MagicPenetration / ((GetMagicArmor(InTarget, InEnemy) / 70) - InEnemyData->Level);
 		}

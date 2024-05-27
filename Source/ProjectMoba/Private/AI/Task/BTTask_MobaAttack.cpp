@@ -21,7 +21,7 @@ EBTNodeResult::Type UBTTask_MobaAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 			{
 				if(AMobaCharacter* Target = Cast<AMobaCharacter>(BlackboardComponent->GetValueAsObject(Blackboard_Target.SelectedKeyName)))
 				{
-					AIController->NormalAttack(Target);
+					AIController->NormalAttack();
 					return EBTNodeResult::Succeeded;
 				}
 			}

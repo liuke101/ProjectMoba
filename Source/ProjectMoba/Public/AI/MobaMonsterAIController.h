@@ -20,7 +20,8 @@ public:
 	
 public:
 	virtual AMobaCharacter* FindTarget() override;
-
+	void CheckRange();
+	bool bHoming = false; //是否在回家过程中，直到回家结束才会再次寻找目标
 	
 	FVector HomePoint = FVector::ZeroVector;
 };

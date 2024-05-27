@@ -23,16 +23,14 @@ public:
 	UFUNCTION()
 	virtual void InitMobaAIController();
 	
-	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
+	void NormalAttack();
 	virtual void SetTarget(AMobaCharacter* InTarget);
-	FORCEINLINE AMobaCharacter* GetTarget() const { return Target.Get(); }
+	AMobaCharacter* GetTarget() const;
 	
 	virtual AMobaCharacter* FindTarget();
 	void MoveToLocation(const FVector& Destination);
 
 	void StopAttackingRotate(bool bStopAttackRotate);
-protected:
-	TWeakObjectPtr<AMobaCharacter> Target;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "BehaviorTree")

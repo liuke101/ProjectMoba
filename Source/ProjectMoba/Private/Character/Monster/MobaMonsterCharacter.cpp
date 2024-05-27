@@ -37,14 +37,22 @@ void AMobaMonsterCharacter::InitCharacter()
 float AMobaMonsterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
                                         AController* EventInstigator, AActor* DamageCauser)
 {
-	// 将攻击目标设置为伤害来源
-	if(AMobaCharacter* MobaDamgeCauser = Cast<AMobaCharacter>(DamageCauser))
+	if(GetLocalRole() == ROLE_Authority)
 	{
-		if(AMobaMonsterAIController* MobaMonsterAIController = GetController<AMobaMonsterAIController>())
+		// 将攻击目标设置为伤害来源
+		if(AMobaCharacter* MobaDamgeCauser = Cast<AMobaCharacter>(DamageCauser))
 		{
-			MobaMonsterAIController->SetTarget(MobaDamgeCauser);
+			if(AMobaMonsterAIController* MobaMonsterAIController = GetController<AMobaMonsterAIController>())
+			{
+				//当没有目标且不在回家过程中才会选择新目标
+				if(!MobaMonsterAIController->GetTarget() && !MobaMonsterAIController->bHoming)
+				{
+					MobaMonsterAIController->SetTarget(MobaDamgeCauser);
+				}
+			}
 		}
 	}
+	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 

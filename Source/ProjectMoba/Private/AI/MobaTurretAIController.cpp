@@ -18,12 +18,12 @@ void AMobaTurretAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(Target.IsValid())
+	if(GetTarget())
 	{
 		if(AMobaTurretCharacter* OwnerCharacter = GetPawn<AMobaTurretCharacter>())
 		{
 			// 炮塔旋转朝向目标
-			FRotator R = (Target->GetActorLocation() - GetPawn()->GetActorLocation()).ToOrientationRotator();
+			FRotator R = (GetTarget()->GetActorLocation() - GetPawn()->GetActorLocation()).ToOrientationRotator();
 			OwnerCharacter->TurretRotator = FVector2D(R.Pitch, R.Yaw);
 			if(GetPawn()->GetActorRotation() != FRotator::ZeroRotator)
 			{
