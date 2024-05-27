@@ -107,11 +107,11 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 		{
 			AMobaCharacter* Minion = nullptr;
 			AMobaCharacter* Player = nullptr;
-			AMobaCharacter* WildMonster = nullptr;
+			AMobaCharacter* Monster = nullptr;
 			
 			float MinionMinDistance = INT_MAX;
 			float PlayerMinDistance = INT_MAX;
-			float WildMonsterMinDistance = INT_MAX;
+			float MonsterMinDistance = INT_MAX;
 		};
 		
 		// 搜索2000范围内各类别最近目标
@@ -148,12 +148,12 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 								}
 							}
 							//优先级三：野怪
-							else if(TargetCharacter->GetCharacterType() == ECharacterType::ECT_WildMonster)
+							else if(TargetCharacter->GetCharacterType() == ECharacterType::ECT_WildMonster || TargetCharacter->GetCharacterType() == ECharacterType::ECT_BossMonster)
 							{
-								if(Distance < AITarget.WildMonsterMinDistance)
+								if(Distance < AITarget.MonsterMinDistance)
 								{
-									AITarget.WildMonsterMinDistance = Distance;
-									AITarget.WildMonster = TargetCharacter;
+									AITarget.MonsterMinDistance = Distance;
+									AITarget.Monster = TargetCharacter;
 								}
 							}
 						}
@@ -163,6 +163,10 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 		}
 
 		// 按照优先级返回最近目标
+		if(AITarget.Monster)
+		{
+			return AITarget.Monster;
+		}
 		if(AITarget.Minion)
 		{
 			return AITarget.Minion;
@@ -171,10 +175,7 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 		{
 			return AITarget.Player;
 		}
-		if(AITarget.WildMonster)
-		{
-			return AITarget.WildMonster;
-		}
+		
 	}
 	return nullptr;
 }

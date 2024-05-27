@@ -62,6 +62,14 @@ void AMobaAIController::MoveToLocation(const FVector& Destination)
 	GetBlackboardComponent()->SetValueAsVector("Location", Destination);
 }
 
+void AMobaAIController::StopAttackingRotate(bool bStopAttackRotate)
+{
+	if(GetBlackboardComponent())
+	{
+		GetBlackboardComponent()->SetValueAsBool("bStopAttackRotate", bStopAttackRotate);
+	}
+}
+
 
 
 

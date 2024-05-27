@@ -35,44 +35,47 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		FVector ComponentLocation = MeshComp->GetSocketLocation(SocketName);
 		FRotator ComponentRotation =MeshComp->GetSocketRotation(SocketName);
 
-		// 子弹指向目标(可以只在服务器端计算)
+		//  炮塔开火指向目标(可以只在服务器端计算)
 		if(OwnerCharacter->GetWorld()->IsNetMode(NM_DedicatedServer))
 		{
 			if(AMobaAIController* AIController = Cast<AMobaAIController>(OwnerCharacter->GetController()))
 			{
 				if(AMobaCharacter* Target = AIController->GetTarget())
 				{
-					// 开火点朝向目标
 					ComponentRotation = (Target->GetActorLocation() - ComponentLocation).ToOrientationRotator();
-					if(OwnerCharacter->GetActorRotation() != FRotator::ZeroRotator)
+					
+					if(OwnerCharacter->GetCharacterType() >= ECharacterType::ECT_1st_Tower && OwnerCharacter->GetCharacterType() <= ECharacterType::ECT_Base_Tower)
 					{
-						ComponentRotation -= OwnerCharacter->GetActorRotation();
+						if(OwnerCharacter->GetActorRotation() != FRotator::ZeroRotator)
+						{
+							ComponentRotation -= OwnerCharacter->GetActorRotation();
+						}
 					}
 				}
 			}
-		}
 
-		// 来源
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = OwnerCharacter;  // damagebox的拥有者
-		SpawnParams.Instigator = Cast<APawn>(OwnerCharacter); // damagebox的发起者
+			// 来源
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = OwnerCharacter;  // damagebox的拥有者
+			SpawnParams.Instigator = Cast<APawn>(OwnerCharacter); // damagebox的发起者
 		
-		if(ADamageBox* DamageBoxInstance = OwnerCharacter->GetWorld()->SpawnActor<ADamageBox>(DamageBoxClass, ComponentLocation, ComponentRotation, SpawnParams))
-		{
-			// 如果生成的是子弹
-			if(ABullet* Bullet = Cast<ABullet>(DamageBoxInstance))
+			if(ADamageBox* DamageBoxInstance = OwnerCharacter->GetWorld()->SpawnActor<ADamageBox>(DamageBoxClass, ComponentLocation, ComponentRotation, SpawnParams))
 			{
-				Bullet->SetRangeCheck(false);
-				Bullet->SetLifeSpan(LifeSpan);
-				//Bullet其他设置
-				// 
-				// 	Bullet->SetHomingTarget(AIController->GetTarget());
-			}
-			else // 如果生成的是DamageBox
-			{
-				DamageBoxInstance->SetRangeCheck(false);
-				DamageBoxInstance->SetLifeSpan(LifeSpan);
-				//DamageBox其他设置
+				// 如果生成的是子弹
+				if(ABullet* Bullet = Cast<ABullet>(DamageBoxInstance))
+				{
+					Bullet->SetRangeCheck(false);
+					Bullet->SetLifeSpan(LifeSpan);
+					//Bullet其他设置
+					// 
+					// 	Bullet->SetHomingTarget(AIController->GetTarget());
+				}
+				else // 如果生成的是DamageBox
+				{
+					DamageBoxInstance->SetRangeCheck(false);
+					DamageBoxInstance->SetLifeSpan(LifeSpan);
+					//DamageBox其他设置
+				}
 			}
 		}
 	}

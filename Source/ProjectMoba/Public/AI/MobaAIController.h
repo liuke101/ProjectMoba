@@ -29,6 +29,8 @@ public:
 	
 	virtual AMobaCharacter* FindTarget();
 	void MoveToLocation(const FVector& Destination);
+
+	void StopAttackingRotate(bool bStopAttackRotate);
 protected:
 	TWeakObjectPtr<AMobaCharacter> Target;
 

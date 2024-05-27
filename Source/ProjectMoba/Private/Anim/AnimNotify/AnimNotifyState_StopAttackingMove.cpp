@@ -1,11 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Anim/AnimNotify/AnimNotify_StopMovement.h"
+#include "Anim/AnimNotify/AnimNotifyState_StopAttackingMove.h"
 
 #include "Character/MobaCharacter.h"
 
-void UAnimNotify_StopMovement::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UAnimNotifyState_StopAttackingMove::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
                                            float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
@@ -21,7 +21,7 @@ void UAnimNotify_StopMovement::NotifyBegin(USkeletalMeshComponent* MeshComp, UAn
 	
 }
 
-void UAnimNotify_StopMovement::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
+void UAnimNotifyState_StopAttackingMove::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
 	const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);

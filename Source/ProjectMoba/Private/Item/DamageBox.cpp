@@ -11,8 +11,8 @@ ADamageBox::ADamageBox()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	bNetLoadOnClient = false; //不在客户端加载
-	bReplicates = false; //关闭复制
+	bNetLoadOnClient = true; //不在客户端加载
+	bReplicates = true; //关闭复制
 	
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
 	RootComponent = Root;
