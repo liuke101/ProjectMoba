@@ -60,7 +60,8 @@ public:
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
 	FORCEINLINE void SetCharacterType(ECharacterType InCharacterType) { CharacterType = InCharacterType; }
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
-
+	void ResetSpeed(float InSpeed);
+	
 	FORCEINLINE UArrowComponent* GetFirePointComponent() const { return FirePointComponent; }
 	FVector GetFirePointLocation() const;
 	FRotator GetFirePointRotation() const;

@@ -3,6 +3,7 @@
 
 #include "Character/MobaCharacter.h"
 
+#include "ThreadManage.h"
 #include "Common/MethodUnit.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
+#include "ProjectMoba/GlobalVariable.h"
 #include "Table/CharacterAsset.h"
 #include "UI/StatusBar/MobaStatusBarUI.h"
 
@@ -22,6 +24,9 @@ AMobaCharacter::AMobaCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetCollisionResponseToChannels(ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Character,ECR_Block);
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -41,6 +46,8 @@ AMobaCharacter::AMobaCharacter()
 	//开火点
 	FirePointComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePoint"));
 	FirePointComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+	
 }
 
 void AMobaCharacter::Tick(float DeltaSeconds)
@@ -210,6 +217,22 @@ bool AMobaCharacter::IsDead()
 	return false;
 }
 
+void AMobaCharacter::ResetSpeed(float InSpeed)
+{
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		if(InSpeed == -1)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = GetCharacterAttribute()->WalkSpeed;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = InSpeed;
+		}
+	}
+	
+}
+
 FVector AMobaCharacter::GetFirePointLocation() const
 {
 	return FirePointComponent->GetComponentLocation();
@@ -240,9 +263,9 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			}
 			
 			//5s后重生
-			//UKismetSystemLibrary::Delay(GetWorld(), 5.0f, FLatentActionInfo(0, FMath::Rand(), TEXT("MultiCastReborn"), this));
 			GetWorld()->GetTimerManager().SetTimer(RebornTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);
 			//GThread::Get()->GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
+			//GThread::Get()->GetCoroutines().Tick(0.1f);
 		}
 		else
 		{

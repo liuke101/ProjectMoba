@@ -41,4 +41,5 @@ enum class ECharacterType : uint8
 
 	//野怪
 	ECT_WildMonster UMETA(DisplayName="WildMonster"),
+	ECT_BossMonster UMETA(DisplayName="BossMonster"),
 };

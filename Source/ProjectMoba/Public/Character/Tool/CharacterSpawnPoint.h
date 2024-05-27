@@ -25,7 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Type")
 	ETeamType TeamType = ETeamType::ETT_None;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|ype")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Type")
 	ECharacterType CharacterType = ECharacterType::ECT_None;
 
 	

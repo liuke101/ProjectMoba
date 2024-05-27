@@ -64,6 +64,15 @@ void AMobaGameMode::SpawnMinions()
 				{
 					CharacterID = 11110;  
 				}
+				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WildMonster)
+				{
+					CharacterID = 33330;
+				}
+				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_BossMonster)
+				{
+					CharacterID = 33331;
+				}
+				
 				
 				UClass* DefaultCharacterClass = nullptr;
 				if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))

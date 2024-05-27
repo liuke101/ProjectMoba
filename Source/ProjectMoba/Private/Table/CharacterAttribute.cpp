@@ -13,9 +13,9 @@ void FCharacterAttribute::InitAttribute()
 	Level = 1;
 	MaxHealth = 1000.0f;
 	CurrentHealth = MaxHealth;
-	MaxMana = 100.0f;
+	MaxMana = 0.0f;
 	CurrentMana = MaxMana;
-	MaxAnger = 100.0f;
+	MaxAnger = 0.0f;
 	CurrentAnger = MaxAnger;
 	PhysicalAttack = 50.0f;
 	PhysicalArmor = 20.0f;

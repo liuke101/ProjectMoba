@@ -16,8 +16,15 @@ void UUBTDecorator_MobaAttackRange::InitializeMemory(UBehaviorTreeComponent& Own
 		if(AMobaCharacter* MobaCharacter = OwnerAIController->GetPawn<AMobaCharacter>())
 		{
 			float* FVptr = const_cast<float*>(&FloatValue); //去const（const函数不能直接修改成员变量）
-			
-			*FVptr = MobaCharacter->GetCharacterAttribute()->AttackRange; 
+
+			if(FCharacterAttribute* CharacterAttribute = MobaCharacter->GetCharacterAttribute())
+			{
+				*FVptr = CharacterAttribute->AttackRange;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("%s 未配置CharacterAttribute"), *MobaCharacter->GetName());
+			}
 		}
 	}
 }

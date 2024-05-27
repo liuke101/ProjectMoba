@@ -35,6 +35,7 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 		FVector ComponentLocation = MeshComp->GetSocketLocation(SocketName);
 		FRotator ComponentRotation =MeshComp->GetSocketRotation(SocketName);
 
+		// 子弹指向目标(可以只在服务器端计算)
 		if(OwnerCharacter->GetWorld()->IsNetMode(NM_DedicatedServer))
 		{
 			if(AMobaAIController* AIController = Cast<AMobaAIController>(OwnerCharacter->GetController()))
