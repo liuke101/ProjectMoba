@@ -3,17 +3,60 @@
 
 #include "UI/Inventory/UI_Inventory.h"
 
+#include "ThreadManage.h"
 #include "Components/UniformGridSlot.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/StaticMeshComponent.h"
 #include "Game/MobaPlayerState.h"
 #include "UI/Inventory/UI_InventorySlot.h"
 
+
 void UUI_Inventory::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	/** 绑定委托 */
+	GThread::GetCoroutines().BindUObject(0.5f, this, &UUI_Inventory::BindSlotDelegate);
+}
+
+void UUI_Inventory::InitInventroySlotLayout(const int32 ColumNumber, const int32 RowNumber) const
+{
+	if (InventorySlotClass)
+	{
+		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+		{
+			//获取所有InventoryID
+			TArray<int32> InventoryIDs;
+			MobaPlayerState->GetAllInventoryIDs(InventoryIDs);
+			
+			
+			for (int32 MyRow = 0; MyRow < RowNumber; MyRow++)
+			{
+				for (int32 MyColum = 0; MyColum < ColumNumber; MyColum++)
+				{
+					if (UUI_InventorySlot* SlotWidget = CreateWidget<UUI_InventorySlot>(GetWorld(), InventorySlotClass))
+					{
+						if (UUniformGridSlot* GridSlot = SlotArrayInventory->AddChildToUniformGrid(SlotWidget))
+						{
+							GridSlot->SetColumn(MyColum);
+							GridSlot->SetRow(MyRow);
+							GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+							GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+						}
+						//设置InventorySlotID(即InventoryID)
+						SlotWidget->SetSlotID(InventoryIDs[MyRow * ColumNumber + MyColum]);
+						
+						//更新Slot
+						SlotWidget->UpdateSlot();
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void UUI_Inventory::BindSlotDelegate()
+{
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
 		// 绑定初始化Slot分布
@@ -63,33 +106,6 @@ void UUI_Inventory::NativeConstruct()
 				return true;
 			});
 		});
-	}
-	
-}
-
-void UUI_Inventory::InitInventroySlotLayout(const int32 ColumNumber, const int32 RowNumber) const
-{
-	if (InventorySlotClass)
-	{
-		for (int32 MyRow = 0; MyRow < RowNumber; MyRow++)
-		{
-			for (int32 MyColum = 0; MyColum < ColumNumber; MyColum++)
-			{
-				if (UUI_InventorySlot* SlotWidget = CreateWidget<UUI_InventorySlot>(GetWorld(), InventorySlotClass))
-				{
-					if (UUniformGridSlot* GridSlot = SlotArrayInventory->AddChildToUniformGrid(SlotWidget))
-					{
-						GridSlot->SetColumn(MyColum);
-						GridSlot->SetRow(MyRow);
-						GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-						GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
-					}
-					SlotWidget->SetSlotID(MyRow * ColumNumber + MyColum);
-					//Update
-					SlotWidget->UpdateSlot();
-				}
-			}
-		}
 	}
 }
 

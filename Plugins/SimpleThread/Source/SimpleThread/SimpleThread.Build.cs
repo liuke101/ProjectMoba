@@ -63,7 +63,7 @@ public class SimpleThread : ModuleRules
 			}
 			);
 		//如果是在项目里面想用到该内容 就把它打开
-	//	PublicDefinitions.Add("PLATFORM_PROJECT");
+		PublicDefinitions.Add("PLATFORM_PROJECT");
 		if (PublicDefinitions.Contains("PLATFORM_PROJECT"))
         {
 			PublicDependencyModuleNames.AddRange(

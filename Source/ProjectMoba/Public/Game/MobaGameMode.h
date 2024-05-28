@@ -26,8 +26,6 @@ protected:
 
 protected:
 	void SpawnMinions();
-private:
-	FTimerHandle SpawnTimerHandle;
 };
 
 

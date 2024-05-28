@@ -18,20 +18,13 @@ void AMobaAIController::BeginPlay()
 	if(GetLocalRole()==ROLE_Authority)
 	{
 		//延迟运行行为树，否则 UUBTDecorator_MobaAttackRange::InitializeMemory 获取角色属性时崩溃
-		//失败的解决方法：在OnPossess中运行行为树，
-		GetWorld()->GetTimerManager().SetTimer(InitTimerHandle, this, &AMobaAIController::InitMobaAIController,0.1f, false);
-		//GThread::GetCoroutines().BindUObject(0.5f, this, &AMobaAIController::InitMobaAIController);
+		GThread::GetCoroutines().BindUObject(0.2f, this, &AMobaAIController::InitMobaAIController);
 	}
 }
 
 
 void AMobaAIController::InitMobaAIController()
 {
-	if(InitTimerHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(InitTimerHandle);
-	}
-
 	checkf(BehaviorTree, TEXT("BehaviorTree为空，请在BP_AIController中配置"));
 	RunBehaviorTree(BehaviorTree);
 }

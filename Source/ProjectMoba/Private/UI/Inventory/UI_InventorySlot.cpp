@@ -9,6 +9,8 @@
 #include "UI/Inventory/DragDrop/UI_IconDragDrop.h"
 #include "Blueprint/DragDropOperation.h"
 #include "Character/MobaPlayerController.h"
+#include "Game/MobaPlayerState.h"
+#include "ProjectMoba/MiscData.h"
 
 #if PLATFORM_WINDOWS
 #pragma optimize("",off) 
@@ -70,8 +72,14 @@ UWidget * UUI_InventorySlot::GetInventoryTip()
 void UUI_InventorySlot::UpdateSlot()
 {
 	Super::UpdateSlot();
-
 	bDrag = false;
+
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		UpdateNumber();
+	}
+
+	
 }
 
 void UUI_InventorySlot::StartUpdateCD()
@@ -81,7 +89,10 @@ void UUI_InventorySlot::StartUpdateCD()
 
 void UUI_InventorySlot::UpdateNumber()
 {
-
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		DisplayNumber(SlotNumber, SlotData->Number);
+	}
 }
 
 void UUI_InventorySlot::EndUpdateCD()

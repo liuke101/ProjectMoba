@@ -47,7 +47,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnClickedWidget();
 
-	//设置唯一ID
+	//设置唯一ID (注：该类中的SlotID指的是InventoryID,即背包格子的ID，而不是用于获取DataTable数据的SlotID, 命名有些冲突，后期应该修改并区分）
 	FORCEINLINE void SetSlotID(const int32 InID) { BuildSlot.SlotID = InID; }
 	FORCEINLINE int32 GetSlotID() const { return BuildSlot.SlotID; }
 	

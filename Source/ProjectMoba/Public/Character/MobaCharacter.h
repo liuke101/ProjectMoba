@@ -85,9 +85,5 @@ protected:
 	int64 PlayerID;
 	ETeamType TeamType;
 	ECharacterType CharacterType;
-
-private:
-	FTimerHandle InitCharacterTimerHandle;
-	FTimerHandle RebornTimerHandle;
 };
 

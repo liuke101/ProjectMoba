@@ -35,7 +35,7 @@ struct FSlotData
 	FSlotData(){};
 
 	UPROPERTY()
-	int32 SlotID = INDEX_NONE;
+	int32 SlotID = INDEX_NONE;  //SlotID对应DataTable, 用于获取对应的数据。 InventoryID对应UI格子的ID
 
 	UPROPERTY()
 	TObjectPtr<UTexture2D> SlotIcon= nullptr;
@@ -63,7 +63,7 @@ struct FSlotDataNetPackage
 	FSlotDataNetPackage(){};
 	
 	UPROPERTY()
-	TArray<int32> SlotIDs;
+	TArray<int32> InventoryIDs;
 
 	UPROPERTY()
 	TArray<FSlotData> SlotDatas;

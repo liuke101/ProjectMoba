@@ -61,8 +61,6 @@ void AMobaCharacter::Tick(float DeltaSeconds)
 		{
 			MobaGameState->UpdateCharacterLocation(GetPlayerID(), GetActorLocation());
 		}
-		
-		//FThreadManagement::Get()->Tick(DeltaSeconds);
 	}
 
 	
@@ -156,11 +154,6 @@ void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
 
 void AMobaCharacter::MultiCastReborn_Implementation()
 {
-	if(RebornTimerHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(RebornTimerHandle);
-	}
-	
 	if(GetLocalRole() == ROLE_Authority)
 	{
 		if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
@@ -183,20 +176,13 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 		MobaGameState->AddCharacterAttribute(InPlayerID, InCharacterID);
 		MobaGameState->AddCharacterLocation(InPlayerID, GetActorLocation());
 		
-		// 使用计时器短暂延迟，保证客户端生成角色后再同步状态栏信息
-		GetWorld()->GetTimerManager().SetTimer(InitCharacterTimerHandle, this, &AMobaCharacter::InitCharacter, 0.5f, false);
+		// 短暂延迟，保证客户端生成角色后再同步状态栏信息
+		GThread::GetCoroutines().BindUObject(0.5f, this, &AMobaCharacter::InitCharacter);
 	}
 }
 
 void AMobaCharacter::InitCharacter()
 {
-	//关闭计时器
-	if(InitCharacterTimerHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(InitCharacterTimerHandle);
-	}
-
-	
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
 		if(const FCharacterAttribute* Attribute = MobaGameState->GetCharacterAttributeFromPlayerID(PlayerID))
@@ -266,9 +252,8 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 				MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
 			}
 			
-			//5s后重生
-			GetWorld()->GetTimerManager().SetTimer(RebornTimerHandle, this, &AMobaCharacter::MultiCastReborn, 5.0f, false);
-			//GThread::Get()->GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
+			//5s后复活
+			GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
 			
 		}
 		else

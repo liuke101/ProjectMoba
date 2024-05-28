@@ -30,7 +30,7 @@ public:
 
 	//数据相关
 public:
-	//如果是消费物品更新数量
+	//如果是消费物品, 更新数量
 	void UpdateNumber();
 	//更新对应的Slot(服务器通知客户端更新指定的Slot)
 	virtual void UpdateSlot() override;

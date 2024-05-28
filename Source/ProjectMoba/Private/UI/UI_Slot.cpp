@@ -7,6 +7,7 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Game/MobaPlayerState.h"
 
 void UUI_Slot::NativeConstruct()
 {
@@ -31,7 +32,19 @@ void UUI_Slot::ResetSlot()
 
 void UUI_Slot::UpdateSlot()
 {
-	
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		if(SlotData->SlotID != INDEX_NONE)
+		{
+			UpdateIcon(SlotData->SlotIcon);
+			DrawSlotCDMat(SlotData->CD);
+			DrawSlotCDText(SlotData->CD);
+		}
+		else
+		{
+			ResetSlot(); //交换时，清空Slot
+		}
+	}
 }
 
 void UUI_Slot::StartUpdateCD()

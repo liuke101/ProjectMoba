@@ -35,7 +35,4 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "BehaviorTree")
 	UBehaviorTree* BehaviorTree = nullptr;
-
-private:
-	FTimerHandle InitTimerHandle;
 };

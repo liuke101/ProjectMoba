@@ -32,16 +32,12 @@ void AMobaGameMode::BeginPlay()
 	/** GameMode仅存在于服务器, 不需要进行LocalRole判断 */
 
 	// 延迟在服务器上生成小兵
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &AMobaGameMode::SpawnMinions, 2.f, true);
+	GThread::GetCoroutines().BindUObject(2.0f, this, &AMobaGameMode::SpawnMinions);
 }
 
 
 void AMobaGameMode::SpawnMinions()
 {
-	if(SpawnTimerHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
-	}
 
 	//在服务器上生成小兵
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
