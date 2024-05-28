@@ -42,3 +42,44 @@ void UPlayerDataComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+bool UPlayerDataComponent::FSlotAttribute_Internal::Contains(int32 InKey)
+{
+	for(auto& Tmp : AttributeElements)
+	{
+		if(Tmp.Key == InKey)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void UPlayerDataComponent::FSlotAttribute_Internal::Add(int32 Key, const FSlotAttribute& Value)
+{
+	AttributeElements.Add(FSlotAttribute_Element(Key,Value));
+}
+
+void UPlayerDataComponent::FSlotAttribute_Internal::Remove(int32 InKey)
+{
+	for(auto& Tmp : AttributeElements)
+	{
+		if(Tmp.IsValid())
+		{
+			if(Tmp.Key == InKey)
+			{
+				AttributeElements.Remove(Tmp);
+				break;
+			}
+		}
+	}
+}
+
+void UPlayerDataComponent::FSlotAttribute_Internal::SetKeyToNewKey(int32 OldKey, int32 NewKey)
+{
+}
+
+void UPlayerDataComponent::FSlotAttribute_Internal::SwapKey(int32 KeyA, int32 KeyB)
+{
+}
+

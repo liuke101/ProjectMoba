@@ -10,22 +10,61 @@ struct FPlayerLocation
 {
 	GENERATED_BODY()
 
-	FPlayerLocation()
-		: playerID(INDEX_NONE),
-		  Location(FVector::ZeroVector)
-	{
-	};
+	FPlayerLocation(){};
 
 	FPlayerLocation(const int64 InplayerID, const FVector& InLocation)
-		: playerID(InplayerID),
+		: PlayerID(InplayerID),
 		  Location(InLocation)
 	{
 	}
 
 	UPROPERTY()
-	int64 playerID;
+	int64 PlayerID = INDEX_NONE;
 
 	UPROPERTY()
-	FVector Location;
+	FVector Location = FVector::ZeroVector;
 	
+};
+
+/** Slot的属性 */
+USTRUCT(BlueprintType)
+struct FSlotData
+{
+	GENERATED_BODY()
+
+	FSlotData(){};
+
+	UPROPERTY()
+	int32 SlotID = INDEX_NONE;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> SlotIcon= nullptr;
+
+	UPROPERTY()
+	float CD= 0.0f;
+
+	UPROPERTY()
+	int32 Number = INDEX_NONE;
+
+	void Reset()
+	{
+		SlotID = INDEX_NONE;
+		SlotIcon = nullptr;
+		CD = 0.0f;
+		Number = INDEX_NONE;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FSlotDataNetPackage
+{
+	GENERATED_BODY()
+
+	FSlotDataNetPackage(){};
+	
+	UPROPERTY()
+	TArray<int32> SlotIDs;
+
+	UPROPERTY()
+	TArray<FSlotData> SlotDatas;
 };

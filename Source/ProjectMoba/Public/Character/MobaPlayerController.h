@@ -24,26 +24,28 @@ public:
 protected:
 	virtual void BeginPlay() override; // To add mapping context
 	virtual void SetupInputComponent() override;
-
+	
 public:
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext = nullptr;
+	TObjectPtr<UInputMappingContext> DefaultMappingContext = nullptr;
 	
 	/** Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* RightClick_Action = nullptr;
+	TObjectPtr<UInputAction> LeftClick_Action = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> RightClick_Action = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* W_Action;
+	TObjectPtr<UInputAction> W_Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* E_Action;
+	TObjectPtr<UInputAction> E_Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* R_Action;
+	TObjectPtr<UInputAction> R_Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* F_Action;
+	TObjectPtr<UInputAction> F_Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* Space_Action;
+	TObjectPtr<UInputAction> Space_Action;
 
 protected:
 	/** 如果Character应该移动到鼠标光标. */
@@ -84,7 +86,7 @@ protected:
 private:
 	/** 点击粒子特效 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|FX", meta = (AllowPrivateAccess = "true"))
-	UNiagaraSystem* FXCursor = nullptr;
+	TObjectPtr<UNiagaraSystem> FXCursor = nullptr;
 	
 };
 

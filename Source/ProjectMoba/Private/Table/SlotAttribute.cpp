@@ -1,10 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Table/MobaTableBase.h"
+#include "Table/SlotAttribute.h"
 
-FMobaTableBase::FMobaTableBase()
-	: ID(INDEX_NONE)
+FSlotAttribute::FSlotAttribute()
 {
-	
 }
+

@@ -25,17 +25,17 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 public:
-	/** CharacterAsset */
+	/** 从DataTable中读数据 */
 	const TArray<FCharacterAsset*>* GetCharacterAssetsTemplate();
 	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 InCharacterID);
 	const FCharacterAsset* GetCharacterAssetFromPlayerID(const int64 InPlayerID);
-	/** CharacterAttribute */
 	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 InCharacterID);
 	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 InPlayerID);
 
-	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetPlayerID_To_CharacterAttribute() const { return &PlayerID_To_CharacterAttribute; }
-	void Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
+	/** CharacterAttribute */
+	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetCharacterAttributes() const { return &CharacterAttributes; }
+	void AddCharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
 
 	/** ChracterLocation */
 	void UpdateCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
@@ -49,15 +49,17 @@ public:
 	/** ID */
 	int32 GetCharacterIDFromPlayerID(const int64 InPlayerID);
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|DataTable")
     TObjectPtr<UDataTable> DT_CharacterAsset;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Moba DataTable")
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|DataTable")
 	TObjectPtr<UDataTable> DT_CharacterAttribute;
 private:
+	/** 存储DataTable数据 */
 	TArray<FCharacterAsset*> CacheCharacterAssets; 
 	TArray<FCharacterAttribute*> CacheCharacterAttributes;
-	TMap<int64, FCharacterAttribute> PlayerID_To_CharacterAttribute;  //PlayerID用于识别局内对象，不同于CharacterID，ChracterID用于识别不同英雄
+	
+	TMap<int64, FCharacterAttribute> CharacterAttributes;  //PlayerID用于识别局内对象，不同于CharacterID，ChracterID用于识别不同英雄
 
 	UPROPERTY(Replicated)
 	TArray<FPlayerLocation> PlayerLocations;

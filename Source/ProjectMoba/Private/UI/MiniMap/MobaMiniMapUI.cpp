@@ -70,7 +70,7 @@ void UMobaMiniMapUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			//场景中的角色
 			for (auto& PlayerLocation : PlayerLocations)
 			{
-				if (!IsExistence(PlayerLocation.playerID))
+				if (!IsExistence(PlayerLocation.PlayerID))
 				{
 					if (UImage* Point = NewObject<UImage>(GetWorld(), UImage::StaticClass()))
 					{
@@ -81,13 +81,13 @@ void UMobaMiniMapUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 							//Point->SetBrushFromTexture(Tmp.Value.Icon.LoadSynchronous());
 							PanelSlot->SetSize(FVector2D(32.f));
 							PanelSlot->SetAlignment(FVector2D(.5f));
-							CharacterID_To_PanelSlot.Add(PlayerLocation.playerID, PanelSlot);
+							CharacterID_To_PanelSlot.Add(PlayerLocation.PlayerID, PanelSlot);
 						}
 					}
 				}
 				else
 				{
-					if (UCanvasPanelSlot* PanelSlot = CharacterID_To_PanelSlot[PlayerLocation.playerID].Get())
+					if (UCanvasPanelSlot* PanelSlot = CharacterID_To_PanelSlot[PlayerLocation.PlayerID].Get())
 					{
 						FVector2D MinMapPos;
 						//将角色在游戏世界中的位置映射到小地图上的位置
@@ -106,7 +106,7 @@ void UMobaMiniMapUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 				bool bContains = false;
 				for (auto &L : PlayerLocations)
 				{
-					if (L.playerID == Tmp.Key)
+					if (L.PlayerID == Tmp.Key)
 					{
 						bContains = true;
 						break;

@@ -13,7 +13,7 @@ struct FMobaTableBase : public FTableRowBase
 
 	FMobaTableBase();
 
-	/** CharacterID 工作流程： 1. 配表：每个CharacterID对应的行 2. 读txt获取当前的CharacterID */
+	/** CharacterID 工作流程： 1. 配表：每个ID对应的行 2. 读txt获取当前的ID */
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
-	int32 CharacterID;
+	int32 ID;
 };

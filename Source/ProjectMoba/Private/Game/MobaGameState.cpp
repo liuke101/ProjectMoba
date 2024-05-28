@@ -45,12 +45,12 @@ const TArray<FCharacterAttribute*>* AMobaGameState::GetCharacterAttributesTempla
 }
 
 
-void AMobaGameState::Add_PlayerID_To_CharacterAttribute(const int64 InPlayerID, const int32 InCharacterID)
+void AMobaGameState::AddCharacterAttribute(const int64 InPlayerID, const int32 InCharacterID)
 {
-	if (!PlayerID_To_CharacterAttribute.Contains(InPlayerID))
+	if (!CharacterAttributes.Contains(InPlayerID))
 	{
-		PlayerID_To_CharacterAttribute.Add(InPlayerID, *GetCharacterAttributeFromCharacterID(InCharacterID));
-		PlayerID_To_CharacterAttribute[InPlayerID].ResetAttribute();
+		CharacterAttributes.Add(InPlayerID, *GetCharacterAttributeFromCharacterID(InCharacterID));
+		CharacterAttributes[InPlayerID].ResetAttribute();
 	}
 }
 
@@ -58,7 +58,7 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const in
 {
 	for(auto Asset : *GetCharacterAssetsTemplate())
 	{
-		if(Asset->CharacterID == InCharacterID)
+		if(Asset->ID == InCharacterID)
 		{
 			return Asset;
 		}
@@ -71,7 +71,7 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64
 {
 	for(auto Asset : *GetCharacterAssetsTemplate())
 	{
-		if(Asset->CharacterID == GetCharacterIDFromPlayerID(InPlayerID))
+		if(Asset->ID == GetCharacterIDFromPlayerID(InPlayerID))
 		{
 			return Asset;
 		}
@@ -84,7 +84,7 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 {
 	for(auto Attribute : *GetCharacterAttributesTemplate())
 	{
-		if(Attribute->CharacterID == InCharacterID)
+		if(Attribute->ID == InCharacterID)
 		{
 			return Attribute;
 		}
@@ -94,7 +94,7 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 
 FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 InPlayerID)
 {
-	for(auto& MAP : PlayerID_To_CharacterAttribute)
+	for(auto& MAP : CharacterAttributes)
 	{
 		if(MAP.Key == InPlayerID)
 		{
@@ -108,7 +108,7 @@ void AMobaGameState::UpdateCharacterLocation(const int64 InPlayerID, const FVect
 {
 	for(auto& Location : PlayerLocations)
 	{
-		if(Location.playerID == InPlayerID)
+		if(Location.PlayerID == InPlayerID)
 		{
 			Location.Location = InLocation;
 			break;
@@ -120,7 +120,7 @@ void AMobaGameState::AddCharacterLocation(const int64 InPlayerID, const FVector&
 {
 	for(auto Location : PlayerLocations)
 	{
-		if(Location.playerID == InPlayerID)
+		if(Location.PlayerID == InPlayerID)
 		{
 			return;
 		}
@@ -133,7 +133,7 @@ bool AMobaGameState::GetCharacterLocation(const int64 InPlayerID, FVector& OutLo
 {
 	for(auto Location : PlayerLocations)
 	{
-		if(Location.playerID == InPlayerID)
+		if(Location.PlayerID == InPlayerID)
 		{
 			OutLocation = Location.Location;
 			return true;
@@ -146,7 +146,7 @@ int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 InPlayerID)
 {
 	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttributeFromPlayerID(InPlayerID))
 	{
-		return CharacterAttribute->CharacterID;
+		return CharacterAttribute->ID;
 	}
 	return INDEX_NONE;
 }
