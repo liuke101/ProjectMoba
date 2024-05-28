@@ -10,9 +10,11 @@ struct FSlotAttribute;
 struct FSlotAsset;
 class UDataTable;
 class UPlayerDataComponent;
-/**
- * 
- */
+
+
+DECLARE_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
+DECLARE_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
+
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
 {
@@ -20,6 +22,11 @@ class PROJECTMOBA_API AMobaPlayerState : public APlayerState
 public:
 	AMobaPlayerState();
 
+public:
+	FSimpleDelegate InitSlotDelegate;  //通知客户端
+	FSimpleOneKeyDelegate UpdateSlotDelegate; //更新Slot
+	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
+	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
 public:
 	FORCEINLINE UPlayerDataComponent* GetPlayerDataComponent() const { return PlayerDataComponent; }
 

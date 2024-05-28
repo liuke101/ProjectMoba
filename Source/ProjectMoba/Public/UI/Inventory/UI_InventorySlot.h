@@ -61,7 +61,7 @@ private:
 
 	//拖拽显示图标类
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	TSubclassOf<class UUI_ICODragDrog> ICODragDrogClass;
+	TSubclassOf<class UUI_IconDragDrop> ICODragDrogClass;
 
 	//提示类
 	UPROPERTY(EditDefaultsOnly, Category = UI)

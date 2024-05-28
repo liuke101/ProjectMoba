@@ -6,7 +6,7 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "UI/Inventory/DragDrop/UI_ICODragDrog.h"
+#include "UI/Inventory/DragDrop/UI_IconDragDrop.h"
 #include "Blueprint/DragDropOperation.h"
 #include "Character/MobaPlayerController.h"
 
@@ -120,7 +120,7 @@ void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const 
 {
 	if (ICODragDrogClass)
 	{
-		if (UUI_ICODragDrog* ICODragDrog = CreateWidget<UUI_ICODragDrog>(GetWorld(), ICODragDrogClass))
+		if (UUI_IconDragDrop* ICODragDrog = CreateWidget<UUI_IconDragDrop>(GetWorld(), ICODragDrogClass))
 		{
 			if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass()))
 			{

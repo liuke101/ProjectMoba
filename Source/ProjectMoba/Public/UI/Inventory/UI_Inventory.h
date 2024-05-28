@@ -28,8 +28,9 @@ class PROJECTMOBA_API UUI_Inventory : public UMobaUIBase
 protected:
 	virtual void NativeConstruct() override;
 
-	void LayoutInventroySlot(int32 ColumNumber, int32 RowNumber) const;
+	// 初始化Slot分布
+	void InitInventroySlotLayout(int32 ColumNumber, int32 RowNumber) const;
 
 	// 呼叫所有的Slot
-	void CallInventorySlotBreak(TFunction<bool(UUI_InventorySlot*)> InventorySlotLamada) const;
+	void CallAllInventorySlot(TFunction<bool(UUI_InventorySlot*)> InventorySlotLamada) const;
 };

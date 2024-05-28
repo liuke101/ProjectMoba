@@ -3,9 +3,15 @@
 
 #include "UI/MobaUIBase.h"
 
+#include "Game/MobaPlayerState.h"
 #include "UI/MobaHUD.h"
 
 AMobaHUD* UMobaUIBase::GetMobaHUD() const
 {
-	return Cast<AMobaHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	return GetWorld()->GetFirstPlayerController()->GetHUD<AMobaHUD>();
+}
+
+AMobaPlayerState* UMobaUIBase::GetMobaPlayerState() const
+{
+	return GetWorld()->GetFirstPlayerController()->GetPlayerState<AMobaPlayerState>();
 }

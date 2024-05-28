@@ -6,16 +6,68 @@
 #include "Components/UniformGridSlot.h"
 #include "Components/UniformGridPanel.h"
 #include "Components/StaticMeshComponent.h"
+#include "Game/MobaPlayerState.h"
 #include "UI/Inventory/UI_InventorySlot.h"
 
 void UUI_Inventory::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	LayoutInventroySlot(3, 2); //初始化3*2的格子
+	/** 绑定委托 */
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	{
+		// 绑定初始化Slot分布
+		MobaPlayerState->InitSlotDelegate.BindLambda([&]()
+		{
+			InitInventroySlotLayout(3, 2);  
+		});
+
+		// 绑定更新ID对应的Slot
+		MobaPlayerState->UpdateSlotDelegate.BindLambda([&](int32 InventoryID)
+		{
+			CallAllInventorySlot([&](UUI_InventorySlot* InventorySlot)
+			{
+				if(InventorySlot->GetSlotID() == InventoryID)
+				{
+					InventorySlot->UpdateSlot();
+					return false; //如果找到停止Call
+				}
+				return true;
+			});
+		});
+
+		// 绑定开始更新CD
+		MobaPlayerState->StartUpdateCDSlotDelegate.BindLambda([&](const int32 SlotID)
+		{
+			CallAllInventorySlot([&](UUI_InventorySlot* InventorySlot)
+			{
+				if (InventorySlot->GetSlotID() == SlotID)
+				{
+					InventorySlot->StartUpdateCD();
+					return false;
+				}
+				return true;
+			});
+		});
+
+		// 绑定停止更新CD
+		MobaPlayerState->EndUpdateCDSlotDelegate.BindLambda([&](const int32 SlotID)
+		{
+			CallAllInventorySlot([&](UUI_InventorySlot* InventorySlot)
+			{
+				if (InventorySlot->GetSlotID() == SlotID)
+				{
+					InventorySlot->EndUpdateCD();
+					return false;
+				}
+				return true;
+			});
+		});
+	}
+	
 }
 
-void UUI_Inventory::LayoutInventroySlot(int32 ColumNumber, int32 RowNumber) const
+void UUI_Inventory::InitInventroySlotLayout(const int32 ColumNumber, const int32 RowNumber) const
 {
 	if (InventorySlotClass)
 	{
@@ -41,7 +93,7 @@ void UUI_Inventory::LayoutInventroySlot(int32 ColumNumber, int32 RowNumber) cons
 	}
 }
 
-void UUI_Inventory::CallInventorySlotBreak(TFunction<bool(UUI_InventorySlot*)> InventorySlotLamada) const
+void UUI_Inventory::CallAllInventorySlot(TFunction<bool(UUI_InventorySlot*)> InventorySlotLamada) const
 {
 	for (const auto& TmpSlot : SlotArrayInventory->GetAllChildren())
 	{
@@ -49,7 +101,7 @@ void UUI_Inventory::CallInventorySlotBreak(TFunction<bool(UUI_InventorySlot*)> I
 		{
 			if (!InventorySlotLamada(InventorySlot))
 			{
-				break;
+				break; //如果InventorySlotLamada返回false，停止Call
 			}
 		}
 	}

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MobaUIBase.generated.h"
 
+class AMobaPlayerState;
 class AMobaHUD;
 /**
  * 
@@ -17,4 +18,6 @@ class PROJECTMOBA_API UMobaUIBase : public UUserWidget
 
 public:
 	AMobaHUD* GetMobaHUD() const;
+
+	AMobaPlayerState* GetMobaPlayerState() const;
 };
