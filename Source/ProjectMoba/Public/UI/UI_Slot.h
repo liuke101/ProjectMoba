@@ -39,34 +39,36 @@ public:
 	//绘制CD材质
 	void DrawSlotCDMat(float InSlotCD) const;
 	//绘制CD文本
-	void DrawSlotCDText(float InSlotCD);
+	void DrawSlotCDText(float InSlotCD) const;
 	//绘制Icon
 	void UpdateIcon(UTexture2D* InIcon) const;
 
 	//点击事件回调
 	UFUNCTION(BlueprintCallable)
-	virtual void OnClickedWidget();
+	virtual void OnLeftClickedWidget();
 
 	//设置唯一ID (注：该类中的SlotID指的是InventoryID,即背包格子的ID，而不是用于获取DataTable数据的SlotID, 命名有些冲突，后期应该修改并区分）
 	FORCEINLINE void SetSlotID(const int32 InID) { BuildSlot.SlotID = InID; }
 	FORCEINLINE int32 GetSlotID() const { return BuildSlot.SlotID; }
+
 	
+
 protected:
 	//显示 float字体
 	static void DisplayNumber(UTextBlock* TextNumberBlock, float TextNumber);
 	//显示 int字体
 	static void DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
-	
+
 	struct FBuildSlot
 	{
 		FBuildSlot()
-			:MaxCD(0.f)
+			:MaxCD(1.f)
 			,SlotID(INDEX_NONE)
 		{}
 		float MaxCD;
 		int32 SlotID;
 	} BuildSlot;
-
+	
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> SlotIcon;
@@ -84,14 +86,17 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ClickButton;
 
-	//名字方便CD寻找
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	FName SlotMatCDName;
-	//名字方便CD寻找
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	FName SlotClearValueName;
-
 	//CD动态材质
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> CDMaterialDynamic;
+
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TObjectPtr<UMaterialInterface> CDMaterialParent;
+	
+	//CD动态材质 参数名
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	FName SlotMatCDName;
+	//CD动态材质 参数名
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	FName SlotClearValueName;
 };

@@ -53,6 +53,11 @@ private:
 		//模拟Map
 		struct FSlotAttribute_Element
 		{
+			FSlotAttribute_Element()
+				: Key(INDEX_NONE)
+			{
+			}
+			
 			//Key: InventoryID
 			//Value: FSlotAttribute
 			FSlotAttribute_Element(int32 InKey, const FSlotAttribute& InValue)
@@ -97,5 +102,5 @@ private:
 	}SlotAttribute_Internal;
 
 	// 队列，专门计算技能、物品、装备、属性
-	TMap<int32, FSlotData*> SlotQueue;
+	TMap<int32, FSlotData*> SlotQueue; //InventoryID_To_SlotData
 };

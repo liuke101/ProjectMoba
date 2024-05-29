@@ -13,14 +13,32 @@ void UUI_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
+	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnLeftClickedWidget);
 
-	CDMaterialDynamic = SlotCD->GetDynamicMaterial();
+	CDMaterialDynamic = UMaterialInstanceDynamic::Create(CDMaterialParent, this); //创建动态材质实例
+	SlotCD->SetBrushFromMaterial(CDMaterialDynamic); //设置图片为动态材质
 }
 
 void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	//客户端更新CD
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		if(SlotData->CD > 0.0f)
+		{
+			SlotData->CD -= InDeltaTime;
+			DrawSlotCDMat(SlotData->CD / BuildSlot.MaxCD); //注意这里要除MaxCD
+			DrawSlotCDText(SlotData->CD);
+			
+			if(SlotData->CD <= 0.0f)
+			{
+				DrawSlotCDMat(0.0f);
+				DrawSlotCDText(0.0f);
+			}
+		}
+	}
 }
 
 void UUI_Slot::ResetSlot()
@@ -40,7 +58,7 @@ void UUI_Slot::UpdateSlot()
 			DrawSlotCDMat(SlotData->CD);
 			DrawSlotCDText(SlotData->CD);
 		}
-		else
+		else if(SlotData->SlotID == INDEX_NONE)
 		{
 			ResetSlot(); //交换时，清空Slot
 		}
@@ -49,12 +67,20 @@ void UUI_Slot::UpdateSlot()
 
 void UUI_Slot::StartUpdateCD()
 {
-
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		BuildSlot.MaxCD = SlotData->CD;
+	}
 }
 
 void UUI_Slot::EndUpdateCD()
 {
-
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		UpdateIcon(SlotData->SlotIcon);
+		DrawSlotCDMat(SlotData->CD);
+		DrawSlotCDText(SlotData->CD);
+	}
 }
 
 void UUI_Slot::SetKeyName(const FString& NewKeyName) const
@@ -81,7 +107,7 @@ void UUI_Slot::DrawSlotCDMat(float InSlotCD) const
 	}
 }
 
-void UUI_Slot::DrawSlotCDText(float InSlotCD)
+void UUI_Slot::DrawSlotCDText(float InSlotCD) const
 {
 	DisplayNumber(SlotCDValue, InSlotCD);
 }
@@ -102,8 +128,9 @@ void UUI_Slot::UpdateIcon(UTexture2D* InIcon) const
 	}
 }
 
-void UUI_Slot::OnClickedWidget()
+void UUI_Slot::OnLeftClickedWidget()
 {
+	
 }
 
 void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, float TextNumber)

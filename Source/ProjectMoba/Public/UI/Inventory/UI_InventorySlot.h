@@ -26,7 +26,7 @@ public:
 	//Tick
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	virtual void OnClickedWidget() override;
+	virtual void OnLeftClickedWidget() override;
 
 	//数据相关
 public:
@@ -41,7 +41,7 @@ public:
 	//重置Slot
 	virtual void ResetSlot() override;
 	//获取Slot数量
-	int32 GetSlotNumber();
+	int32 GetSlotNumber() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Tip)
 	UWidget* GetInventoryTip();
@@ -61,7 +61,7 @@ private:
 
 	//拖拽显示图标类
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	TSubclassOf<class UUI_IconDragDrop> ICODragDrogClass;
+	TSubclassOf<class UUI_IconDragDrop> IconDragDrogClass;
 
 	//提示类
 	UPROPERTY(EditDefaultsOnly, Category = UI)

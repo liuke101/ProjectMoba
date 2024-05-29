@@ -62,24 +62,58 @@ void UPlayerDataComponent::FSlotAttribute_Internal::Add(int32 Key, const FSlotAt
 
 void UPlayerDataComponent::FSlotAttribute_Internal::Remove(int32 InKey)
 {
-	for(auto& Tmp : AttributeElements)
+	FSlotAttribute_Element Element; //拷贝Tmp而不是引用，否则Remove崩溃
+	
+	for(const auto& Tmp : AttributeElements)
 	{
-		if(Tmp.IsValid())
+		if(Tmp.Key == InKey)
 		{
-			if(Tmp.Key == InKey)
-			{
-				AttributeElements.Remove(Tmp);
-				break;
-			}
+			Element = Tmp;
+			break;
 		}
+	} 
+	
+	if(Element.IsValid())
+	{
+		AttributeElements.Remove(Element);
 	}
 }
 
 void UPlayerDataComponent::FSlotAttribute_Internal::SetKeyToNewKey(int32 OldKey, int32 NewKey)
 {
+	for(auto& Element : AttributeElements)
+	{
+		if(Element.Key == OldKey)
+		{
+			Element.Key = NewKey;
+			break;
+		}
+	}
 }
 
 void UPlayerDataComponent::FSlotAttribute_Internal::SwapKey(int32 KeyA, int32 KeyB)
 {
+	FSlotAttribute_Element* ElementA = nullptr;
+	FSlotAttribute_Element* ElementB = nullptr;
+	
+	for(auto& Element : AttributeElements)
+	{
+		if(Element.Key == KeyA)
+		{
+			ElementA = &Element;
+		}
+		else if(Element.Key == KeyB)
+		{
+			ElementB = &Element;
+		}
+
+		if(ElementA && ElementB && ElementA!=ElementB)
+		{
+			Swap(ElementA->Key, ElementB->Key);
+			break;
+		}
+	}
+
+	
 }
 

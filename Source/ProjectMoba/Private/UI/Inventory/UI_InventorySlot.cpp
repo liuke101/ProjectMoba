@@ -33,7 +33,7 @@ void UUI_InventorySlot::NativeConstruct()
 	{
 		if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(MobaPlayerController->InputComponent))
 		{
-			EnhancedInputComponent->BindAction(MobaPlayerController->LeftClick_Action, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedWidget);
+			EnhancedInputComponent->BindAction(MobaPlayerController->LeftClick_Action, ETriggerEvent::Started, this, &UUI_InventorySlot::OnLeftClickedWidget);
 		}
 	}
 	
@@ -54,14 +54,29 @@ void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	}
 }
 
-int32 UUI_InventorySlot::GetSlotNumber()
+int32 UUI_InventorySlot::GetSlotNumber() const
 {
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		return SlotData->Number;
+	}
+
 	return INDEX_NONE;
 }
 
-void UUI_InventorySlot::OnClickedWidget()
+void UUI_InventorySlot::OnLeftClickedWidget()
 {
-
+	//左键点击使用物品
+	//如果当前Slot有物品
+	if(GetMobaPlayerState()->IsValidInventorySlot(GetSlotID()))
+	{
+		//检查CD是否空闲
+		if(GetMobaPlayerState()->IsCDValid(GetSlotID()))
+		{
+			//通知服务器使用物品
+			GetMobaPlayerState()->Server_Use(GetSlotID());
+		}
+	}
 }
 
 UWidget * UUI_InventorySlot::GetInventoryTip()
@@ -78,8 +93,6 @@ void UUI_InventorySlot::UpdateSlot()
 	{
 		UpdateNumber();
 	}
-
-	
 }
 
 void UUI_InventorySlot::StartUpdateCD()
@@ -113,6 +126,7 @@ FReply UUI_InventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, c
 {
 	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 
+	// 鼠标右键触发
 	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton || InMouseEvent.IsTouchEvent())
 	{
 		FReply Reply = FReply::Handled();
@@ -129,23 +143,26 @@ FReply UUI_InventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, c
 
 void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
-	if (ICODragDrogClass)
+	if (IconDragDrogClass)
 	{
-		if (UUI_IconDragDrop* ICODragDrog = CreateWidget<UUI_IconDragDrop>(GetWorld(), ICODragDrogClass))
+		if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
 		{
-			if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass()))
+			if (UUI_IconDragDrop* IconDragDrop = CreateWidget<UUI_IconDragDrop>(GetWorld(), IconDragDrogClass))
 			{
-				InDropOperation->SetFlags(RF_StrongRefOnFrame);
-			//	ICODragDrog->DrawICON(InInventoryData->ItemICO);
-				InDropOperation->DefaultDragVisual = ICODragDrog;
-				InDropOperation->Payload = this;
-				OutOperation = InDropOperation;
+				if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass()))
+				{
+					InDropOperation->SetFlags(RF_StrongRefOnFrame);
+					IconDragDrop->DrawIcon(SlotData->SlotIcon);
+					InDropOperation->DefaultDragVisual = IconDragDrop;
+					InDropOperation->Payload = this; //设置当前拖拽的Slot作为Payload
+					OutOperation = InDropOperation;
 
-				ResetSlot();//隐藏自己
+					ResetSlot();//隐藏自己
 
-				bDrag = true;
-			}
-		}		
+					bDrag = true;
+				}
+			}		
+		}
 	}
 
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
@@ -159,8 +176,29 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 
 	if (const UDragDropOperation* InDragDropOperation = Cast<UDragDropOperation>(InOperation))
 	{
-		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(InDragDropOperation->Payload))
-		{	
+		if (UUI_InventorySlot* DraggedInventorySlot = Cast<UUI_InventorySlot>(InDragDropOperation->Payload)) //获取正在被拖拽的Slot
+		{
+			const FSlotData* TargetSlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()); // 准备放置的SlotData
+			const FSlotData* DraggedSlotData = GetMobaPlayerState()->GetInventorySlotData(DraggedInventorySlot->GetSlotID()); //正在被拖拽的SlotData
+			if(TargetSlotData && DraggedSlotData)
+			{
+				//如果目标Slot为空位置，直接移动
+				if(TargetSlotData->SlotID == INDEX_NONE)
+				{
+					// 其他数据由服务器处理，客户端只关心和表现相关的数据
+					BuildSlot.MaxCD = DraggedInventorySlot->BuildSlot.MaxCD;
+				}
+				else //如果目标Slot不为空，交换位置
+				{
+					// float TempCD = DraggedInventorySlot->BuildSlot.MaxCD;
+					// BuildSlot.MaxCD = DraggedInventorySlot->BuildSlot.MaxCD;
+					// DraggedInventorySlot->BuildSlot.MaxCD = TempCD;
+					Swap(DraggedInventorySlot->BuildSlot.MaxCD,BuildSlot.MaxCD);
+				}
+
+				//通知服务器更新数据
+				GetMobaPlayerState()->Server_UpdateInventory(DraggedInventorySlot->GetSlotID(), GetSlotID());
+			}
 			bDrop = true;
 		}	
 	}

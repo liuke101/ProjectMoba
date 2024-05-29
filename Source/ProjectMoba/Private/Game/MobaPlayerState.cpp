@@ -10,7 +10,48 @@
 
 AMobaPlayerState::AMobaPlayerState()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	
 	PlayerDataComponent = CreateDefaultSubobject<UPlayerDataComponent>(TEXT("PlayerDataComponent"));
+}
+
+void AMobaPlayerState::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	//服务器更新CD
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		TArray<int32> RemoveSlots;
+
+		for(auto& Tmp : PlayerDataComponent->SlotQueue)
+		{
+			Tmp.Value->CD -= DeltaSeconds;
+			if(Tmp.Value->CD <= 0.f)
+			{
+				Tmp.Value->CD = 0.f;
+				if(const FSlotAsset* SlotAsset = GetSlotAssetTemplate(Tmp.Value->SlotID))
+				{
+					if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromID(Tmp.Key))
+					{
+						//检测数量
+						CheckInventory(Tmp.Key);
+
+						//客户端矫正CD
+						Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
+					}
+				}
+				
+				RemoveSlots.Add(Tmp.Key);
+			}
+		}
+
+		for(auto& RemoveSlot : RemoveSlots)
+		{
+			PlayerDataComponent->SlotQueue.Remove(RemoveSlot);
+		}
+	}
 }
 
 void AMobaPlayerState::BeginPlay()
@@ -86,18 +127,18 @@ const TArray<FSlotAttribute*>* AMobaPlayerState::GetSlotAttributesTemplate()
 	return &CacheSlotAttributes;
 }
 
-FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromID(const int32 InID) const
+FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromID(const int32 InInventoryID) const
 {
-	if(PlayerDataComponent->SlotAttribute_Internal.Contains(InID))
+	if(PlayerDataComponent->SlotAttribute_Internal.Contains(InInventoryID))
 	{
-		return PlayerDataComponent->SlotAttribute_Internal[InID];
+		return PlayerDataComponent->SlotAttribute_Internal[InInventoryID];
 	}
 	return nullptr;
 }
 
-bool AMobaPlayerState::IsCDValid(int32 InID) const
+bool AMobaPlayerState::IsCDValid(int32 InInventoryID) const
 {
-	if(FSlotData* SlotData = GetInventorySlotData(InID))
+	if(FSlotData* SlotData = GetInventorySlotData(InInventoryID))
 	{
 		return SlotData->CD <= 0.f;
 	}
@@ -159,7 +200,7 @@ void AMobaPlayerState::RecursionCreateInventorySlot()
 
 bool AMobaPlayerState::AddSlotToInventory(int32 InSlotID)
 {
-	if(IsInventorySlotValid())
+	if(HasEmptyInventorySlot())
 	{
 		if(const FSlotAsset* SlotAsset = GetSlotAssetTemplate(InSlotID))
 		{
@@ -189,7 +230,7 @@ bool AMobaPlayerState::AddSlotToInventory(int32 InSlotID)
 	return false;
 }
 
-bool AMobaPlayerState::IsInventorySlotValid() const
+bool AMobaPlayerState::HasEmptyInventorySlot() const
 {
 	// 如果有空位，返回true
 	for(auto& Tmp : *GetInventorySlots())
@@ -202,13 +243,13 @@ bool AMobaPlayerState::IsInventorySlotValid() const
 	return false;
 }
 
-bool AMobaPlayerState::IsInventorySlotValid(int32 InInventoryID)
+bool AMobaPlayerState::IsValidInventorySlot(int32 InInventoryID)
 {
 	for(auto& Tmp : *GetInventorySlots())
 	{
 		if(Tmp.Key == InInventoryID)
 		{
-			return Tmp.Value.SlotID == INDEX_NONE;
+			return Tmp.Value.SlotID != INDEX_NONE;
 		}
 	}
 	return false;
@@ -269,11 +310,76 @@ void AMobaPlayerState::GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage
 
 void AMobaPlayerState::Server_UpdateInventory_Implementation(int32 InMoveInventoryID, int32 InTargetInventoryID)
 {
+	if(PlayerDataComponent->InventorySlots.Contains(InMoveInventoryID) && PlayerDataComponent->InventorySlots.Contains(InTargetInventoryID))
+	{
+		FSlotData& MoveInventorySlotData = PlayerDataComponent->InventorySlots[InMoveInventoryID]; //移动到目标Slot的数据
+		FSlotData& TargetInventorySlotData = PlayerDataComponent->InventorySlots[InTargetInventoryID]; //目标Slot原来的数据
+
+		//如果目标Slot为空位置，直接移动
+		if(TargetInventorySlotData.SlotID == INDEX_NONE)
+		{
+			//Slot数据移动
+			TargetInventorySlotData = MoveInventorySlotData;
+			MoveInventorySlotData.Reset();
+			
+			//队列移动 和CD相关
+			if(PlayerDataComponent->SlotQueue.Contains(InMoveInventoryID))
+			{
+				PlayerDataComponent->SlotQueue.Remove(InMoveInventoryID);
+				PlayerDataComponent->SlotQueue.Add(InTargetInventoryID, &TargetInventorySlotData);
+			}
+
+			//属性移动
+			PlayerDataComponent->SlotAttribute_Internal.SetKeyToNewKey(InMoveInventoryID, InTargetInventoryID);
+		}
+		else //如果目标Slot不为空，交换位置
+		{
+			//Slot数据交换
+			Swap(MoveInventorySlotData, TargetInventorySlotData);
+
+			//队列交换
+			if(PlayerDataComponent->SlotQueue.Contains(InMoveInventoryID))
+			{
+				PlayerDataComponent->SlotQueue.Remove(InMoveInventoryID);
+				PlayerDataComponent->SlotQueue.Add(InMoveInventoryID, &MoveInventorySlotData);
+			}
+
+			if(PlayerDataComponent->SlotQueue.Contains(InTargetInventoryID))
+			{
+				PlayerDataComponent->SlotQueue.Remove(InTargetInventoryID);
+				PlayerDataComponent->SlotQueue.Add(InTargetInventoryID, &TargetInventorySlotData);
+			}
+
+			//属性交换
+			PlayerDataComponent->SlotAttribute_Internal.SwapKey(InMoveInventoryID, InTargetInventoryID);
+		}
+
+		//通知客户端更新UI
+		Client_UpdateSlot(InMoveInventoryID, MoveInventorySlotData);
+		Client_UpdateSlot(InTargetInventoryID, TargetInventorySlotData);
+	}
 	
 }
 
 void AMobaPlayerState::Server_Use_Implementation(int32 InInventoryID)
 {
+	if(FSlotData* SlotData = GetInventorySlotData(InInventoryID))
+	{
+		if(SlotData->Number > 0)
+		{
+			SlotData->Number--;
+			CheckInventory(InInventoryID); 
+			Client_UpdateSlot(InInventoryID, *SlotData);
+		}
+
+		if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromID(InInventoryID))
+		{
+			SlotData->CD = SlotAttribute->CD;
+			PlayerDataComponent->SlotQueue.Add(InInventoryID, SlotData);
+			Client_StartUpdateCD(InInventoryID, *SlotData);
+		}
+	}
+
 	
 }
 
@@ -300,7 +406,6 @@ void AMobaPlayerState::Client_UpdateSlot_Implementation(int32 InInventoryID, con
 	//更新Slot
 	if(FSlotData* SlotData = GetInventorySlotData(InInventoryID))
 	{
-		
 		*SlotData = InNetSlotData;
 	}
 	// else if(0) //技能

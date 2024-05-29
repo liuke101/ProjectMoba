@@ -15,6 +15,7 @@ void UUI_Inventory::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	//延迟绑定SlotDelegate, 因为PlayerState在NativeConstruct时还未初始化
 	GThread::GetCoroutines().BindUObject(0.5f, this, &UUI_Inventory::BindSlotDelegate);
 }
 

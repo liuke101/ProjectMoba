@@ -23,6 +23,7 @@ class PROJECTMOBA_API AMobaPlayerState : public APlayerState
 public:
 	AMobaPlayerState();
 
+	virtual void Tick(float DeltaSeconds) override;
 protected:
 	virtual void BeginPlay() override;
 	
@@ -42,8 +43,8 @@ public:
 
 
 	/** 对Slot实例的操作 */
-	FSlotAttribute* GetSlotAttributeFromID(const int32 InID) const;
-	bool IsCDValid(int32 InID) const;
+	FSlotAttribute* GetSlotAttributeFromID(const int32 InInventoryID) const;
+	bool IsCDValid(int32 InInventoryID) const;
 	
 	bool AddSlotAttributes(int32 InInventoryID, int32 InSlotID); //直接添加到指定位置
 	bool RecursionAddSlotAttributes(int32 InSlotID); //递归添加到空位置
@@ -52,19 +53,17 @@ public:
 	void RecursionCreateInventorySlot(); //递归创建InventorySlot
 	bool AddSlotToInventory(int32 InSlotID); //根据SlotID获取DataTable数据，然后添加到InventorySlot
 	
-	bool IsInventorySlotValid() const; //检查InventorySlot是否有空位
-	bool IsInventorySlotValid(int32 InInventoryID); //查询对应InventorySlot是否为空
+	bool HasEmptyInventorySlot() const; //检查InventorySlot是否有空位
+	bool IsValidInventorySlot(int32 InInventoryID); //查询对应InventorySlot是否有物品, 有则返回true
 	
 	TMap<int32, FSlotData>* GetInventorySlots() const;
 	FSlotData* GetInventorySlotData(int32 InInventoryID) const;
 	
 
 	void GetAllInventoryIDs(TArray<int32>& InInventoryIDs);
-	
+
+	/** 检查物品数量，为0则清空Slot */
 	void CheckInventory(int32 InInventoryID) const;
-
-	
-
 	
 	/** 技能 */
 	 
