@@ -22,7 +22,7 @@ void AMobaGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 }
 
 
-const TArray<FCharacterAsset*>* AMobaGameState::GetCharacterAssetsTemplate()
+const TArray<FCharacterAsset*>* AMobaGameState::GetCharacterAssets()
 {
 	if(CacheCharacterAssets.IsEmpty())
 	{
@@ -33,7 +33,7 @@ const TArray<FCharacterAsset*>* AMobaGameState::GetCharacterAssetsTemplate()
 	return &CacheCharacterAssets;
 }
 
-const TArray<FCharacterAttribute*>* AMobaGameState::GetCharacterAttributesTemplate()
+const TArray<FCharacterAttribute*>* AMobaGameState::GetCharacterAttributes()
 {
 	if(CacheCharacterAttributes.IsEmpty())
 	{
@@ -45,20 +45,20 @@ const TArray<FCharacterAttribute*>* AMobaGameState::GetCharacterAttributesTempla
 }
 
 
-void AMobaGameState::AddCharacterAttribute(const int64 InPlayerID, const int32 InCharacterID)
+void AMobaGameState::AddCharacterAttribute(const int64 PlayerID, const int32 CharacterID)
 {
-	if (!CharacterAttributes.Contains(InPlayerID))
+	if (!CharacterAttributes.Contains(PlayerID))
 	{
-		CharacterAttributes.Add(InPlayerID, *GetCharacterAttributeFromCharacterID(InCharacterID));
-		CharacterAttributes[InPlayerID].ResetAttribute();
+		CharacterAttributes.Add(PlayerID, *GetCharacterAttributeFromCharacterID(CharacterID));
+		CharacterAttributes[PlayerID].ResetAttribute();
 	}
 }
 
-const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const int32 InCharacterID)
+const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const int32 CharacterID)
 {
-	for(auto Asset : *GetCharacterAssetsTemplate())
+	for(auto Asset : *GetCharacterAssets())
 	{
-		if(Asset->DataID == InCharacterID)
+		if(Asset->DataID == CharacterID)
 		{
 			return Asset;
 		}
@@ -67,11 +67,11 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const in
 	return nullptr;
 }
 
-const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64 InPlayerID)
+const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64 PlayerID)
 {
-	for(auto Asset : *GetCharacterAssetsTemplate())
+	for(auto Asset : *GetCharacterAssets())
 	{
-		if(Asset->DataID == GetCharacterIDFromPlayerID(InPlayerID))
+		if(Asset->DataID == GetCharacterIDFromPlayerID(PlayerID))
 		{
 			return Asset;
 		}
@@ -80,11 +80,11 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64
 	return nullptr;
 }
 
-const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(const int32 InCharacterID)
+const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(const int32 CharacterID)
 {
-	for(auto Attribute : *GetCharacterAttributesTemplate())
+	for(auto Attribute : *GetCharacterAttributes())
 	{
-		if(Attribute->DataID == InCharacterID)
+		if(Attribute->DataID == CharacterID)
 		{
 			return Attribute;
 		}
@@ -92,11 +92,11 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 	return nullptr;
 }
 
-FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 InPlayerID)
+FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 PlayerID)
 {
 	for(auto& MAP : CharacterAttributes)
 	{
-		if(MAP.Key == InPlayerID)
+		if(MAP.Key == PlayerID)
 		{
 			return &MAP.Value;
 		}
@@ -104,47 +104,47 @@ FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int
 	return nullptr;
 }
 
-void AMobaGameState::UpdateCharacterLocation(const int64 InPlayerID, const FVector& InLocation)
+void AMobaGameState::UpdateCharacterLocation(const int64 PlayerID, const FVector& Location)
 {
-	for(auto& Location : PlayerLocations)
+	for(auto& PlayerLocation : PlayerLocations)
 	{
-		if(Location.PlayerID == InPlayerID)
+		if(PlayerLocation.PlayerID == PlayerID)
 		{
-			Location.Location = InLocation;
+			PlayerLocation.Location = Location;
 			break;
 		}
 	}
 }
 
-void AMobaGameState::AddCharacterLocation(const int64 InPlayerID, const FVector& InLocation)
+void AMobaGameState::AddCharacterLocation(const int64 PlayerID, const FVector& Location)
 {
-	for(auto Location : PlayerLocations)
+	for(auto PlayerLocation : PlayerLocations)
 	{
-		if(Location.PlayerID == InPlayerID)
+		if(PlayerLocation.PlayerID == PlayerID)
 		{
 			return;
 		}
 	}
 	// 如果没有找到，就添加
-	PlayerLocations.Add(FPlayerLocation(InPlayerID, InLocation));
+	PlayerLocations.Add(FPlayerLocation(PlayerID, Location));
 }
 
-bool AMobaGameState::GetCharacterLocation(const int64 InPlayerID, FVector& OutLocation) const
+bool AMobaGameState::GetCharacterLocation(const int64 PlayerID, FVector& OutLocation) const
 {
-	for(auto Location : PlayerLocations)
+	for(auto PlayerLocation : PlayerLocations)
 	{
-		if(Location.PlayerID == InPlayerID)
+		if(PlayerLocation.PlayerID == PlayerID)
 		{
-			OutLocation = Location.Location;
+			OutLocation = PlayerLocation.Location;
 			return true;
 		}
 	}
 	return false;
 }
 
-int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 InPlayerID) 
+int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 PlayerID) 
 {
-	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttributeFromPlayerID(InPlayerID))
+	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttributeFromPlayerID(PlayerID))
 	{
 		return CharacterAttribute->DataID;
 	}

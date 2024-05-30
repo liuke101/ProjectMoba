@@ -26,28 +26,27 @@ protected:
 	
 public:
 	/** 从DataTable中读数据 */
-	const TArray<FCharacterAsset*>* GetCharacterAssetsTemplate();
-	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 InCharacterID);
-	const FCharacterAsset* GetCharacterAssetFromPlayerID(const int64 InPlayerID);
-	const TArray<FCharacterAttribute*>* GetCharacterAttributesTemplate();
-	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 InCharacterID);
-	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 InPlayerID);
+	const TArray<FCharacterAsset*>* GetCharacterAssets();
+	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 CharacterID); //CharacterID即DataID
+	const FCharacterAsset* GetCharacterAssetFromPlayerID(const int64 PlayerID);
+	const TArray<FCharacterAttribute*>* GetCharacterAttributes();
+	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 CharacterID);
+	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 PlayerID);
 
 	/** CharacterAttribute */
-	FORCEINLINE const TMap<int64, FCharacterAttribute>* GetCharacterAttributes() const { return &CharacterAttributes; }
-	void AddCharacterAttribute(const int64 InPlayerID,const int32 InCharacterID); 
+	void AddCharacterAttribute(const int64 PlayerID,const int32 CharacterID); 
 
 	/** ChracterLocation */
-	void UpdateCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
-	void AddCharacterLocation(const int64 InPlayerID, const FVector& InLocation);
+	void UpdateCharacterLocation(const int64 PlayerID, const FVector& Location);
+	void AddCharacterLocation(const int64 PlayerID, const FVector& Location);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool GetCharacterLocation(const int64 InPlayerID, FVector& OutLocation) const;
+	bool GetCharacterLocation(const int64 PlayerID, FVector& OutLocation) const;
 
 	FORCEINLINE const TArray<FPlayerLocation>& GetPlayerLocations() const { return PlayerLocations; }
 
 	/** ID */
-	int32 GetCharacterIDFromPlayerID(const int64 InPlayerID);
+	int32 GetCharacterIDFromPlayerID(const int64 PlayerID);
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|DataTable")
     TObjectPtr<UDataTable> DT_CharacterAsset;
