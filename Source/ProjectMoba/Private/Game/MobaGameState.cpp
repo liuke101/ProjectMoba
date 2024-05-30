@@ -58,7 +58,7 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const in
 {
 	for(auto Asset : *GetCharacterAssetsTemplate())
 	{
-		if(Asset->ID == InCharacterID)
+		if(Asset->DataID == InCharacterID)
 		{
 			return Asset;
 		}
@@ -71,7 +71,7 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64
 {
 	for(auto Asset : *GetCharacterAssetsTemplate())
 	{
-		if(Asset->ID == GetCharacterIDFromPlayerID(InPlayerID))
+		if(Asset->DataID == GetCharacterIDFromPlayerID(InPlayerID))
 		{
 			return Asset;
 		}
@@ -84,7 +84,7 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 {
 	for(auto Attribute : *GetCharacterAttributesTemplate())
 	{
-		if(Attribute->ID == InCharacterID)
+		if(Attribute->DataID == InCharacterID)
 		{
 			return Attribute;
 		}
@@ -146,7 +146,7 @@ int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 InPlayerID)
 {
 	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttributeFromPlayerID(InPlayerID))
 	{
-		return CharacterAttribute->ID;
+		return CharacterAttribute->DataID;
 	}
 	return INDEX_NONE;
 }

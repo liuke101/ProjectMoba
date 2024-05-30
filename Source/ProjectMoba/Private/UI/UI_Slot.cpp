@@ -52,13 +52,13 @@ void UUI_Slot::UpdateSlot()
 {
 	if(const FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
 	{
-		if(SlotData->SlotID != INDEX_NONE)
+		if(SlotData->DataID != INDEX_NONE)
 		{
 			UpdateIcon(SlotData->SlotIcon);
 			DrawSlotCDMat(SlotData->CD);
 			DrawSlotCDText(SlotData->CD);
 		}
-		else if(SlotData->SlotID == INDEX_NONE)
+		else if(SlotData->DataID == INDEX_NONE)
 		{
 			ResetSlot(); 
 		}

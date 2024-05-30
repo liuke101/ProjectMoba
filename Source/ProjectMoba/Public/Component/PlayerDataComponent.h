@@ -42,7 +42,7 @@ public:
 
 	// 服务端物品栏x6
 	// 通过RPC状态同步到客户端,TMap不支持RPC，我们使用TArray来将其拆分, 为此我们创建了一个结构体FSlotDataNetPackage
-	TMap<int32, FSlotData> InventorySlots;  //InventoryID_To_SlotData
+	TMap<int32, FSlotData> InventorySlots;  //SlotID_To_SlotData
 
 	// 服务端技能栏x4
 	TMap<int32, FSlotData> SkillSlots;
@@ -58,7 +58,7 @@ private:
 			{
 			}
 			
-			//Key: InventoryID
+			//Key: SlotID 表示格子的ID
 			//Value: FSlotAttribute
 			FSlotAttribute_Element(int32 InKey, const FSlotAttribute& InValue)
 				: Key(InKey), Value(InValue)
@@ -103,5 +103,5 @@ private:
 
 	// 队列，专门计算技能、物品、装备、属性
 	// 推送到队列中，在队列中计算cd，然后再推送到客户端
-	TMap<int32, FSlotData*> SlotQueue; //InventoryID_To_SlotData
+	TMap<int32, FSlotData*> SlotQueue; //Slot_To_SlotData
 };

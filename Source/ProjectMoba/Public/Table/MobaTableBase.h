@@ -1,5 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
+// ReSharper disable All
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,7 +14,6 @@ struct FMobaTableBase : public FTableRowBase
 
 	FMobaTableBase();
 
-	/** CharacterID 工作流程： 1. 配表：每个ID对应的行 2. 读txt获取当前的ID */
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
-	int32 ID;
+	int32 DataID;
 };

@@ -23,11 +23,11 @@ void UUI_SkillBar::InitSlotLayout() const
 
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		//获取所有SkillID
-		TArray<int32> SkillIDs;
-		MobaPlayerState->GetAllSkillIDs(SkillIDs);
+		//获取所有SkillSlotID
+		TArray<int32> SkillSlotIDs;
+		MobaPlayerState->GetAllSkillSlotIDs(SkillSlotIDs);
 
-		if(!SkillIDs.IsEmpty())
+		if(!SkillSlotIDs.IsEmpty())
 		{
 			if (SkillSlotClass)
 			{
@@ -44,7 +44,7 @@ void UUI_SkillBar::InitSlotLayout() const
 								GridSlot->SetHorizontalAlignment(HAlign_Fill);
 								GridSlot->SetVerticalAlignment(VAlign_Fill);
 							}
-							SlotWidget->SetSlotID(SkillIDs[y]); //设置SlotID
+							SlotWidget->SetSlotID(SkillSlotIDs[y]); //设置SlotID
 
 							//Update
 							SlotWidget->UpdateSlot();

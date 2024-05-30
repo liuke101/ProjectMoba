@@ -35,46 +35,26 @@ public:
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
 #pragma endregion
 
-	
+#pragma region DataTable数据读取 
 public:
-	/** 从DataTable中读数据 */
-	const FSlotAsset* GetSlotAssetTemplate(const int32 InID);
-	const TArray<FSlotAsset*>* GetSlotAssetsTemplate();
-	const FSlotAttribute* GetSlotAttributeTemplate(const int32 InID);
-	const TArray<FSlotAttribute*>* GetSlotAttributesTemplate();
-
-
-	/** 对Slot实例的操作 */
-	FSlotAttribute* GetSlotAttributeFromID(const int32 InInventoryID) const;
-	bool IsCDValid(int32 InInventoryID) const;
-
-	/** 数据属性操作 */
-	bool AddSlotAttributes(int32 InInventoryID, int32 InSlotID); //直接添加到指定位置
-	bool RecursionAddSlotAttributes(int32 InSlotID); //递归添加到空位置
-	FSlotData* GetSlotData(int32 ID) const; //根据ID获取SlotData, 可能是InventorySlot或者SkillSlot
-
-	/** Inventory物品操作 */
-	void RecursionCreateInventorySlots(); //递归创建InventorySlot
-	bool AddSlotToInventory(int32 InSlotID); //根据SlotID获取DataTable数据，然后添加到InventorySlot
+	const TArray<FSlotAsset*>* GetSlotAssets();
+	const FSlotAsset* GetSlotAssetFromDataID(const int32 DataID);
 	
-	bool HasEmptyInventorySlot() const; //检查InventorySlot是否有空位
-	bool IsValidInventorySlot(int32 InInventoryID); //查询对应InventorySlot是否有物品, 有则返回true
-	
-	TMap<int32, FSlotData>* GetInventorySlots() const;
-	FSlotData* GetInventorySlotData(int32 InInventoryID) const;
+	const TArray<FSlotAttribute*>* GetSlotAttributes();
+	const FSlotAttribute* GetSlotAttributeFromDataID(const int32 DataID);
+	FSlotAttribute* GetSlotAttributeFromSlotID(const int32 SlotID) const;
+#pragma endregion
 
-	void GetAllInventoryIDs(TArray<int32>& OutInventoryIDs) const;
-
-	/** 检查物品数量，为0则清空Slot */
-	void CheckInventory(int32 InInventoryID) const;
+#pragma region Slot操作
+public:
+	/** Attribute 替换或添加到空Slot */
+	bool AddSlotAttributes(int32 SlotID, int32 DataID);
+	/** 递归添加到空Slot */
+	bool RecursionAddSlotAttributes(int32 SlotID);
 	
-	/** 技能 */
-	void RecursionCreateSkillSlots(); //递归创建SkillSlot
-	TMap<int32, FSlotData>* GetSkillSlots() const;
-	FSlotData* GetSkillSlotData(int32 InSkillID) const;
-	void InitSkillSlot();
-	void GetAllSkillIDs(TArray<int32>& OutSkillIDs) const;
+	FSlotData* GetSlotData(int32 SlotID) const;
 	
+	bool IsCDValid(int32 SlotID) const;
 
 protected:
 	/// 递归创建Slot
@@ -83,39 +63,74 @@ protected:
 	void RecursionCreatelSlots(TMap<int32, FSlotData>& CreateSlots, TMap<int32, FSlotData>& CompareSlots);
 
 	// 获取Slot对应的ID
-	static void GetAllIDs(const TMap<int32, FSlotData>& InSlots, TArray<int32>& OutIDs);
+	static void GetAllSlotIDs(const TMap<int32, FSlotData>& InSlots, TArray<int32>& OutSlotIDs);
+#pragma  endregion
+
+#pragma region Inventory库存
+public:
+	/** 递归创建InventorySlot */
+	void RecursionCreateInventorySlots();
+	/** 根据DataID获取DataTable数据，然后添加到InventorySlot */
+	bool AddSlotToInventory(int32 DataID); 
+	/** 检查InventorySlot是否有空位 */
+	bool HasEmptyInventorySlot() const;
+	/** 查询对应InventorySlot是否有物品, 有则返回true */
+	bool IsValidInventorySlot(int32 SlotID); 
+	
+	FORCEINLINE TMap<int32, FSlotData>* GetInventorySlots() const;
+	FSlotData* GetInventorySlotData(int32 SlotID) const;
+
+	void GetAllInventorySlotIDs(TArray<int32>& OutSlotIDs) const;
+
+	/** 检查物品数量，为0则清空Slot */
+	void CheckInventory(int32 SlotID) const;
+#pragma endregion
+	
+#pragma region 技能
+public:
+	/** 递归创建 SkillSlot */
+	void RecursionCreateSkillSlots(); 
+	FORCEINLINE TMap<int32, FSlotData>* GetSkillSlots() const;
+	FSlotData* GetSkillSlotData(int32 SlotID) const;
+	void InitSkillSlot();
+	void GetAllSkillSlotIDs(TArray<int32>& OutSlotIDs) const;
+	int32 GetSkillDataIDFromSlotID(int32 SlotID) const;
+#pragma endregion
 	
 #pragma region RPC
-public:
 	//------------------数据-------------------
+public:
 	void GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage);
 	void GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage);
+private:
+	void GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotDataNetPackage& OutNetPackage);
 
 	//------------------Inventory-------------------//
+public:
 	//交换和移动物品
 	UFUNCTION(Server, Reliable)
-	void Server_UpdateInventory(int32 InMoveInventoryID, int32 InTargetInventoryID);
+	void Server_UpdateInventory(int32 MoveSlotID, int32 TargetSlotID);
 
 	//使用物品
 	UFUNCTION(Server, Reliable)
-	void Server_Use(int32 InInventoryID);
+	void Server_Use(int32 SlotID);
 
 	UFUNCTION(Client, Reliable)
-	void Client_InitInventorySlots(const FSlotDataNetPackage& InSlotDataNetPackage);
+	void Client_InitInventorySlots(const FSlotDataNetPackage& SlotDataNetPackage);
 
 	//------------------Skill-------------------//
 	UFUNCTION(Client, Reliable)
-	void Client_InitSkillSlots(const FSlotDataNetPackage& InSlotDataNetPackage);
+	void Client_InitSkillSlots(const FSlotDataNetPackage& SlotDataNetPackage);
 
 	//------------------通用-------------------//
 	UFUNCTION(Client, Reliable)
-	void Client_UpdateSlot(int32 InInventoryID, const FSlotData& InNetSlotData);
+	void Client_UpdateSlot(int32 SlotID, const FSlotData& NetSlotData);
 
 	UFUNCTION(Client, Reliable)
-	void Client_StartUpdateCD(int32 InInventoryID, const FSlotData& InNetSlotData);
+	void Client_StartUpdateCD(int32 SlotID, const FSlotData& NetSlotData);
 
 	UFUNCTION(Client, Reliable)
-	void Client_EndUpdateCD(int32 InInventoryID, const FSlotData& InNetSlotData);
+	void Client_EndUpdateCD(int32 SlotID, const FSlotData& NetSlotData);
 #pragma endregion
 
 

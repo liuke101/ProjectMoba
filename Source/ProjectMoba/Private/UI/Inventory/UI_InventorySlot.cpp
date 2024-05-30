@@ -172,7 +172,7 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 			if(TargetSlotData && DraggedSlotData)
 			{
 				//如果目标Slot为空位置，直接移动
-				if(TargetSlotData->SlotID == INDEX_NONE)
+				if(TargetSlotData->DataID == INDEX_NONE)
 				{
 					// 其他数据由服务器处理，客户端只关心和表现相关的数据
 					BuildSlot.MaxCD = DraggedInventorySlot->BuildSlot.MaxCD;

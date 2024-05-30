@@ -15,7 +15,7 @@ struct FCharacterSkill
 	FCharacterSkill();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
-	int32 ID = INDEX_NONE;
+	int32 DataID = INDEX_NONE;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
 	TObjectPtr<UTexture2D> Icon;

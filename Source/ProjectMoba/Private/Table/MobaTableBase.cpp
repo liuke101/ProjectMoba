@@ -4,7 +4,7 @@
 #include "Table/MobaTableBase.h"
 
 FMobaTableBase::FMobaTableBase()
-	: ID(INDEX_NONE)
+	: DataID(INDEX_NONE)
 {
 	
 }
