@@ -23,7 +23,7 @@ public:
 	virtual UPanelWidget* GetSlotLayoutPanel() const;
 	
 protected:
-	// 初始化Slot分布
+	// 初始化Slot布局
 	virtual void InitSlotLayout() const;
 	
 	// 绑定委托

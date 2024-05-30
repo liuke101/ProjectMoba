@@ -28,17 +28,17 @@ public:
 
 	//数据相关
 public:
-	//如果是消费物品, 更新数量
-	void UpdateNumber();
+	//更新物品数量显示
+	void UpdateNumber() const;
 	//更新对应的Slot(服务器通知客户端更新指定的Slot)
 	virtual void UpdateSlot() override;
 	//开始进入更新CD的状态（服务器计算CD)
 	virtual void StartUpdateCD() override;
 	//结束更新CD (服务器更新结束后通知客户端，客户端矫正CD)
 	virtual void EndUpdateCD() override;
-	//重置Slot
+	//隐藏Slot
 	virtual void ResetSlot() override;
-	//获取Slot数量
+	//获取SlotData数量
 	int32 GetSlotNumber() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Tip)

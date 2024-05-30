@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "UI/MobaUIBase.h"
-#include "MobaStatusBarUI_Health.generated.h"
+#include "UI_StatusBar_Health.generated.h"
 
 class UProgressBar;
 /**
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UMobaStatusBarUI_Health : public UMobaUIBase
+class PROJECTMOBA_API UUI_StatusBar_Health : public UMobaUIBase
 {
 	GENERATED_BODY()
 public:

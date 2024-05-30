@@ -4,8 +4,10 @@
 #include "Game/MobaPlayerState.h"
 
 #include "ThreadManage.h"
+#include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
 #include "ProjectMoba/MiscData.h"
+#include "Table/CharacterAsset.h"
 #include "Table/SlotAttribute.h"
 #include "Table/SlotAsset.h"
 
@@ -64,19 +66,29 @@ void AMobaPlayerState::BeginPlay()
 	{
 		for(int32 i = 0; i < 6; i++)
 		{
-			RecursionCreateInventorySlot();
+			RecursionCreateInventorySlots();
+		}
+		for(int32 i = 0; i < 4; i++)
+		{
+			RecursionCreateSkillSlots();
 		}
 		
 		// 延迟执行，等待客户端生成
 		GThread::GetCoroutines().BindLambda(2.0f,[&]()
 		{
-			FSlotDataNetPackage NetPackage;
-			GetInventorySlotNetPackage(NetPackage);
-			Client_InitInventory(NetPackage);
+			FSlotDataNetPackage NetInventoryPackage;
+			GetInventorySlotNetPackage(NetInventoryPackage);
+			Client_InitInventorySlots(NetInventoryPackage);
 
-			//测试(正式功能为点击购买)
+			//测试Inventory(正式功能为点击购买)
 			AddSlotToInventory(99990);
 			AddSlotToInventory(99991);
+
+			FSlotDataNetPackage NetSkillPackage;
+			GetSkillSlotNetPackage(NetSkillPackage);
+			Client_InitSkillSlots(NetSkillPackage);
+			//测试Skill
+			InitSkillSlot();
 		});
 	}
 }
@@ -202,16 +214,9 @@ FSlotData* AMobaPlayerState::GetSlotData(int32 ID) const
 }
 
 
-void AMobaPlayerState::RecursionCreateInventorySlot()
+void AMobaPlayerState::RecursionCreateInventorySlots()
 {
-	int32 InventoryID = FMath::RandRange(0, 9999999);
-	if(!PlayerDataComponent->InventorySlots.Contains(InventoryID))
-	{
-		PlayerDataComponent->InventorySlots.Add(InventoryID, FSlotData());
-		return;
-	}
-
-	return RecursionCreateInventorySlot();
+	RecursionCreatelSlots(PlayerDataComponent->InventorySlots, PlayerDataComponent->SkillSlots);
 }
 
 bool AMobaPlayerState::AddSlotToInventory(int32 InSlotID)
@@ -287,12 +292,9 @@ FSlotData* AMobaPlayerState::GetInventorySlotData(int32 InInventoryID) const
 	return nullptr;
 }
 
-void AMobaPlayerState::GetAllInventoryIDs(TArray<int32>& InInventoryIDs) const
+void AMobaPlayerState::GetAllInventoryIDs(TArray<int32>& OutInventoryIDs) const
 {
-	for(auto& Tmp : *GetInventorySlots())
-	{
-		InInventoryIDs.Add(Tmp.Key);
-	}
+	GetAllIDs(*GetInventorySlots(), OutInventoryIDs);
 }
 
 void AMobaPlayerState::CheckInventory(int32 InInventoryID) const
@@ -306,6 +308,11 @@ void AMobaPlayerState::CheckInventory(int32 InInventoryID) const
 			PlayerDataComponent->SlotAttribute_Internal.Remove(InInventoryID);
 		}
 	}
+}
+
+void AMobaPlayerState::RecursionCreateSkillSlots()
+{
+	RecursionCreatelSlots(PlayerDataComponent->SkillSlots, PlayerDataComponent->InventorySlots);
 }
 
 TMap<int32, FSlotData>* AMobaPlayerState::GetSkillSlots() const
@@ -323,19 +330,83 @@ FSlotData* AMobaPlayerState::GetSkillSlotData(int32 InSkillID) const
 	return nullptr;
 }
 
+void AMobaPlayerState::InitSkillSlot()
+{
+	if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerDataComponent->PlayerID))
+	{
+		auto AddSlotToSkillBar = [&](const FCharacterSkill& Skill)
+		{
+			int InSkillID = INDEX_NONE;
+			for(auto& Tmp : *GetSkillSlots())
+			{
+				if(Tmp.Value.SlotID == INDEX_NONE)
+				{
+					Tmp.Value.SlotID = Skill.ID;
+					Tmp.Value.SlotIcon = Skill.Icon;
+					Tmp.Value.Number = INDEX_NONE;
+					Tmp.Value.CD = 0.f;
+					InSkillID = Tmp.Key;
+					break;
+				}
+			}
+
+			if(InSkillID != INDEX_NONE && AddSlotAttributes(InSkillID, Skill.ID))
+			{
+				Client_UpdateSlot(InSkillID, PlayerDataComponent->SkillSlots[InSkillID]);
+			}
+		};
+
+		AddSlotToSkillBar(CharacterAsset->W_Skill);
+		AddSlotToSkillBar(CharacterAsset->E_Skill);
+		AddSlotToSkillBar(CharacterAsset->R_Skill);
+		AddSlotToSkillBar(CharacterAsset->F_Skill);
+	}
+}
+
+void AMobaPlayerState::GetAllSkillIDs(TArray<int32>& OutSkillIDs) const
+{
+	GetAllIDs(*GetSkillSlots(), OutSkillIDs);
+}
+
+
+void AMobaPlayerState::RecursionCreatelSlots(TMap<int32, FSlotData>& CreateSlots, TMap<int32, FSlotData>& CompareSlots)
+{
+	int32 ID = FMath::RandRange(0, 9999999);
+	if(!CreateSlots.Contains(ID) && !CompareSlots.Contains(ID)) //保证该ID没有被使用过
+	{
+		CreateSlots.Add(ID, FSlotData());
+	}
+	else
+	{
+		RecursionCreatelSlots(CreateSlots, CompareSlots);
+	}
+}
+
+void AMobaPlayerState::GetAllIDs(const TMap<int32, FSlotData>& InSlots, TArray<int32>& OutIDs)
+{
+	for(auto& Tmp : InSlots)
+	{
+		OutIDs.Add(Tmp.Key);
+	}
+}
+
 
 void AMobaPlayerState::GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage)
 {
 	for(auto& Tmp : *GetInventorySlots())
 	{
-		OutNetPackage.InventoryIDs.Add(Tmp.Key);
+		OutNetPackage.IDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
 	}
 }
 
 void AMobaPlayerState::GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage)
 {
-	
+	for(auto& Tmp : *GetSkillSlots())
+	{
+		OutNetPackage.IDs.Add(Tmp.Key);
+		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
 }
 
 
@@ -414,15 +485,31 @@ void AMobaPlayerState::Server_Use_Implementation(int32 InInventoryID)
 	
 }
 
-void AMobaPlayerState::Client_InitInventory_Implementation(const FSlotDataNetPackage& InSlotDataNetPackage)
+void AMobaPlayerState::Client_InitInventorySlots_Implementation(const FSlotDataNetPackage& InSlotDataNetPackage)
 {
 	//清空旧数据
 	PlayerDataComponent->InventorySlots.Empty(); 
 
 	//读取网络包，加载到InventorySlots
-	for(int32 i = 0; i < InSlotDataNetPackage.InventoryIDs.Num(); i++)
+	for(int32 i = 0; i < InSlotDataNetPackage.IDs.Num(); i++)
 	{
-		PlayerDataComponent->InventorySlots.Add(InSlotDataNetPackage.InventoryIDs[i], InSlotDataNetPackage.SlotDatas[i]);
+		PlayerDataComponent->InventorySlots.Add(InSlotDataNetPackage.IDs[i], InSlotDataNetPackage.SlotDatas[i]);
+	}
+
+	//多播委托
+	InitSlotDelegate.Broadcast();
+}
+
+
+void AMobaPlayerState::Client_InitSkillSlots_Implementation(const FSlotDataNetPackage& InSlotDataNetPackage)
+{
+	//清空旧数据
+	PlayerDataComponent->SkillSlots.Empty(); 
+
+	//读取网络包，加载到InventorySlots
+	for(int32 i = 0; i < InSlotDataNetPackage.IDs.Num(); i++)
+	{
+		PlayerDataComponent->SkillSlots.Add(InSlotDataNetPackage.IDs[i], InSlotDataNetPackage.SlotDatas[i]);
 	}
 
 	//多播委托

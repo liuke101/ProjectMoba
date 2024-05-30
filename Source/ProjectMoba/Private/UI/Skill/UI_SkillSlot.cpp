@@ -5,6 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "Character/MobaPlayerController.h"
+#include "ProjectMoba/MobaType.h"
 
 
 static int32 SkillKeyIndex = 0;

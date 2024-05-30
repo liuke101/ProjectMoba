@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MobaStatusBarUI_Health.h"
-#include "MobaStatusBarUI.generated.h"
+#include "UI_StatusBar_Health.h"
+#include "UI_StatusBar.generated.h"
 
 class UProgressBar;
 class UTextBlock;
@@ -12,7 +12,7 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UMobaStatusBarUI : public UMobaStatusBarUI_Health
+class PROJECTMOBA_API UUI_StatusBar : public UUI_StatusBar_Health
 {
 	GENERATED_BODY()
 public:

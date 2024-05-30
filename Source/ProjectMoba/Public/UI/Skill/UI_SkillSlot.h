@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProjectMoba/MobaType.h"
 #include "UI/UI_Slot.h"
 #include "UI_SkillSlot.generated.h"
 
@@ -22,6 +21,4 @@ public:
 	
 	virtual void OnClickedWidget() override;
 	
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SkillSlot")
-	// ESkillKey SkillKey;
 };

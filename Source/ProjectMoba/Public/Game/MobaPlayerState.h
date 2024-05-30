@@ -28,13 +28,15 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
+#pragma region Delegate
 	FSimpleMulticastDelegate InitSlotDelegate;  //通知客户端
 	FSimpleOneKeyDelegate UpdateSlotDelegate; //更新Slot
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
-public:
-	FORCEINLINE UPlayerDataComponent* GetPlayerDataComponent() const { return PlayerDataComponent; }
+#pragma endregion
 
+	
+public:
 	/** 从DataTable中读数据 */
 	const FSlotAsset* GetSlotAssetTemplate(const int32 InID);
 	const TArray<FSlotAsset*>* GetSlotAssetsTemplate();
@@ -52,7 +54,7 @@ public:
 	FSlotData* GetSlotData(int32 ID) const; //根据ID获取SlotData, 可能是InventorySlot或者SkillSlot
 
 	/** Inventory物品操作 */
-	void RecursionCreateInventorySlot(); //递归创建InventorySlot
+	void RecursionCreateInventorySlots(); //递归创建InventorySlot
 	bool AddSlotToInventory(int32 InSlotID); //根据SlotID获取DataTable数据，然后添加到InventorySlot
 	
 	bool HasEmptyInventorySlot() const; //检查InventorySlot是否有空位
@@ -61,15 +63,28 @@ public:
 	TMap<int32, FSlotData>* GetInventorySlots() const;
 	FSlotData* GetInventorySlotData(int32 InInventoryID) const;
 
-	void GetAllInventoryIDs(TArray<int32>& InInventoryIDs) const;
+	void GetAllInventoryIDs(TArray<int32>& OutInventoryIDs) const;
 
 	/** 检查物品数量，为0则清空Slot */
 	void CheckInventory(int32 InInventoryID) const;
 	
 	/** 技能 */
+	void RecursionCreateSkillSlots(); //递归创建SkillSlot
 	TMap<int32, FSlotData>* GetSkillSlots() const;
 	FSlotData* GetSkillSlotData(int32 InSkillID) const;
+	void InitSkillSlot();
+	void GetAllSkillIDs(TArray<int32>& OutSkillIDs) const;
+	
 
+protected:
+	/// 递归创建Slot
+	/// @param CreateSlots 要创建的Slot
+	/// @param CompareSlots 用于对比的Slot，防止ID重复
+	void RecursionCreatelSlots(TMap<int32, FSlotData>& CreateSlots, TMap<int32, FSlotData>& CompareSlots);
+
+	// 获取Slot对应的ID
+	static void GetAllIDs(const TMap<int32, FSlotData>& InSlots, TArray<int32>& OutIDs);
+	
 #pragma region RPC
 public:
 	//------------------数据-------------------
@@ -86,8 +101,13 @@ public:
 	void Server_Use(int32 InInventoryID);
 
 	UFUNCTION(Client, Reliable)
-	void Client_InitInventory(const FSlotDataNetPackage& InSlotDataNetPackage);
+	void Client_InitInventorySlots(const FSlotDataNetPackage& InSlotDataNetPackage);
 
+	//------------------Skill-------------------//
+	UFUNCTION(Client, Reliable)
+	void Client_InitSkillSlots(const FSlotDataNetPackage& InSlotDataNetPackage);
+
+	//------------------通用-------------------//
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateSlot(int32 InInventoryID, const FSlotData& InNetSlotData);
 
@@ -96,11 +116,12 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_EndUpdateCD(int32 InInventoryID, const FSlotData& InNetSlotData);
-	
-protected:
-	
 #pragma endregion
 
+
+#pragma region 成员变量
+public:
+	FORCEINLINE UPlayerDataComponent* GetPlayerDataComponent() const { return PlayerDataComponent; }
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|Component")
@@ -116,4 +137,5 @@ private:
 	/** 存储DataTable数据 */
 	TArray<FSlotAsset*> CacheSlotAssets; 
 	TArray<FSlotAttribute*> CacheSlotAttributes;
+#pragma endregion 
 };

@@ -13,7 +13,7 @@
 #include "Game/MobaGameState.h"
 #include "ProjectMoba/GlobalVariable.h"
 #include "Table/CharacterAsset.h"
-#include "UI/StatusBar/MobaStatusBarUI.h"
+#include "UI/StatusBar/UI_StatusBar.h"
 
 AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
@@ -107,13 +107,13 @@ void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, floa
 	if(GetLocalRole() != ROLE_Authority)
 	{
 		//英雄的状态条
-		if(UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
 		{
 			StatusBarUI->SetHealthPercent(HealthPercent);
 			StatusBarUI->SetManaPercent(ManaPercent);
 		}
 		// 怪物的血条
-		else if(UMobaStatusBarUI_Health* StatusBarUI_Health = Cast<UMobaStatusBarUI_Health>(StatusBarComponent->GetUserWidgetObject()))
+		else if(UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
 		{
 			StatusBarUI_Health->SetHealthPercent(HealthPercent);
 		}
@@ -127,12 +127,12 @@ void AMobaCharacter::MultiCastStatusBar_Health_Implementation(float HealthPercen
 	if(GetLocalRole() != ROLE_Authority)
 	{
 		//更新HealthBar
-		if(UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
 		{
 			StatusBarUI->SetHealthPercent(HealthPercent);
 		}
 		// 怪物的血条
-		else if(UMobaStatusBarUI_Health* StatusBarUI_Health = Cast<UMobaStatusBarUI_Health>(StatusBarComponent->GetUserWidgetObject()))
+		else if(UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
 		{
 			StatusBarUI_Health->SetHealthPercent(HealthPercent);
 		}
@@ -145,7 +145,7 @@ void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
 	if(GetLocalRole() != ROLE_Authority)
 	{
 		//更新ManaBar
-		if(UMobaStatusBarUI* StatusBarUI = Cast<UMobaStatusBarUI>(StatusBarComponent->GetUserWidgetObject()))
+		if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
 		{
 			StatusBarUI->SetManaPercent(ManaPercent);
 		}

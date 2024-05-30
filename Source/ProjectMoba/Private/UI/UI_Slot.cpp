@@ -12,7 +12,7 @@
 void UUI_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+	
 	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
 
 	CDMaterialDynamic = UMaterialInstanceDynamic::Create(CDMaterialParent, this); //创建动态材质实例
@@ -60,7 +60,7 @@ void UUI_Slot::UpdateSlot()
 		}
 		else if(SlotData->SlotID == INDEX_NONE)
 		{
-			ResetSlot(); //交换时，清空Slot
+			ResetSlot(); 
 		}
 	}
 }
@@ -88,11 +88,11 @@ void UUI_Slot::SetKeyName(const FString& NewKeyName) const
 	SlotKey->SetText(FText::FromString(NewKeyName));
 }
 
-void UUI_Slot::DrawSlotCDMat(float InSlotCD) const
+void UUI_Slot::DrawSlotCDMat(float CD) const
 {
 	if (CDMaterialDynamic)
 	{
-		if (InSlotCD > 0.0f && InSlotCD < 1.0f)
+		if (CD > 0.0f && CD < 1.0f)
 		{
 			CDMaterialDynamic->SetScalarParameterValue(SlotClearValueName, true);
 			SlotCD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
@@ -103,22 +103,22 @@ void UUI_Slot::DrawSlotCDMat(float InSlotCD) const
 			SlotCD->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		CDMaterialDynamic->SetScalarParameterValue(SlotMatCDName, InSlotCD);
+		CDMaterialDynamic->SetScalarParameterValue(SlotMatCDName, CD);
 	}
 }
 
-void UUI_Slot::DrawSlotCDText(float InSlotCD) const
+void UUI_Slot::DrawSlotCDText(float CD) const
 {
-	DisplayNumber(SlotCDValue, InSlotCD);
+	SetTextNumber(SlotCDValue, CD);
 }
 
-void UUI_Slot::UpdateIcon(UTexture2D* InIcon) const
+void UUI_Slot::UpdateIcon(UTexture2D* IconTexture) const
 {
 	if (SlotIcon)
 	{
-		if (InIcon)
+		if (IconTexture)
 		{
-			SlotIcon->SetBrushFromTexture(InIcon);
+			SlotIcon->SetBrushFromTexture(IconTexture);
 			SlotIcon->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 		else
@@ -133,7 +133,7 @@ void UUI_Slot::OnClickedWidget()
 	
 }
 
-void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, float TextNumber)
+void UUI_Slot::SetTextNumber(UTextBlock* TextNumberBlock, float TextNumber)
 {
 	if (TextNumber <= 0.f)
 	{
@@ -141,10 +141,12 @@ void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, float TextNumber)
 	}
 	else
 	{
+		//0.0~1.0 保留一位小数
 		if (TextNumber > 0.f && TextNumber <= 1.0f)
 		{
 			TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), TextNumber)));
 		}
+		// >1.0 只保留整数
 		else
 		{
 			TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%02d"), static_cast<int32>(TextNumber))));
@@ -154,7 +156,7 @@ void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, float TextNumber)
 	}
 }
 
-void UUI_Slot::DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber)
+void UUI_Slot::SetTextNumber(UTextBlock* TextNumberBlock, int32 TextNumber)
 {
 	if (TextNumber < 1)
 	{

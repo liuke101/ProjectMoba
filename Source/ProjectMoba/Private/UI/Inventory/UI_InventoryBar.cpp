@@ -16,6 +16,9 @@ void UUI_InventoryBar::NativeConstruct()
 
 void UUI_InventoryBar::InitSlotLayout() const
 {
+	// 防止重复初始化，因为该函数绑定在多播委托
+	if(InventorySlotArray->GetChildrenCount() > 0) return; 
+	
 	if (InventorySlotClass)
 	{
 		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
@@ -47,6 +50,7 @@ void UUI_InventoryBar::InitSlotLayout() const
 			}
 		}
 	}
+	
 }
 
 UPanelWidget* UUI_InventoryBar::GetSlotLayoutPanel() const

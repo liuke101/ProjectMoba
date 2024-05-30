@@ -8,6 +8,26 @@
 #include "CharacterAsset.generated.h"
 
 USTRUCT(BlueprintType)
+struct FCharacterSkill
+{
+	GENERATED_BODY()
+
+	FCharacterSkill();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
+	int32 ID = INDEX_NONE;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
+	TObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
+	ESkillType SkillType = ESkillType::EST_Burst;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
+	TObjectPtr<UAnimMontage> SkillMontage;
+};
+
+USTRUCT(BlueprintType)
 struct FCharacterAsset : public FMobaTableBase
 {
 	GENERATED_USTRUCT_BODY()
@@ -18,25 +38,22 @@ struct FCharacterAsset : public FMobaTableBase
 	TSubclassOf<APawn> CharacterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
-	ECharacterType CharacterType; //角色类型
+	ECharacterType CharacterType = ECharacterType::ECT_None; //角色类型
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack Montage")
 	TArray<TObjectPtr<UAnimMontage>> NormalAttackMontages;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
-	TObjectPtr<UAnimMontage> W_SkillMontage;
+	FCharacterSkill W_Skill;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
-	TObjectPtr<UAnimMontage> E_SkillMontage;
+	FCharacterSkill E_Skill;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
-	TObjectPtr<UAnimMontage> R_SkillMontage;
+	FCharacterSkill R_Skill;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
-	TObjectPtr<UAnimMontage> F_SkillMontage;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Skill Montage")
-	TObjectPtr<UAnimMontage> Space_SkillMontage;
+	FCharacterSkill F_Skill;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Montage")
 	TArray<TObjectPtr<UAnimMontage>> DeathMontages;

@@ -6,6 +6,7 @@
 #include "ThreadManage.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Game/MobaPlayerState.h"
 #include "UI/Skill/UI_SkillSlot.h"
 
 class UHorizontalBoxSlot;
@@ -17,24 +18,38 @@ void UUI_SkillBar::NativeConstruct()
 
 void UUI_SkillBar::InitSlotLayout() const
 {
-	if (SkillSlotClass)
-	{
-		//1*4
-		for (int32 x = 0; x < Layout_Row; x++)
-		{
-			for (int32 y = 0; y < Layout_Col; y++)  
-			{
-				if (UUI_SkillSlot* SlotWidget = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass))
-				{
-					if (UHorizontalBoxSlot* GridSlot = SkillSlotArray->AddChildToHorizontalBox(SlotWidget))
-					{
-						GridSlot->SetHorizontalAlignment(HAlign_Fill);
-						GridSlot->SetVerticalAlignment(VAlign_Fill);
-					}
-					SlotWidget->SetSlotID(y); //设置SlotID
+	// 防止重复初始化，因为该函数绑定在多播委托
+	if(SkillSlotArray->GetChildrenCount() > 0) return;
 
-					//Update
-					SlotWidget->UpdateSlot();
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	{
+		//获取所有SkillID
+		TArray<int32> SkillIDs;
+		MobaPlayerState->GetAllSkillIDs(SkillIDs);
+
+		if(!SkillIDs.IsEmpty())
+		{
+			if (SkillSlotClass)
+			{
+				//1*4
+				for (int32 x = 0; x < Layout_Row; x++)
+				{
+					for (int32 y = 0; y < Layout_Col; y++)  
+					{
+						if (UUI_SkillSlot* SlotWidget = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass))
+						{
+							if (UHorizontalBoxSlot* GridSlot = SkillSlotArray->AddChildToHorizontalBox(SlotWidget))
+							{
+								GridSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+								GridSlot->SetHorizontalAlignment(HAlign_Fill);
+								GridSlot->SetVerticalAlignment(VAlign_Fill);
+							}
+							SlotWidget->SetSlotID(SkillIDs[y]); //设置SlotID
+
+							//Update
+							SlotWidget->UpdateSlot();
+						}
+					}
 				}
 			}
 		}

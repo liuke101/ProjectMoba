@@ -63,7 +63,7 @@ struct FSlotDataNetPackage
 	FSlotDataNetPackage(){};
 	
 	UPROPERTY()
-	TArray<int32> InventoryIDs;
+	TArray<int32> IDs;
 
 	UPROPERTY()
 	TArray<FSlotData> SlotDatas;

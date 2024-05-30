@@ -25,12 +25,14 @@ protected:
 	// 初始化Slot分布
 	virtual void InitSlotLayout() const override;
 
+
 public:
 	virtual UPanelWidget* GetSlotLayoutPanel() const override;
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> InventorySlotArray;
 
+	//Slot组件
 	UPROPERTY(EditDefaultsOnly,Category = "Moba|UI")
 	TSubclassOf<UUI_InventorySlot> InventorySlotClass;
 

@@ -22,9 +22,7 @@ void UUI_InventorySlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	//const FString InventoryNumberString = FString::Printf(TEXT("InventoryKey_%i"), InventoryNumber);
-	//GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*InventoryNumberString, IE_Pressed, this, &UUI_InventorySlot::OnClickedWidget);
-	//改为增强输入：
+	//绑定输入
 	if(AMobaPlayerController* MobaPlayerController = Cast<AMobaPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
 		if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(MobaPlayerController->InputComponent))
@@ -32,7 +30,8 @@ void UUI_InventorySlot::NativeConstruct()
 			EnhancedInputComponent->BindAction(MobaPlayerController->LeftClick_Action, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedWidget);
 		}
 	}
-	
+
+	//依次设置UI键位名字，1~6
 	SetKeyName(FString::FromInt(InventoryNumber));
 
 	InventoryNumber++;
@@ -50,34 +49,23 @@ void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	}
 }
 
-int32 UUI_InventorySlot::GetSlotNumber() const
-{
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
-	{
-		return SlotData->Number;
-	}
-
-	return INDEX_NONE;
-}
-
 void UUI_InventorySlot::OnClickedWidget()
 {
 	//左键点击使用物品
-	//如果当前Slot有物品
-	if(GetMobaPlayerState()->IsValidInventorySlot(GetSlotID()))
+	//如果当前Slot有物品, 且不在CD中
+	if(GetMobaPlayerState()->IsValidInventorySlot(GetSlotID()) && GetMobaPlayerState()->IsCDValid(GetSlotID()))
 	{
-		//检查CD是否空闲
-		if(GetMobaPlayerState()->IsCDValid(GetSlotID()))
-		{
-			//通知服务器使用物品
-			GetMobaPlayerState()->Server_Use(GetSlotID());
-		}
+		//通知服务器使用物品
+		GetMobaPlayerState()->Server_Use(GetSlotID());
 	}
 }
 
-UWidget * UUI_InventorySlot::GetInventoryTip()
+void UUI_InventorySlot::UpdateNumber() const
 {
-	return nullptr;
+	if(const FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		SetTextNumber(SlotNumber, SlotData->Number);
+	}
 }
 
 void UUI_InventorySlot::UpdateSlot()
@@ -85,10 +73,7 @@ void UUI_InventorySlot::UpdateSlot()
 	Super::UpdateSlot();
 	bDrag = false;
 
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
-	{
-		UpdateNumber();
-	}
+	UpdateNumber();
 }
 
 void UUI_InventorySlot::StartUpdateCD()
@@ -96,13 +81,6 @@ void UUI_InventorySlot::StartUpdateCD()
 	Super::StartUpdateCD();
 }
 
-void UUI_InventorySlot::UpdateNumber()
-{
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
-	{
-		DisplayNumber(SlotNumber, SlotData->Number);
-	}
-}
 
 void UUI_InventorySlot::EndUpdateCD()
 {
@@ -116,6 +94,21 @@ void UUI_InventorySlot::ResetSlot()
 	Super::ResetSlot();
 
 	SlotNumber->SetVisibility(ESlateVisibility::Hidden);
+}
+
+int32 UUI_InventorySlot::GetSlotNumber() const
+{
+	if(const FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	{
+		return SlotData->Number;
+	}
+
+	return INDEX_NONE;
+}
+
+UWidget * UUI_InventorySlot::GetInventoryTip()
+{
+	return nullptr;
 }
 
 FReply UUI_InventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

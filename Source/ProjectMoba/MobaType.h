@@ -3,26 +3,6 @@
 #include "MobaType.generated.h" // 生成反射信息
 
 UENUM()
-enum class ESkillKey : uint8
-{
-	ESK_W UMETA(DisplayName="W"),
-	ESK_E UMETA(DisplayName="E"),
-	ESK_R UMETA(DisplayName="R"),
-	ESK_F UMETA(DisplayName="F"),
-	ESK_Space UMETA(DisplayName="Space")
-};
-
-UENUM() // 需要同步，所以使用UENUM引入反射
-enum class ETeamType : uint8
-{
-	ETT_None UMETA(DisplayName="None"),
-	
-	ETT_Red UMETA(DisplayName="Red"),
-	ETT_Blue UMETA(DisplayName="Blue"),
-	ETT_Neutral UMETA(DisplayName="Neutral")
-};
-
-UENUM()
 enum class ECharacterType : uint8
 {
 	ECT_None UMETA(DisplayName="None"),
@@ -42,4 +22,31 @@ enum class ECharacterType : uint8
 	//野怪
 	ECT_WildMonster UMETA(DisplayName="WildMonster"),
 	ECT_BossMonster UMETA(DisplayName="BossMonster"),
+};
+
+UENUM() // 需要同步，所以使用UENUM引入反射
+enum class ETeamType : uint8
+{
+	ETT_None UMETA(DisplayName="None"),
+	
+	ETT_Red UMETA(DisplayName="Red"),
+	ETT_Blue UMETA(DisplayName="Blue"),
+	ETT_Neutral UMETA(DisplayName="Neutral")
+};
+
+UENUM()
+enum class ESkillKey : uint8
+{
+	ESK_W UMETA(DisplayName="W"),
+	ESK_E UMETA(DisplayName="E"),
+	ESK_R UMETA(DisplayName="R"),
+	ESK_F UMETA(DisplayName="F"),
+	ESK_Space UMETA(DisplayName="Space")
+};
+
+UENUM()
+enum class ESkillType : uint8
+{
+	EST_Burst UMETA(DisplayName="Burst"), // 爆发
+	EST_Continuous UMETA(DisplayName="Continuous"), //持续
 };
