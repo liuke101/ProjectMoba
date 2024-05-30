@@ -13,7 +13,7 @@ void UUI_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnLeftClickedWidget);
+	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
 
 	CDMaterialDynamic = UMaterialInstanceDynamic::Create(CDMaterialParent, this); //创建动态材质实例
 	SlotCD->SetBrushFromMaterial(CDMaterialDynamic); //设置图片为动态材质
@@ -24,7 +24,7 @@ void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	//客户端更新CD
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
 	{
 		if(SlotData->CD > 0.0f)
 		{
@@ -50,7 +50,7 @@ void UUI_Slot::ResetSlot()
 
 void UUI_Slot::UpdateSlot()
 {
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	if(const FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
 	{
 		if(SlotData->SlotID != INDEX_NONE)
 		{
@@ -67,7 +67,7 @@ void UUI_Slot::UpdateSlot()
 
 void UUI_Slot::StartUpdateCD()
 {
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
 	{
 		BuildSlot.MaxCD = SlotData->CD;
 	}
@@ -75,7 +75,7 @@ void UUI_Slot::StartUpdateCD()
 
 void UUI_Slot::EndUpdateCD()
 {
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	if(FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
 	{
 		UpdateIcon(SlotData->SlotIcon);
 		DrawSlotCDMat(SlotData->CD);
@@ -128,7 +128,7 @@ void UUI_Slot::UpdateIcon(UTexture2D* InIcon) const
 	}
 }
 
-void UUI_Slot::OnLeftClickedWidget()
+void UUI_Slot::OnClickedWidget()
 {
 	
 }

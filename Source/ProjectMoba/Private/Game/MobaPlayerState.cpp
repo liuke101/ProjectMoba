@@ -6,6 +6,7 @@
 #include "ThreadManage.h"
 #include "Component/PlayerDataComponent.h"
 #include "ProjectMoba/MiscData.h"
+#include "Table/SlotAttribute.h"
 #include "Table/SlotAsset.h"
 
 AMobaPlayerState::AMobaPlayerState()
@@ -185,6 +186,21 @@ bool AMobaPlayerState::RecursionAddSlotAttributes(const int32 InSlotID)
 	return false;
 }
 
+FSlotData* AMobaPlayerState::GetSlotData(int32 ID) const
+{
+	if(FSlotData* InventorySlotData = GetInventorySlotData(ID))
+	{
+		return InventorySlotData;
+	}
+
+	if(FSlotData* SkillSlotData = GetSkillSlotData(ID))
+	{
+		return SkillSlotData;
+	}
+
+	return nullptr;
+}
+
 
 void AMobaPlayerState::RecursionCreateInventorySlot()
 {
@@ -271,7 +287,7 @@ FSlotData* AMobaPlayerState::GetInventorySlotData(int32 InInventoryID) const
 	return nullptr;
 }
 
-void AMobaPlayerState::GetAllInventoryIDs(TArray<int32>& InInventoryIDs)
+void AMobaPlayerState::GetAllInventoryIDs(TArray<int32>& InInventoryIDs) const
 {
 	for(auto& Tmp : *GetInventorySlots())
 	{
@@ -290,6 +306,21 @@ void AMobaPlayerState::CheckInventory(int32 InInventoryID) const
 			PlayerDataComponent->SlotAttribute_Internal.Remove(InInventoryID);
 		}
 	}
+}
+
+TMap<int32, FSlotData>* AMobaPlayerState::GetSkillSlots() const
+{
+	return &PlayerDataComponent->SkillSlots;
+}
+
+FSlotData* AMobaPlayerState::GetSkillSlotData(int32 InSkillID) const
+{
+	if (GetSkillSlots()->Contains(InSkillID))
+	{
+		return &GetSkillSlots()->FindChecked(InSkillID);
+	}
+
+	return nullptr;
 }
 
 
@@ -394,11 +425,8 @@ void AMobaPlayerState::Client_InitInventory_Implementation(const FSlotDataNetPac
 		PlayerDataComponent->InventorySlots.Add(InSlotDataNetPackage.InventoryIDs[i], InSlotDataNetPackage.SlotDatas[i]);
 	}
 
-	//单播委托
-	if(!InitSlotDelegate.ExecuteIfBound())
-	{
-		UE_LOG(LogTemp, Error, TEXT("InitSlotDelegate未绑定"));
-	}
+	//多播委托
+	InitSlotDelegate.Broadcast();
 }
 
 void AMobaPlayerState::Client_UpdateSlot_Implementation(int32 InInventoryID, const FSlotData& InNetSlotData)
@@ -413,11 +441,8 @@ void AMobaPlayerState::Client_UpdateSlot_Implementation(int32 InInventoryID, con
 	// 	
 	// }
 
-	//单播委托
-	if(!UpdateSlotDelegate.ExecuteIfBound(InInventoryID))
-	{
-		UE_LOG(LogTemp, Error, TEXT("UpdateSlotDelegate未绑定"));
-	}
+	UpdateSlotDelegate.Broadcast(InInventoryID);
+	
 }
 
 void AMobaPlayerState::Client_StartUpdateCD_Implementation(int32 InInventoryID, const FSlotData& InNetSlotData)
@@ -427,10 +452,7 @@ void AMobaPlayerState::Client_StartUpdateCD_Implementation(int32 InInventoryID, 
 		PlayerDataComponent->InventorySlots[InInventoryID].CD = InNetSlotData.CD;
 	}
 
-	if(!StartUpdateCDSlotDelegate.ExecuteIfBound(InInventoryID))
-	{
-		UE_LOG(LogTemp, Error, TEXT("StartUpdateCDSlotDelegate未绑定"));
-	}
+	StartUpdateCDSlotDelegate.Broadcast(InInventoryID);
 	
 }
 
@@ -441,9 +463,7 @@ void AMobaPlayerState::Client_EndUpdateCD_Implementation(int32 InInventoryID, co
 		PlayerDataComponent->InventorySlots[InInventoryID].CD = InNetSlotData.CD;
 	}
 
-	if(!EndUpdateCDSlotDelegate.ExecuteIfBound(InInventoryID))
-	{
-		UE_LOG(LogTemp, Error, TEXT("EndUpdateCDSlotDelegate未绑定"));
-	}
+	EndUpdateCDSlotDelegate.Broadcast(InInventoryID);
+	
 }
 

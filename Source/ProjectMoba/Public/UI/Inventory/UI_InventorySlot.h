@@ -17,16 +17,14 @@ class PROJECTMOBA_API UUI_InventorySlot : public UUI_Slot
 {
 	GENERATED_BODY()
 
-	friend class UUI_Inventory;
+	friend class UUI_InventoryBar;
 
 public:
-	UUI_InventorySlot();
-
 	virtual void NativeConstruct() override;
 	//Tick
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	virtual void OnLeftClickedWidget() override;
+	virtual void OnClickedWidget() override;
 
 	//数据相关
 public:

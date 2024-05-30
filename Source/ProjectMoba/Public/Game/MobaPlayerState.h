@@ -13,8 +13,8 @@ class UDataTable;
 class UPlayerDataComponent;
 
 
-DECLARE_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
-DECLARE_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
+DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -28,7 +28,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
-	FSimpleDelegate InitSlotDelegate;  //通知客户端
+	FSimpleMulticastDelegate InitSlotDelegate;  //通知客户端
 	FSimpleOneKeyDelegate UpdateSlotDelegate; //更新Slot
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
@@ -45,10 +45,12 @@ public:
 	/** 对Slot实例的操作 */
 	FSlotAttribute* GetSlotAttributeFromID(const int32 InInventoryID) const;
 	bool IsCDValid(int32 InInventoryID) const;
-	
+
+	/** 数据属性操作 */
 	bool AddSlotAttributes(int32 InInventoryID, int32 InSlotID); //直接添加到指定位置
 	bool RecursionAddSlotAttributes(int32 InSlotID); //递归添加到空位置
-	
+	FSlotData* GetSlotData(int32 ID) const; //根据ID获取SlotData, 可能是InventorySlot或者SkillSlot
+
 	/** Inventory物品操作 */
 	void RecursionCreateInventorySlot(); //递归创建InventorySlot
 	bool AddSlotToInventory(int32 InSlotID); //根据SlotID获取DataTable数据，然后添加到InventorySlot
@@ -58,15 +60,15 @@ public:
 	
 	TMap<int32, FSlotData>* GetInventorySlots() const;
 	FSlotData* GetInventorySlotData(int32 InInventoryID) const;
-	
 
-	void GetAllInventoryIDs(TArray<int32>& InInventoryIDs);
+	void GetAllInventoryIDs(TArray<int32>& InInventoryIDs) const;
 
 	/** 检查物品数量，为0则清空Slot */
 	void CheckInventory(int32 InInventoryID) const;
 	
 	/** 技能 */
-	 
+	TMap<int32, FSlotData>* GetSkillSlots() const;
+	FSlotData* GetSkillSlotData(int32 InSkillID) const;
 
 #pragma region RPC
 public:

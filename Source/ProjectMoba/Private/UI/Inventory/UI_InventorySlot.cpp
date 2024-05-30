@@ -18,22 +18,18 @@
 
 static int32 InventoryNumber = 1;
 
-UUI_InventorySlot::UUI_InventorySlot()
-{
-}
-
 void UUI_InventorySlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	const FString InventoryNumberString = FString::Printf(TEXT("InventoryKey_%i"), InventoryNumber);
+	//const FString InventoryNumberString = FString::Printf(TEXT("InventoryKey_%i"), InventoryNumber);
 	//GetWorld()->GetFirstPlayerController()->InputComponent->BindAction(*InventoryNumberString, IE_Pressed, this, &UUI_InventorySlot::OnClickedWidget);
 	//改为增强输入：
 	if(AMobaPlayerController* MobaPlayerController = Cast<AMobaPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
 		if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(MobaPlayerController->InputComponent))
 		{
-			EnhancedInputComponent->BindAction(MobaPlayerController->LeftClick_Action, ETriggerEvent::Started, this, &UUI_InventorySlot::OnLeftClickedWidget);
+			EnhancedInputComponent->BindAction(MobaPlayerController->LeftClick_Action, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedWidget);
 		}
 	}
 	
@@ -64,7 +60,7 @@ int32 UUI_InventorySlot::GetSlotNumber() const
 	return INDEX_NONE;
 }
 
-void UUI_InventorySlot::OnLeftClickedWidget()
+void UUI_InventorySlot::OnClickedWidget()
 {
 	//左键点击使用物品
 	//如果当前Slot有物品
