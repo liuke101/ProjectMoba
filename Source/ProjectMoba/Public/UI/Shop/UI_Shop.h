@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ProjectMoba/MobaType.h"
 #include "UI/Drop/UI_NativeOnDrop.h"
 #include "UI_Shop.generated.h"
 
@@ -24,6 +25,14 @@ protected:
 	//Tick
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+protected:
+	/** 更新指定类型的物品，实现在商城中点击CheckBox显示特定类型物品 */
+	void UpdateItem(ESlotType SlotType);
+	
+	void SetCheckBoxArray(ECheckBoxState CheckBoxState);
+	
+#pragma region UI回调
+protected:
 	/** 顶部按钮点击隐藏商城 */
 	UFUNCTION(BlueprintCallable)
 	void OnClickedWidget();
@@ -31,7 +40,7 @@ protected:
 	/** F11商城显隐 */
 	UFUNCTION(BlueprintCallable)
 	void OnNativeKey();
-protected:
+
 	UFUNCTION()
 	void CheckBoxAll(bool bIsChecked);
 
@@ -68,13 +77,10 @@ protected:
 	UFUNCTION()
 	void CheckBoxShoes(bool bIsChecked);
 
-protected:
-	void SetCheckBoxArray(ECheckBoxState CheckBoxState);
-
-protected:
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual	FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+#pragma endregion
 
 private:
 	UPROPERTY(meta = (BindWidget))

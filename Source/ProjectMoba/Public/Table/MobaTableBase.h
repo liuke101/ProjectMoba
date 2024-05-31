@@ -14,6 +14,6 @@ struct FMobaTableBase : public FTableRowBase
 
 	FMobaTableBase();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
+	UPROPERTY(EditDefaultsOnly, Category = "ID")
 	int32 DataID;
 };

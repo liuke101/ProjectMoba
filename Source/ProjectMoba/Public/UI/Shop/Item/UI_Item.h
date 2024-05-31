@@ -6,6 +6,7 @@
 #include "UI_ItemBase.h"
 #include "UI_Item.generated.h"
 
+struct FSlotAsset;
 class UTextBlock;
 /**
  * 
@@ -18,10 +19,15 @@ class PROJECTMOBA_API UUI_Item : public UUI_ItemBase
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void OnClickedWidget();
+public:
+	virtual void UpdateSlot(const FSlotAsset* SlotAsset) override;
+
+protected:
+	virtual void OnClickedWidget() override;
+	
 public:
 	void SetItemIntroduction(const FText&InContent);
-	void SetItemName(const FString& InName);
+	void SetItemName(const FName& InName);
 	void SetItemGold(const int32 InGold);
 
 private:

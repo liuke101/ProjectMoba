@@ -17,3 +17,7 @@ void UUI_ItemBase::SetIcon(UTexture2D* InIcon2D)
 {
 	ItemIcon->SetBrushFromTexture(InIcon2D);
 }
+
+void UUI_ItemBase::UpdateSlot(const FSlotAsset* SlotAsset)
+{
+}

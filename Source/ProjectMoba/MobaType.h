@@ -50,6 +50,23 @@ enum class ESlotKey : uint8
 };
 
 UENUM()
+enum class ESlotType : uint8
+{
+	EST_All UMETA(DisplayName="All"),
+	EST_Consumables UMETA(DisplayName="Consumables"), //消耗品
+	EST_AuxiliaryProps UMETA(DisplayName="AuxiliaryProps"), //辅助道具
+	EST_PhysicalAttack UMETA(DisplayName="PhysicalAttack"), //物理攻击
+	EST_MagicAttack UMETA(DisplayName="MagicAttack"), //魔法攻击
+	EST_PhysicalPenetration UMETA(DisplayName="PhysicalPenetration"), //物理穿透
+	EST_MagicPenetration UMETA(DisplayName="MagicPenetration"), //魔法穿透
+	EST_Crit UMETA(DisplayName="Crit"), //暴击
+	EST_Armor UMETA(DisplayName="Armor"), //护甲
+	EST_MagicResistance UMETA(DisplayName="MagicResistance"), //魔抗
+	EST_AttackSpeed UMETA(DisplayName="AttackSpeed"), //攻速
+	EST_Shoes UMETA(DisplayName="Shoes"), //鞋
+};
+
+UENUM()
 enum class ESkillType : uint8
 {
 	EST_Burst UMETA(DisplayName="Burst"), // 爆发

@@ -17,5 +17,5 @@ struct FSlotAttribute : public FMobaTableBase
 	// float Health = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Slot Attribute")
-	float CD = 1.0f;
+	float CD;
 };

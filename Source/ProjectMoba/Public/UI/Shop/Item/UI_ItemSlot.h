@@ -17,5 +17,5 @@ class PROJECTMOBA_API UUI_ItemSlot : public UUI_ItemBase
 public:
 	virtual void NativeConstruct() override;
 
-	virtual void OnClickedWidget();
+	virtual void OnClickedWidget() override;
 };

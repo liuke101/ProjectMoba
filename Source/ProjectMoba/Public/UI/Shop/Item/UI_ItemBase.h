@@ -6,6 +6,7 @@
 #include "UI/Drop/UI_NativeOnDrop.h"
 #include "UI_ItemBase.generated.h"
 
+struct FSlotAsset;
 class UImage;
 class UButton;
 /**
@@ -16,7 +17,6 @@ class PROJECTMOBA_API UUI_ItemBase : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
 
-
 protected:
 	virtual void NativeConstruct() override;
 
@@ -26,8 +26,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void OnClickedWidget() {}
 
-	FORCEINLINE int32 GetItemID() const { return ItemID; }
-	FORCEINLINE void SetItemID(int32 InID) { ItemID = InID; }
+	virtual void UpdateSlot(const FSlotAsset* SlotAsset);
+	
+	FORCEINLINE int32 GetItemDataID() const { return ItemDataID; }
+	FORCEINLINE void SetItemDataID(int32 DataID) { ItemDataID = DataID; }
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -36,5 +38,5 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	UButton* ItemButton;
 	
-	int32 ItemID;
+	int32 ItemDataID;
 };

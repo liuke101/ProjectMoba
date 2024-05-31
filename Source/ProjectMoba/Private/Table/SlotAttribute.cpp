@@ -4,6 +4,6 @@
 #include "Table/SlotAttribute.h"
 
 FSlotAttribute::FSlotAttribute()
+	: CD(0)
 {
 }
-

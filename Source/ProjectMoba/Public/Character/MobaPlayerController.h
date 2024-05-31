@@ -64,7 +64,7 @@ public:
 
 #pragma region 商店
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> F11_Action;
+	TObjectPtr<UInputAction> P_Action;
 #pragma endregion
 	
 protected:

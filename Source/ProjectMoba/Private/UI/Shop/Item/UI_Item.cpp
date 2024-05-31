@@ -4,6 +4,7 @@
 #include "UI/Shop/Item/UI_Item.h"
 
 #include "Components/TextBlock.h"
+#include "Table/SlotAsset.h"
 
 void UUI_Item::NativeConstruct()
 {
@@ -11,14 +12,26 @@ void UUI_Item::NativeConstruct()
 
 }
 
+void UUI_Item::UpdateSlot(const FSlotAsset* SlotAsset)
+{
+	if(SlotAsset)
+	{
+		SetItemDataID(SlotAsset->DataID);
+		SetItemName(SlotAsset->SlotName);
+		SetIcon(SlotAsset->SlotIcon);
+		SetItemGold(SlotAsset->SlotGold);
+		SetItemIntroduction(SlotAsset->SlotIntroduction);
+	}
+}
+
 void UUI_Item::SetItemIntroduction(const FText& InContent)
 {
 	ItemIntroduction->SetText(InContent);
 }
 
-void UUI_Item::SetItemName(const FString& InName)
+void UUI_Item::SetItemName(const FName& InName)
 {
-	ItemName->SetText(FText::FromString(InName));
+	ItemName->SetText(FText::FromName(InName));
 }
 
 void UUI_Item::SetItemGold(const int32 InGold)
