@@ -46,7 +46,16 @@ public:
 	TObjectPtr<UInputAction> F_Action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> Space_Action;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> Q_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> One_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> Two_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> Three_Action;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> Four_Action;
 protected:
 	/** 如果Character应该移动到鼠标光标. */
 	bool bMoveToMouseCursor = false;
@@ -58,31 +67,11 @@ protected:
 	void OnRightClickPressed();
 	void OnRightClickReleased();
 
-	UFUNCTION(Server, Reliable)
-	void OnWPressed();
-	void OnWReleased();
-
-	UFUNCTION(Server, Reliable)
-	void OnEPressed();
-	void OnEReleased();
-
-	UFUNCTION(Server, Reliable)
-	void OnRPressed();
-	void OnRReleased();
-
-	UFUNCTION(Server, Reliable)
-	void OnFPressed();
-	void OnFReleased();
 	
-	UFUNCTION(Server, Reliable)
-	void OnSpacePressed();
-	void OnSpaceReleased();
-	
-
 	UFUNCTION(Server, Reliable, WithValidation)
 	void VerifyMouseWorldPositionClickOnServer(const FVector& WorldOrigin, const FVector& WorldDirection);
 
-	void SpawnNavigateClickFX();
+	void SpawnNavigateClickFX() const;
 private:
 	/** 点击粒子特效 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|FX", meta = (AllowPrivateAccess = "true"))

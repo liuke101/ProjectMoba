@@ -52,25 +52,12 @@ void AMobaPlayerController::BeginPlay()
 
 void AMobaPlayerController::SetupInputComponent()
 {
-	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
-	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
-		// Setup mouse input events
 		EnhancedInputComponent->BindAction(RightClick_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnRightClickPressed);
 		EnhancedInputComponent->BindAction(RightClick_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnRightClickReleased);
-		EnhancedInputComponent->BindAction(W_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnWPressed);
-		EnhancedInputComponent->BindAction(W_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnWReleased);
-		EnhancedInputComponent->BindAction(E_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnEPressed);
-		EnhancedInputComponent->BindAction(E_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnEReleased);
-		EnhancedInputComponent->BindAction(R_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnRPressed);
-		EnhancedInputComponent->BindAction(R_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnRReleased);
-		EnhancedInputComponent->BindAction(F_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnFPressed);
-		EnhancedInputComponent->BindAction(F_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnFReleased);
-		EnhancedInputComponent->BindAction(Space_Action, ETriggerEvent::Started, this, &AMobaPlayerController::OnSpacePressed);
-		EnhancedInputComponent->BindAction(Space_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnSpaceReleased);
 	}
 }
 
@@ -117,68 +104,7 @@ void AMobaPlayerController::OnRightClickReleased()
 	bMoveToMouseCursor = false;
 }
 
-
-void AMobaPlayerController::OnWPressed_Implementation()
-{
-	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
-	{
-		MobaPawn->SkillAttack(ESkillKey::ESK_W, nullptr);
-	}
-}
-
-void AMobaPlayerController::OnWReleased()
-{
-}
-
-void AMobaPlayerController::OnEPressed_Implementation()
-{
-	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
-	{
-		MobaPawn->SkillAttack(ESkillKey::ESK_E, nullptr);
-	}
-}
-
-void AMobaPlayerController::OnEReleased()
-{
-}
-
-void AMobaPlayerController::OnRPressed_Implementation()
-{
-	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
-	{
-		MobaPawn->SkillAttack(ESkillKey::ESK_R, nullptr);
-	}
-}
-
-void AMobaPlayerController::OnRReleased()
-{
-}
-
-void AMobaPlayerController::OnFPressed_Implementation()
-{
-	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
-	{
-		MobaPawn->SkillAttack(ESkillKey::ESK_F, nullptr);
-	}
-}
-
-void AMobaPlayerController::OnFReleased()
-{
-}
-
-void AMobaPlayerController::OnSpacePressed_Implementation()
-{
-	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
-	{
-		MobaPawn->SkillAttack(ESkillKey::ESK_Space, nullptr);
-	}
-}
-
-void AMobaPlayerController::OnSpaceReleased()
-{
-}
-
-void AMobaPlayerController::SpawnNavigateClickFX()
+void AMobaPlayerController::SpawnNavigateClickFX() const
 {
 	if(FXCursor)
 	{

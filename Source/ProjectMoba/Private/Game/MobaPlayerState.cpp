@@ -37,14 +37,20 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 				Tmp.Value->CD = 0.f;
 				if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(Tmp.Value->DataID))
 				{
-					if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
-					{
-						//检测数量
-						CheckInventory(Tmp.Key);
+					
+				}
+				// else
+				// {
+				// 	
+				// }
 
-						//客户端矫正CD
-						Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
-					}
+				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+				{
+					//检测数量
+					CheckInventory(Tmp.Key);
+
+					//客户端矫正CD
+					Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
 				}
 				
 				RemoveSlots.Add(Tmp.Key);
@@ -62,9 +68,9 @@ void AMobaPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 创建6个Inventory Slot
 	if(GetWorld()->IsNetMode(NM_DedicatedServer))
 	{
+		//创建Slot
 		for(int32 i = 0; i < 6; i++)
 		{
 			RecursionCreateInventorySlots();
@@ -152,7 +158,7 @@ FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromSlotID(const int32 SlotID)
 
 bool AMobaPlayerState::IsCDValid(int32 SlotID) const
 {
-	if(FSlotData* SlotData = GetSlotData(SlotID))
+	if(const FSlotData* SlotData = GetSlotData(SlotID))
 	{
 		return SlotData->CD <= 0.f;
 	}
@@ -494,9 +500,9 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 			int32 SkillDataID = GetSkillDataIDFromSlotID(SlotID);
 			if (SkillDataID != INDEX_NONE)
 			{
-				if (AMobaCharacter* MobaCharacter = GetPawn<AMobaCharacter>())
+				if(AMobaPawn* MobaPawn = GetPawn<AMobaPawn>())
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("释放技能"));
+					MobaPawn->SkillAttack(SkillDataID);
 				}
 			}
 		}

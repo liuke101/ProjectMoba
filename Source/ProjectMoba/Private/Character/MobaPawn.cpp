@@ -114,11 +114,11 @@ void AMobaPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AMobaPawn::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHeroCharacter> InTarget)
+void AMobaPawn::SkillAttack(int32 SkillDataID) const
 {
-	if(InTarget.IsValid())
+	if(ControlledMobaHero)
 	{
-		InTarget->SkillAttack(SkillKey, InTarget);
+		ControlledMobaHero->SkillAttack(SkillDataID);
 	}
 }
 

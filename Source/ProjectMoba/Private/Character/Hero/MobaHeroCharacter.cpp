@@ -73,31 +73,38 @@ void AMobaHeroCharacter::MultiCastStatusBar_Level_Implementation(const int32 Lev
 	}
 }
 
-void AMobaHeroCharacter::SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHeroCharacter> InTarget) 
+
+void AMobaHeroCharacter::SkillAttack(int32 SkillDataID)
 {
-	if(UAnimMontage* Montage = GetCurrentSkillMontage(SkillKey))
+	if(UAnimMontage* Montage = GetSkillMontageFromDataID(SkillDataID))
 	{
 		//广播动画
 		MultiCastPlayerAnimMontage(Montage);
 	}
 }
 
-UAnimMontage* AMobaHeroCharacter::GetCurrentSkillMontage(ESkillKey SkillKey) const
+UAnimMontage* AMobaHeroCharacter::GetSkillMontageFromDataID(int32 SkillDataID) const
 {
 	if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), GetPlayerID()))
 	{
-		switch (SkillKey)
+		if(CharacterAsset->W_Skill.DataID == SkillDataID)
 		{
-		case ESkillKey::ESK_W:
 			return CharacterAsset->W_Skill.SkillMontage;
-		case ESkillKey::ESK_E:
+		}
+
+		if (CharacterAsset->E_Skill.DataID == SkillDataID)
+		{
 			return CharacterAsset->E_Skill.SkillMontage;
-		case ESkillKey::ESK_R:
+		}
+
+		if (CharacterAsset->R_Skill.DataID == SkillDataID)
+		{
 			return CharacterAsset->R_Skill.SkillMontage;
-		case ESkillKey::ESK_F:
+		}
+
+		if (CharacterAsset->F_Skill.DataID == SkillDataID)
+		{
 			return CharacterAsset->F_Skill.SkillMontage;
-		default:
-			break;
 		}
 	}
 	return nullptr;

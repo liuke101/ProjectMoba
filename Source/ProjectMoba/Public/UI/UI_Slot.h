@@ -52,7 +52,10 @@ public:
 
 	//点击事件回调
 	UFUNCTION(BlueprintCallable)
-	virtual void OnClickedWidget();
+	virtual void OnClickedSlot();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void OnReleasedSlot();
 
 protected:
 	//显示 float字体

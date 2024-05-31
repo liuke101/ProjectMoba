@@ -11,12 +11,13 @@
 #include "Character/MobaPlayerController.h"
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MiscData.h"
+#include "ProjectMoba/MobaType.h"
 
 #if PLATFORM_WINDOWS
 #pragma optimize("",off) 
 #endif
 
-static int32 InventoryNumber = 1;
+static int32 InventorySlotKeyIndex = 0;
 
 void UUI_InventorySlot::NativeConstruct()
 {
@@ -27,17 +28,49 @@ void UUI_InventorySlot::NativeConstruct()
 	{
 		if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(MobaPlayerController->InputComponent))
 		{
-			EnhancedInputComponent->BindAction(MobaPlayerController->LeftClick_Action, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedWidget);
+			UInputAction* SkillAction = nullptr;
+			
+			ESlotKey SkillKey = static_cast<ESlotKey>(InventorySlotKeyIndex + 4);  //从 Enum 第4个元素开始
+			switch (SkillKey)
+			{
+			case ESlotKey::ESK_Space:
+				SkillAction = MobaPlayerController->Space_Action;
+				SetKeyName("Space"); //设置SlotKey
+				break;
+			case ESlotKey::ESK_Q:
+				SkillAction = MobaPlayerController->Q_Action;
+				SetKeyName("Q");
+				break;
+			case ESlotKey::ESK_1:
+				SkillAction = MobaPlayerController->One_Action;
+				SetKeyName("1");
+				break;
+			case ESlotKey::ESK_2:
+				SkillAction = MobaPlayerController->Two_Action;
+				SetKeyName("2");
+				break;
+			case ESlotKey::ESK_3:
+				SkillAction = MobaPlayerController->Three_Action;
+				SetKeyName("3");
+				break;
+			case ESlotKey::ESK_4:
+				SkillAction = MobaPlayerController->Four_Action;
+				SetKeyName("4");
+				break;
+			default:
+				break;
+			}
+			
+			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedSlot);
+			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Completed, this, &UUI_InventorySlot::OnReleasedSlot);
 		}
 	}
-
-	//依次设置UI键位名字，1~6
-	SetKeyName(FString::FromInt(InventoryNumber));
-
-	InventoryNumber++;
-	if (InventoryNumber > 6)
+	
+	// 0-5 共六个键位
+	InventorySlotKeyIndex++;
+	if (InventorySlotKeyIndex > 5)
 	{
-		InventoryNumber = 1;
+		InventorySlotKeyIndex = 0;
 	}
 }
 
@@ -49,14 +82,17 @@ void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	}
 }
 
-void UUI_InventorySlot::OnClickedWidget()
+void UUI_InventorySlot::OnClickedSlot()
 {
 	//左键点击使用物品
 	//如果当前Slot有物品, 且不在CD中
-	if(GetMobaPlayerState()->IsValidInventorySlot(GetSlotID()) && GetMobaPlayerState()->IsCDValid(GetSlotID()))
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		//通知服务器使用物品
-		GetMobaPlayerState()->Server_Use(GetSlotID());
+		if(MobaPlayerState->IsValidInventorySlot(GetSlotID()) && MobaPlayerState->IsCDValid(GetSlotID()))
+		{
+			//通知服务器使用物品
+			MobaPlayerState->Server_Use(GetSlotID());
+		}
 	}
 }
 
@@ -136,21 +172,25 @@ void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const 
 	{
 		if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
 		{
-			if (UUI_IconDragDrop* IconDragDrop = CreateWidget<UUI_IconDragDrop>(GetWorld(), IconDragDrogClass))
+			// 只有Slot不为空时才能拖拽
+			if(GetSlotID() != INDEX_NONE)
 			{
-				if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass()))
+				if (UUI_IconDragDrop* IconDragDrop = CreateWidget<UUI_IconDragDrop>(GetWorld(), IconDragDrogClass))
 				{
-					InDropOperation->SetFlags(RF_StrongRefOnFrame);
-					IconDragDrop->DrawIcon(SlotData->SlotIcon);
-					InDropOperation->DefaultDragVisual = IconDragDrop;
-					InDropOperation->Payload = this; //设置当前拖拽的Slot作为Payload
-					OutOperation = InDropOperation;
+					if (UDragDropOperation* InDropOperation = NewObject<UDragDropOperation>(GetTransientPackage(), UDragDropOperation::StaticClass()))
+					{
+						InDropOperation->SetFlags(RF_StrongRefOnFrame);
+						IconDragDrop->DrawIcon(SlotData->SlotIcon);
+						InDropOperation->DefaultDragVisual = IconDragDrop;
+						InDropOperation->Payload = this; //设置当前拖拽的Slot作为Payload
+						OutOperation = InDropOperation;
 
-					ResetSlot();//隐藏自己
+						ResetSlot();//隐藏自己
 
-					bDrag = true;
+						bDrag = true;
+					}
 				}
-			}		
+			}
 		}
 	}
 

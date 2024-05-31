@@ -35,13 +35,18 @@ enum class ETeamType : uint8
 };
 
 UENUM()
-enum class ESkillKey : uint8
+enum class ESlotKey : uint8
 {
 	ESK_W UMETA(DisplayName="W"),
 	ESK_E UMETA(DisplayName="E"),
 	ESK_R UMETA(DisplayName="R"),
 	ESK_F UMETA(DisplayName="F"),
-	ESK_Space UMETA(DisplayName="Space")
+	ESK_Space UMETA(DisplayName="Space"),
+	ESK_Q UMETA(DisplayName="Q"),
+	ESK_1 UMETA(DisplayName="1"),
+	ESK_2 UMETA(DisplayName="2"),
+	ESK_3 UMETA(DisplayName="3"),
+	ESK_4 UMETA(DisplayName="4"),
 };
 
 UENUM()

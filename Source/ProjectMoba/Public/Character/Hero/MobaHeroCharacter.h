@@ -30,8 +30,8 @@ public:
 	void MultiCastStatusBar_Level(const int32 Level);
 	
 	/** 技能攻击 */
-	void SkillAttack(ESkillKey SkillKey, TWeakObjectPtr<AMobaHeroCharacter> InTarget);
+	void SkillAttack(int32 SkillDataID);
 	
-	UAnimMontage* GetCurrentSkillMontage(ESkillKey SkillKey) const;
+	UAnimMontage* GetSkillMontageFromDataID(int32 SkillDataID) const;
 
 };
