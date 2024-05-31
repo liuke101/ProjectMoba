@@ -19,8 +19,8 @@ public:
 	//Tick
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
-	virtual void OnClickedSlot() override;
-	virtual void OnReleasedSlot() override;
+	virtual void OnClickedWidget() override;
+	virtual void OnReleasedWidget() override;
 
 protected:
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;

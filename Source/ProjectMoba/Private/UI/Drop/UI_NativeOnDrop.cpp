@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Inventory/Drop/UI_NativeOnDrop.h"
+#include "UI/Drop/UI_NativeOnDrop.h"
 
 #include "Blueprint/DragDropOperation.h"
 #include "UI/Inventory/UI_InventorySlot.h"

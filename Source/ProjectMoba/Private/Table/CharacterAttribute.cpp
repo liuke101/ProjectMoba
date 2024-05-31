@@ -18,10 +18,10 @@ void FCharacterAttribute::InitAttribute()
 	MaxAnger = 0.0f;
 	CurrentAnger = MaxAnger;
 	PhysicalAttack = 50.0f;
-	PhysicalArmor = 20.0f;
+	Armor = 20.0f;
 	PhysicalPenetration = 0.0f;
 	MagicAttack = 60.0f;
-	MagicArmor = 20.0f;
+	Armor = 20.0f;
 	MagicPenetration = 0.0f;
 	WalkSpeed = 300.0f;
 	AttackSpeed = 0.8f;

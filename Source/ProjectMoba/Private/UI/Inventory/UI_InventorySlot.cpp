@@ -61,8 +61,8 @@ void UUI_InventorySlot::NativeConstruct()
 				break;
 			}
 			
-			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedSlot);
-			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Completed, this, &UUI_InventorySlot::OnReleasedSlot);
+			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Started, this, &UUI_InventorySlot::OnClickedWidget);
+			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Completed, this, &UUI_InventorySlot::OnReleasedWidget);
 		}
 	}
 	
@@ -82,7 +82,7 @@ void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	}
 }
 
-void UUI_InventorySlot::OnClickedSlot()
+void UUI_InventorySlot::OnClickedWidget()
 {
 	//左键点击使用物品
 	//如果当前Slot有物品, 且不在CD中

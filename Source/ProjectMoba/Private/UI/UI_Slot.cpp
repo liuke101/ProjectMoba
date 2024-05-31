@@ -14,7 +14,7 @@ void UUI_Slot::NativeConstruct()
 	Super::NativeConstruct();
 
 	// 绑定点击事件
-	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedSlot);
+	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
 
 	CDMaterialDynamic = UMaterialInstanceDynamic::Create(CDMaterialParent, this); //创建动态材质实例
 	SlotCD->SetBrushFromMaterial(CDMaterialDynamic); //设置图片为动态材质
@@ -129,12 +129,12 @@ void UUI_Slot::UpdateIcon(UTexture2D* IconTexture) const
 	}
 }
 
-void UUI_Slot::OnClickedSlot()
+void UUI_Slot::OnClickedWidget()
 {
 	
 }
 
-void UUI_Slot::OnReleasedSlot()
+void UUI_Slot::OnReleasedWidget()
 {
 }
 

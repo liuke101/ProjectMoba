@@ -39,7 +39,7 @@ struct FCharacterAttribute : public FMobaTableBase
 	float PhysicalAttack; //物理攻击
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
-	float PhysicalArmor; //物理护甲
+	float Armor; //护甲
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float PhysicalPenetration; //物理穿透
@@ -48,7 +48,7 @@ struct FCharacterAttribute : public FMobaTableBase
 	float MagicAttack; //魔法攻击
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
-	float MagicArmor; //魔法护甲
+	float MagicResistance; //魔抗
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float MagicPenetration; //魔法穿透

@@ -4,26 +4,26 @@
 #include "Character/MobaCharacter.h"
 #include "Table/CharacterAttribute.h"
 
-float CalculationUnit::GetPhysicalArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
 		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
-			return OriginalData->PhysicalArmor * (1.f - InEnemyData->PhysicalPenetration / 100.f);
+			return OriginalData->Armor * (1.f - InEnemyData->PhysicalPenetration / 100.f);
 		}
 	}
 
 	return 0;
 }
 
-float CalculationUnit::GetMagicArmor(AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetMagicResistance(AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
 		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
-			return OriginalData->MagicArmor *(1.f - InEnemyData->MagicPenetration / 100.f);
+			return OriginalData->MagicResistance *(1.f - InEnemyData->MagicPenetration / 100.f);
 		}
 	}
 
@@ -44,7 +44,7 @@ float CalculationUnit::GetPhysicalDamage( AMobaCharacter* InTarget,  AMobaCharac
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		return GetAttack(InEnemy) / ((GetPhysicalArmor(InTarget, InEnemy) / 100) - InEnemyData->Level * 2);
+		return GetAttack(InEnemy) / ((GetArmor(InTarget, InEnemy) / 100) - InEnemyData->Level * 2);
 	}
 
 	return 0;
@@ -56,7 +56,7 @@ float CalculationUnit::GetMagicDamage( AMobaCharacter* InTarget,  AMobaCharacter
 	{
 		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
-			return InEnemyData->MagicPenetration / ((GetMagicArmor(InTarget, InEnemy) / 70) - InEnemyData->Level);
+			return InEnemyData->MagicPenetration / ((GetMagicResistance(InTarget, InEnemy) / 70) - InEnemyData->Level);
 		}
 	}
 

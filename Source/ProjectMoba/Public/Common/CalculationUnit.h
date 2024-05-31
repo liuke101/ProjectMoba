@@ -8,8 +8,8 @@ class AMobaCharacter;
 
 namespace CalculationUnit
 {
-	float GetPhysicalArmor( AMobaCharacter* InTarget, AMobaCharacter* InEnemy);
-	float GetMagicArmor( AMobaCharacter* InTarget, AMobaCharacter* InEnemy);
+	float GetArmor( AMobaCharacter* InTarget, AMobaCharacter* InEnemy);
+	float GetMagicResistance( AMobaCharacter* InTarget, AMobaCharacter* InEnemy);
 	float GetAttack(AMobaCharacter* InOriginal);
 
 	/** 对方给我造成的伤害 */

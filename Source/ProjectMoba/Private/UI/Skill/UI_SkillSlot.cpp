@@ -47,8 +47,8 @@ void UUI_SkillSlot::NativeConstruct()
 					break;
 			}
 			
-			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Started, this, &UUI_SkillSlot::OnClickedSlot);
-			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Completed, this, &UUI_SkillSlot::OnReleasedSlot);
+			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Started, this, &UUI_SkillSlot::OnClickedWidget);
+			EnhancedInputComponent->BindAction(SkillAction, ETriggerEvent::Completed, this, &UUI_SkillSlot::OnReleasedWidget);
 		}
 	}
 
@@ -65,7 +65,7 @@ void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 }
 
-void UUI_SkillSlot::OnClickedSlot()
+void UUI_SkillSlot::OnClickedWidget()
 {
 	//如果当前Slot不在CD中
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
@@ -78,9 +78,9 @@ void UUI_SkillSlot::OnClickedSlot()
 	}
 }
 
-void UUI_SkillSlot::OnReleasedSlot()
+void UUI_SkillSlot::OnReleasedWidget()
 {
-	Super::OnReleasedSlot();
+	Super::OnReleasedWidget();
 }
 
 bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
