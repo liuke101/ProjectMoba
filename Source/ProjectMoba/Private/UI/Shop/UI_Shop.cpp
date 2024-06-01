@@ -14,7 +14,9 @@
 #include "Components/UniformGridSlot.h"
 #include "Game/MobaPlayerState.h"
 #include "Table/SlotAsset.h"
+
 #include "UI/Shop/Item/UI_Item.h"
+#include "UI/Shop/Item/UI_ItemSynthesis.h"
 
 
 void UUI_Shop::NativeConstruct()
@@ -68,17 +70,6 @@ void UUI_Shop::NativeConstruct()
 	});
 }
 
-void UUI_Shop::OnNativeKey()
-{
-	if (GetVisibility() == ESlateVisibility::Hidden)
-	{
-		SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
-		SetVisibility(ESlateVisibility::Hidden);
-	}
-}
 
 void UUI_Shop::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -129,6 +120,9 @@ void UUI_Shop::UpdateItem(ESlotType SlotType)
 
 					//更新Item
 					Item->UpdateSlot(ValidSlotAssets[i]);
+
+					//Item合成
+					Item->CallItemSynthesisDelegate.BindUObject(this, &UUI_Shop::OnCallUpdateItemSynthesis);
 				}
 			}
 		}
@@ -148,6 +142,27 @@ void UUI_Shop::SetCheckBoxArray(ECheckBoxState CheckBoxState)
 void UUI_Shop::OnClickedWidget()
 {
 	SetVisibility(ESlateVisibility::Hidden);
+}
+
+
+void UUI_Shop::OnNativeKey()
+{
+	if (GetVisibility() == ESlateVisibility::Hidden)
+	{
+		SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UUI_Shop::OnCallUpdateItemSynthesis(int32 SlotID)
+{
+	if(const FSlotAsset* SlotAsset = GetMobaPlayerState()->GetSlotAssetFromDataID(SlotID))
+	{
+		ItemSynthesis->UpdateSlot(SlotAsset);
+	}
 }
 
 void UUI_Shop::CheckBoxAll(bool bIsChecked)

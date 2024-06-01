@@ -8,14 +8,17 @@
 
 struct FSlotAsset;
 class UTextBlock;
-/**
- * 
- */
+
+DECLARE_DELEGATE_OneParam(FCallItemSynthesisDelegate, int32);
+
+/** Item面板UI */
 UCLASS()
 class PROJECTMOBA_API UUI_Item : public UUI_ItemBase
 {
 	GENERATED_BODY()
-
+public:
+	FCallItemSynthesisDelegate CallItemSynthesisDelegate;
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -24,6 +27,8 @@ public:
 
 protected:
 	virtual void OnClickedWidget() override;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
 public:
 	void SetItemIntroduction(const FText&InContent);

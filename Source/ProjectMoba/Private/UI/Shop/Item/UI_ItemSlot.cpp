@@ -10,5 +10,5 @@ void UUI_ItemSlot::NativeConstruct()
 
 void UUI_ItemSlot::OnClickedWidget()
 {
-
+	Super::OnClickedWidget();
 }

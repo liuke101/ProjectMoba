@@ -24,7 +24,7 @@ public:
 	void SetIcon(UTexture2D* InIcon2D);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void OnClickedWidget() {}
+	virtual void OnClickedWidget();
 
 	virtual void UpdateSlot(const FSlotAsset* SlotAsset);
 	

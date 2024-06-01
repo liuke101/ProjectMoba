@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/Drop/UI_NativeOnDrop.h"
-#include "UI_EquipmentCombination.generated.h"
+#include "UI_ItemSynthesis.generated.h"
 
 class UUI_ItemSlot;
 class UCanvasPanel;
+struct FSlotAsset;
 
+/** 绘制物品合成线 */
 USTRUCT(BlueprintType)
 struct FDrawEquipLine
 {
@@ -39,13 +41,14 @@ struct FDrawEquipLine
 	UTexture2D* TLine;
 };
 
+/** 物品合成UI */
 UCLASS()
-class PROJECTMOBA_API UUI_EquipmentCombination : public UUI_NativeOnDrop
+class PROJECTMOBA_API UUI_ItemSynthesis : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
 
 	UPROPERTY(meta = (BindWidget))
-	UCanvasPanel* EquipmentPanel;
+	TObjectPtr<UCanvasPanel> ItemCanvasPanel;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<UUI_ItemSlot> ItemSlotClass;
@@ -54,4 +57,6 @@ class PROJECTMOBA_API UUI_EquipmentCombination : public UUI_NativeOnDrop
 	FDrawEquipLine LineTexture;
 public:
 	virtual void NativeConstruct() override;
+
+	void UpdateSlot(const FSlotAsset* SlotAsset);
 };

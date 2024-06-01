@@ -7,18 +7,18 @@
 #include "UI/Drop/UI_NativeOnDrop.h"
 #include "UI_Shop.generated.h"
 
+class UUI_ItemSynthesis;
 class UUI_Item;
 class UButton;
 class UUniformGridPanel;
 class UCheckBox;
-/**
- * 
- */
+
+/** 商店UI */
 UCLASS()
 class PROJECTMOBA_API UUI_Shop : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
-
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -40,6 +40,10 @@ protected:
 	/** F11商城显隐 */
 	UFUNCTION(BlueprintCallable)
 	void OnNativeKey();
+
+	/** Item合成 */
+	UFUNCTION(BlueprintCallable)
+	void OnCallUpdateItemSynthesis(int32 SlotID);
 
 	UFUNCTION()
 	void CheckBoxAll(bool bIsChecked);
@@ -84,51 +88,53 @@ protected:
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* All;
+	TObjectPtr<UCheckBox> All;
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* Consumables; //消耗品
+	TObjectPtr<UCheckBox> Consumables; //消耗品
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* AuxiliaryProps; //辅助道具
+	TObjectPtr<UCheckBox> AuxiliaryProps; //辅助道具
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* PhysicalAttack; //物理攻击
+	TObjectPtr<UCheckBox> PhysicalAttack; //物理攻击
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* MagicAttack; //魔法攻击
+	TObjectPtr<UCheckBox> MagicAttack; //魔法攻击
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* PhysicalPenetration; //物理穿透
+	TObjectPtr<UCheckBox> PhysicalPenetration; //物理穿透
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* MagicPenetration; //魔法穿透
+	TObjectPtr<UCheckBox> MagicPenetration; //魔法穿透
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* Crit; //暴击
+	TObjectPtr<UCheckBox> Crit; //暴击
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* Armor;  //护甲
+	TObjectPtr<UCheckBox> Armor;  //护甲
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* MagicResistance;  //魔抗
+	TObjectPtr<UCheckBox> MagicResistance;  //魔抗
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* AttackSpeed; //攻速
+	TObjectPtr<UCheckBox> AttackSpeed; //攻速
 
 	UPROPERTY(meta = (BindWidget))
-	UCheckBox* Shoes; //鞋子
+	TObjectPtr<UCheckBox> Shoes; //鞋子
 
 	UPROPERTY(meta = (BindWidget))
-	UUniformGridPanel* ItemGrid; //物品栏
+	TObjectPtr<UUniformGridPanel> ItemGrid; //物品栏
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* TopButton; //顶部按钮
+	TObjectPtr<UButton> TopButton; //顶部按钮
 
-	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UUI_ItemSynthesis> ItemSynthesis; //装备合成界面
+
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|UI")
 	TSubclassOf<UUI_Item> ItemClass;
-	
 private:
-	TArray<UCheckBox*> CheckBoxArray;
+	TArray<TObjectPtr<UCheckBox>> CheckBoxArray;
 	FVector2D Offset;
 };
