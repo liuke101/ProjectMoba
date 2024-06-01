@@ -78,7 +78,7 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 		TArray<int32> RemoveSaleSlots;
 		for(auto& Tmp : PlayerDataComponent->SaleSlotDistanceQueue)
 		{
-			//如果角色距离商店大于1000，则无法取消购买
+			//如果角色距离商店大于1000，则无法原价取消，只能打折出售
 			if(Distance >= 1000.0f)
 			{
 				Tmp.Value->bCancelBuy = false;
@@ -302,6 +302,7 @@ bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
 		bool bIsExist = IsExistInInventory(DataID);
 		bool bIsConsumables = SlotAsset->SlotType.Contains(ESlotType::EST_Consumables);
 
+		//lambda
 		auto AddSlot = [&]()->int32
 		{
 			for(auto& Tmp : *GetInventorySlots())
