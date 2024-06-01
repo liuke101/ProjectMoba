@@ -7,6 +7,7 @@
 #include "UI/Drop/UI_NativeOnDrop.h"
 #include "UI_Shop.generated.h"
 
+class UUI_ItemSale;
 class UUI_ItemSynthesis;
 class UUI_Item;
 class UButton;
@@ -131,6 +132,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUI_ItemSynthesis> ItemSynthesis; //装备合成界面
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UUI_ItemSale> ItemSale; //装备出售区域
 
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|UI")
 	TSubclassOf<UUI_Item> ItemClass;

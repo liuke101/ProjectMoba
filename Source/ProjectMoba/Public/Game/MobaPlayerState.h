@@ -87,7 +87,8 @@ public:
 	/** 检查物品数量，为0则清空Slot */
 	void CheckInventory(int32 SlotID) const;
 
-	
+	/** 出售 */
+	void Sell(int32 SlotID, int32 DataID, float Discount = 1.0f);
 #pragma endregion
 	
 #pragma region 技能
@@ -125,11 +126,11 @@ public:
 
 	// 出售物品(打折)
 	UFUNCTION(Server, Reliable)
-	void Server_Sell(int32 SlotID);
+	void Server_Sell(int32 SlotID, int32 DataID);
 
 	// 取消购买
 	UFUNCTION(Server, Reliable)
-	void Server_CancelBuy(int32 SlotID);
+	void Server_CancelBuy(int32 SlotID, int32 DataID);
 
 	UFUNCTION(Client, Reliable)
 	void Client_InitInventorySlots(const FSlotDataNetPackage& SlotDataNetPackage);
@@ -170,6 +171,7 @@ private:
 	TArray<FSlotAttribute*> CacheSlotAttributes;
 
 	float GoldTime = 0.0f; //金币时间
+	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
 
 #pragma endregion 
 };

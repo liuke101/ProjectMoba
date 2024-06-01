@@ -32,22 +32,32 @@ struct FSlotData
 {
 	GENERATED_BODY()
 
-	FSlotData(){};
+	FSlotData()
+		: DataID(INDEX_NONE)
+		, SlotIcon(nullptr)
+		, CD(0.0f)
+		, Number(INDEX_NONE)
+		, MaxStackingQuantity(5)
+		, bCancelBuy(true)
+	{}
 
 	UPROPERTY()
-	int32 DataID = INDEX_NONE;  //DataID用于读取DataTable, 相当于存储了该Slot的表
+	int32 DataID;  //DataID用于读取DataTable, 相当于存储了该Slot的表
 
 	UPROPERTY()
-	TObjectPtr<UTexture2D> SlotIcon= nullptr;
+	TObjectPtr<UTexture2D> SlotIcon;
 
 	UPROPERTY()
-	float CD= 0.0f;
+	float CD;
 
 	UPROPERTY()
-	int32 Number = INDEX_NONE;
+	int32 Number;
 	
 	UPROPERTY()
-	int32 MaxStackingQuantity = 5; 
+	int32 MaxStackingQuantity;
+
+	UPROPERTY()
+	bool bCancelBuy;
 
 	void Reset()
 	{
@@ -55,6 +65,8 @@ struct FSlotData
 		SlotIcon = nullptr;
 		CD = 0.0f;
 		Number = INDEX_NONE;
+		MaxStackingQuantity = 5;
+		bCancelBuy = true;
 	}
 };
 

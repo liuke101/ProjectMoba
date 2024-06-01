@@ -4,7 +4,9 @@
 #include "UI/Shop/Item/UI_ItemSale.h"
 
 #include "Blueprint/DragDropOperation.h"
+#include "Common/MethodUnit.h"
 #include "Components/TextBlock.h"
+#include "UI/Inventory/UI_InventorySlot.h"
 #include "UI/Shop/Item/UI_Item.h"
 
 void UUI_ItemSale::NativeConstruct()
@@ -21,10 +23,26 @@ bool UUI_ItemSale::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEven
 
 	if (UDragDropOperation* InDragDropOperation = Cast<UDragDropOperation>(InOperation))
 	{
-		if (UUI_Item* MyInventorySlot = Cast<UUI_Item>(InDragDropOperation->Payload))
+		// 将背包物品拖拽到出售区域
+		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(InDragDropOperation->Payload))
 		{
-			// MyInventorySlot->UpdateSlot();
-
+			if(FSlotData* SlotData = GetOwningPlayerState<AMobaPlayerState>()->GetInventorySlotData(MyInventorySlot->GetSlotID()))
+			{
+				// 取消购买
+				if(SlotData->bCancelBuy)
+				{
+					GetOwningPlayerState<AMobaPlayerState>()->Server_CancelBuy(MyInventorySlot->GetSlotID(), SlotData->DataID);
+				}
+				else // 直接出售
+				{
+					GetOwningPlayerState<AMobaPlayerState>()->Server_Sell(MyInventorySlot->GetSlotID(), SlotData->DataID);
+				}
+			}
+			else
+			{
+				MyInventorySlot->UpdateSlot();
+			}
+			
 			bDrop = true;
 		}
 	}

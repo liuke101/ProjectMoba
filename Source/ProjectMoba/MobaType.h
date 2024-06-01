@@ -22,6 +22,9 @@ enum class ECharacterType : uint8
 	//野怪
 	ECT_WildMonster UMETA(DisplayName="WildMonster"),
 	ECT_BossMonster UMETA(DisplayName="BossMonster"),
+
+	//商店
+	ECT_HomeShop UMETA(DisplayName="HomeShop"), //基地商店
 };
 
 UENUM() // 需要同步，所以使用UENUM引入反射

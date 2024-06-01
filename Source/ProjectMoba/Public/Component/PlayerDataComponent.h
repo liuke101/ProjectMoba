@@ -104,7 +104,10 @@ private:
 		
 	}SlotAttribute_Internal;
 
-	// 队列，专门计算技能、物品、装备、属性
+	// CD队列，专门计算技能、物品、装备、属性
 	// 推送到队列中，在队列中计算cd，然后再推送到客户端
-	TMap<int32, FSlotData*> SlotQueue; //Slot_To_SlotData
+	TMap<int32, FSlotData*> SlotCDQueue; //Slot_To_SlotData
+
+	// 距离队列，专门计算售卖
+	TMap<int32, FSlotData*> SaleSlotDistanceQueue; //Slot_To_SlotData
 };

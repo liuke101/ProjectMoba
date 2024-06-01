@@ -4,8 +4,10 @@
 #include "Game/MobaPlayerState.h"
 
 #include "ThreadManage.h"
+#include "Character/Tool/CharacterSpawnPoint.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProjectMoba/MiscData.h"
 #include "Table/CharacterAsset.h"
 #include "Table/SlotAttribute.h"
@@ -28,8 +30,7 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 	{
 		/** 服务器更新CD */
 		TArray<int32> RemoveSlots;
-
-		for(auto& Tmp : PlayerDataComponent->SlotQueue)
+		for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 		{
 			Tmp.Value->CD -= DeltaSeconds;
 			if(Tmp.Value->CD <= 0.f)
@@ -52,17 +53,18 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 					//客户端矫正CD
 					Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
 				}
-				
+
+				//计算完毕，添加到移除数组
 				RemoveSlots.Add(Tmp.Key);
 			}
 		}
 
+		//已完成CD计算的Slot从CD队列中移除。
 		for(auto& RemoveSlot : RemoveSlots)
 		{
-			PlayerDataComponent->SlotQueue.Remove(RemoveSlot);
+			PlayerDataComponent->SlotCDQueue.Remove(RemoveSlot);
 		}
-
-
+		
 		/** 服务器每秒增加2金币 */
 		GoldTime+=DeltaSeconds;
 		if(GoldTime >= 1.f)
@@ -70,12 +72,51 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 			GoldTime = 0.f;
 			PlayerDataComponent->Gold += 2;
 		}
+
+		/** 售卖 */
+		float Distance = FVector::Dist(HomeShopLocation, GetPawn()->GetActorLocation());
+		TArray<int32> RemoveSaleSlots;
+		for(auto& Tmp : PlayerDataComponent->SaleSlotDistanceQueue)
+		{
+			//如果角色距离商店大于1000，则无法取消购买
+			if(Distance >= 1000.0f)
+			{
+				Tmp.Value->bCancelBuy = false;
+				Client_UpdateSlot(Tmp.Key, *Tmp.Value);
+
+				//计算完毕，添加到移除数组
+				RemoveSaleSlots.Add(Tmp.Key); 
+			}
+		}
+		// 从队列中移除已经处理的Slot
+		for(auto& RemoveSaleSlot : RemoveSaleSlots)
+		{
+			PlayerDataComponent->SaleSlotDistanceQueue.Remove(RemoveSaleSlot);
+		}
+
 	}
 }
 
 void AMobaPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/** 获取基地商店位置 */
+	TArray<AActor*> SpawnPointArrays;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawnPoint::StaticClass() , SpawnPointArrays);
+
+	for(auto& Tmp : SpawnPointArrays)
+	{
+		if(ACharacterSpawnPoint* ShopSpawnPoint = Cast<ACharacterSpawnPoint>(Tmp))
+		{
+			if(ShopSpawnPoint->GetCharacterType() == ECharacterType::ECT_HomeShop && ShopSpawnPoint->GetTeamType() == PlayerDataComponent->TeamType)
+			{
+				HomeShopLocation = ShopSpawnPoint->GetActorLocation();
+				break;
+			}
+			
+		}
+	}
 
 	if(GetWorld()->IsNetMode(NM_DedicatedServer))
 	{
@@ -300,7 +341,7 @@ bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
 
 							//通知本机客户端，更新Slot
 							Client_UpdateSlot(Tmp.Key, Tmp.Value);
-							break; // 只会添加到第一个符合条件的Slot
+							return true; // 只会添加到第一个符合条件的Slot
 						}
 					}
 				}
@@ -396,6 +437,33 @@ void AMobaPlayerState::CheckInventory(int32 SlotID) const
 	}
 }
 
+void AMobaPlayerState::Sell(int32 SlotID, int32 DataID, float Discount)
+{
+	if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(DataID))
+	{
+		if(FSlotData* SlotData = GetInventorySlotData(SlotID))
+		{
+			//如果是消耗品
+			if(SlotData->Number > 0)
+			{
+				SlotData->Number--;
+				CheckInventory(SlotID);
+			}
+			else //如果是装备
+			{
+				SlotData->Reset();
+				PlayerDataComponent->SlotAttribute_Internal.Remove(SlotID);
+			}
+
+			//打折出售
+			PlayerDataComponent->Gold += SlotAsset->SlotGold * Discount; 
+
+			//通知客户端更新UI
+			Client_UpdateSlot(SlotID, *SlotData);
+		}
+	}
+}
+
 void AMobaPlayerState::RecursionCreateSkillSlots()
 {
 	RecursionCreatelSlots(PlayerDataComponent->SkillSlots, PlayerDataComponent->InventorySlots);
@@ -486,25 +554,31 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	}
 }
 
-void AMobaPlayerState::Server_CancelBuy_Implementation(int32 SlotID)
-{
-}
-
-void AMobaPlayerState::Server_Sell_Implementation(int32 SlotID)
-{
-}
-
 void AMobaPlayerState::Server_Buy_Implementation(int32 DataID)
 {
 	if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(DataID))
 	{
 		if(PlayerDataComponent->Gold >= SlotAsset->SlotGold)
 		{
-			AddSlotToInventory(DataID);
+			if(AddSlotToInventory(DataID))
+			{
+				PlayerDataComponent->Gold -= SlotAsset->SlotGold;
+			}
 		}
 	}
 }
 
+void AMobaPlayerState::Server_Sell_Implementation(int32 SlotID, int32 DataID)
+{
+	//5折出售
+	Sell(SlotID, DataID, 0.5f);
+}
+
+void AMobaPlayerState::Server_CancelBuy_Implementation(int32 SlotID, int32 DataID)
+{
+	//全额退款
+	Sell(SlotID, DataID, 1.0f);
+}
 
 void AMobaPlayerState::Server_UpdateInventory_Implementation(int32 MoveSlotID, int32 TargetSlotID)
 {
@@ -521,10 +595,10 @@ void AMobaPlayerState::Server_UpdateInventory_Implementation(int32 MoveSlotID, i
 			MoveInventorySlotData.Reset();
 			
 			//队列移动 和CD相关
-			if(PlayerDataComponent->SlotQueue.Contains(MoveSlotID))
+			if(PlayerDataComponent->SlotCDQueue.Contains(MoveSlotID))
 			{
-				PlayerDataComponent->SlotQueue.Remove(MoveSlotID);
-				PlayerDataComponent->SlotQueue.Add(TargetSlotID, &TargetInventorySlotData);
+				PlayerDataComponent->SlotCDQueue.Remove(MoveSlotID);
+				PlayerDataComponent->SlotCDQueue.Add(TargetSlotID, &TargetInventorySlotData);
 			}
 
 			//属性移动
@@ -536,16 +610,16 @@ void AMobaPlayerState::Server_UpdateInventory_Implementation(int32 MoveSlotID, i
 			Swap(MoveInventorySlotData, TargetInventorySlotData);
 
 			//队列交换
-			if(PlayerDataComponent->SlotQueue.Contains(MoveSlotID))
+			if(PlayerDataComponent->SlotCDQueue.Contains(MoveSlotID))
 			{
-				PlayerDataComponent->SlotQueue.Remove(MoveSlotID);
-				PlayerDataComponent->SlotQueue.Add(MoveSlotID, &MoveInventorySlotData);
+				PlayerDataComponent->SlotCDQueue.Remove(MoveSlotID);
+				PlayerDataComponent->SlotCDQueue.Add(MoveSlotID, &MoveInventorySlotData);
 			}
 
-			if(PlayerDataComponent->SlotQueue.Contains(TargetSlotID))
+			if(PlayerDataComponent->SlotCDQueue.Contains(TargetSlotID))
 			{
-				PlayerDataComponent->SlotQueue.Remove(TargetSlotID);
-				PlayerDataComponent->SlotQueue.Add(TargetSlotID, &TargetInventorySlotData);
+				PlayerDataComponent->SlotCDQueue.Remove(TargetSlotID);
+				PlayerDataComponent->SlotCDQueue.Add(TargetSlotID, &TargetInventorySlotData);
 			}
 
 			//属性交换
@@ -577,7 +651,7 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 		if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
 		{
 			SlotData->CD = SlotAttribute->CD;
-			PlayerDataComponent->SlotQueue.Add(SlotID, SlotData);
+			PlayerDataComponent->SlotCDQueue.Add(SlotID, SlotData);
 			Client_StartUpdateCD(SlotID, *SlotData);
 
 			//执行技能
