@@ -45,6 +45,9 @@ struct FSlotData
 
 	UPROPERTY()
 	int32 Number = INDEX_NONE;
+	
+	UPROPERTY()
+	int32 MaxStackingQuantity = 5; 
 
 	void Reset()
 	{

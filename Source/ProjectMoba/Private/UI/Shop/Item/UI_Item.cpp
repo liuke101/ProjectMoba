@@ -4,6 +4,7 @@
 #include "UI/Shop/Item/UI_Item.h"
 
 #include "Components/TextBlock.h"
+#include "Game/MobaPlayerState.h"
 #include "Table/SlotAsset.h"
 
 void UUI_Item::NativeConstruct()
@@ -41,5 +42,9 @@ void UUI_Item::SetItemGold(const int32 InGold)
 
 void UUI_Item::OnClickedWidget()
 {
-
+	//如果当前Slot不在CD中
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	{
+		MobaPlayerState->Server_Buy(GetItemDataID());
+	}
 }

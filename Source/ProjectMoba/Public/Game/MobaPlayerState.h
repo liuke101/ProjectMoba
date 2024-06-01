@@ -74,8 +74,10 @@ public:
 	bool AddSlotToInventory(int32 DataID); 
 	/** 检查InventorySlot是否有空位 */
 	bool HasEmptyInventorySlot() const;
-	/** 查询对应InventorySlot是否有物品, 有则返回true */
-	bool IsValidInventorySlot(int32 SlotID); 
+	/** 查询对应InventorySlot是否有效, 有则返回true */
+	bool IsValidInventorySlot(int32 SlotID) const;
+	/** 查询对应Item是否存在 */
+	bool IsExistInInventory(int32 ItemDataID) const;
 	
 	FORCEINLINE TMap<int32, FSlotData>* GetInventorySlots() const;
 	FSlotData* GetInventorySlotData(int32 SlotID) const;
@@ -84,6 +86,8 @@ public:
 
 	/** 检查物品数量，为0则清空Slot */
 	void CheckInventory(int32 SlotID) const;
+
+	
 #pragma endregion
 	
 #pragma region 技能
@@ -107,13 +111,25 @@ private:
 
 	//------------------Inventory-------------------//
 public:
-	//交换和移动物品
+	// 交换和移动物品
 	UFUNCTION(Server, Reliable)
 	void Server_UpdateInventory(int32 MoveSlotID, int32 TargetSlotID);
 
-	//使用物品
+	// 使用物品
 	UFUNCTION(Server, Reliable)
 	void Server_Use(int32 SlotID);
+
+	// 购买物品
+	UFUNCTION(Server, Reliable)
+	void Server_Buy(int32 DataID);
+
+	// 出售物品(打折)
+	UFUNCTION(Server, Reliable)
+	void Server_Sell(int32 SlotID);
+
+	// 取消购买
+	UFUNCTION(Server, Reliable)
+	void Server_CancelBuy(int32 SlotID);
 
 	UFUNCTION(Client, Reliable)
 	void Client_InitInventorySlots(const FSlotDataNetPackage& SlotDataNetPackage);
@@ -152,5 +168,8 @@ private:
 	/** 存储DataTable数据 */
 	TArray<FSlotAsset*> CacheSlotAssets; 
 	TArray<FSlotAttribute*> CacheSlotAttributes;
+
+	float GoldTime = 0.0f; //金币时间
+
 #pragma endregion 
 };

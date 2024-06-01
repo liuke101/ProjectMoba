@@ -4,7 +4,6 @@
 #include "Game/MobaPlayerState.h"
 
 #include "ThreadManage.h"
-#include "Character/MobaCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
 #include "ProjectMoba/MiscData.h"
@@ -24,9 +23,10 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//服务器更新CD
+	
 	if(GetLocalRole() == ROLE_Authority)
 	{
+		/** 服务器更新CD */
 		TArray<int32> RemoveSlots;
 
 		for(auto& Tmp : PlayerDataComponent->SlotQueue)
@@ -61,6 +61,15 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 		{
 			PlayerDataComponent->SlotQueue.Remove(RemoveSlot);
 		}
+
+
+		/** 服务器每秒增加2金币 */
+		GoldTime+=DeltaSeconds;
+		if(GoldTime >= 1.f)
+		{
+			GoldTime = 0.f;
+			PlayerDataComponent->Gold += 2;
+		}
 	}
 }
 
@@ -88,8 +97,8 @@ void AMobaPlayerState::BeginPlay()
 			Client_InitInventorySlots(NetInventoryPackage);
 
 			//测试Inventory(正式功能为点击购买)
-			AddSlotToInventory(99990);
-			AddSlotToInventory(99991);
+			// AddSlotToInventory(99990);
+			// AddSlotToInventory(99991);
 
 			FSlotDataNetPackage NetSkillPackage;
 			GetSkillSlotNetPackage(NetSkillPackage);
@@ -247,34 +256,75 @@ void AMobaPlayerState::RecursionCreateInventorySlots()
 
 bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
 {
-	if(HasEmptyInventorySlot())
+	if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(DataID))
 	{
-		if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(DataID))
+		bool bIsExist = IsExistInInventory(DataID);
+		bool bIsConsumables = SlotAsset->SlotType.Contains(ESlotType::EST_Consumables);
+
+		auto AddSlot = [&]()->int32
 		{
-			int32 SlotID = INDEX_NONE;
 			for(auto& Tmp : *GetInventorySlots())
 			{
 				//找空位
 				if(Tmp.Value.DataID == INDEX_NONE)
 				{
-					Tmp.Value.Number = 3; //暂定为3
+					//如果当前仓库中不存在该物品，且为消耗品
+					if(!bIsExist && bIsConsumables)
+					{
+						Tmp.Value.Number = 1; 
+					}
+					
 					Tmp.Value.DataID = SlotAsset->DataID; 
 					Tmp.Value.SlotIcon = SlotAsset->SlotIcon;
-					SlotID = Tmp.Key; 
-					break;
+					
+					return Tmp.Key; 
 				}
 			}
+			return INDEX_NONE;
+		};
 
-			if(SlotID != INDEX_NONE && AddSlotAttributes(SlotID, DataID)) //添加到Inventory
+		int32 SlotID = INDEX_NONE;
+		if(bIsConsumables) //如果是消耗品
+		{
+			if (bIsExist) //如果已经存在背包, 数量+1
 			{
-				//通知本机客户端，更新Slot
-				Client_UpdateSlot(SlotID, PlayerDataComponent->InventorySlots[SlotID]);
+				//遍历所有Slot
+				for(auto& Tmp : *GetInventorySlots())
+				{
+					if(SlotAsset->DataID == Tmp.Value.DataID && Tmp.Value.DataID != INDEX_NONE)
+					{
+						//这里要加限制，否则会超过最大堆叠数量
+						if(Tmp.Value.Number < Tmp.Value.MaxStackingQuantity)
+						{
+							Tmp.Value.Number++;
+
+							//通知本机客户端，更新Slot
+							Client_UpdateSlot(Tmp.Key, Tmp.Value);
+							break; // 只会添加到第一个符合条件的Slot
+						}
+					}
+				}
 			}
-			return true;
+			else //如果不存在背包，添加到新的Slot
+			{
+				SlotID = AddSlot();
+			}
 		}
+		else //如果不是消耗品，直接添加到新的Slot
+		{
+			SlotID = AddSlot();
+		}
+		
+		
+		if(SlotID != INDEX_NONE && AddSlotAttributes(SlotID, DataID)) //添加到Inventory
+		{
+			//通知本机客户端，更新Slot
+			Client_UpdateSlot(SlotID, PlayerDataComponent->InventorySlots[SlotID]);
+		}
+		return true;
 	}
 
-	return false;
+	return false;	
 }
 
 bool AMobaPlayerState::HasEmptyInventorySlot() const
@@ -290,13 +340,28 @@ bool AMobaPlayerState::HasEmptyInventorySlot() const
 	return false;
 }
 
-bool AMobaPlayerState::IsValidInventorySlot(int32 SlotID)
+bool AMobaPlayerState::IsValidInventorySlot(int32 SlotID) const
 {
 	for(auto& Tmp : *GetInventorySlots())
 	{
 		if(Tmp.Key == SlotID)
 		{
 			return Tmp.Value.DataID != INDEX_NONE;
+		}
+	}
+	return false;
+}
+
+bool AMobaPlayerState::IsExistInInventory(int32 ItemDataID) const
+{
+	for(auto& Tmp : *GetInventorySlots())
+	{
+		if(Tmp.Value.DataID == ItemDataID)
+		{
+			if(Tmp.Value.Number < Tmp.Value.MaxStackingQuantity) //限制物品堆叠数量
+			{
+				return true;
+			}
 		}
 	}
 	return false;
@@ -418,6 +483,25 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	{
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
+}
+
+void AMobaPlayerState::Server_CancelBuy_Implementation(int32 SlotID)
+{
+}
+
+void AMobaPlayerState::Server_Sell_Implementation(int32 SlotID)
+{
+}
+
+void AMobaPlayerState::Server_Buy_Implementation(int32 DataID)
+{
+	if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(DataID))
+	{
+		if(PlayerDataComponent->Gold >= SlotAsset->SlotGold)
+		{
+			AddSlotToInventory(DataID);
+		}
 	}
 }
 

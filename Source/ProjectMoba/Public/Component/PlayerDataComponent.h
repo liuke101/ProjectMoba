@@ -32,14 +32,17 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
-	FName PlayerName = "DefaultName";
+	FName PlayerName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
-	ETeamType TeamType = ETeamType::ETT_Neutral;
+	ETeamType TeamType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	int64 PlayerID; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int32 Gold;
+	
 	// 服务端物品栏x6
 	// 通过RPC状态同步到客户端,TMap不支持RPC，我们使用TArray来将其拆分, 为此我们创建了一个结构体FSlotDataNetPackage
 	TMap<int32, FSlotData> InventorySlots; //SlotID_To_SlotData

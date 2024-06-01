@@ -4,10 +4,13 @@
 
 
 UPlayerDataComponent::UPlayerDataComponent()
+	: PlayerName("DefaultName"),
+	TeamType(ETeamType::ETT_Neutral),
+	Gold(500)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	PlayerID = FMath::RandRange(0,100000); //暂时随机生成一个PlayerID，后面改成从DB服务器获取
+	PlayerID = FMath::RandRange(0, 100000); //暂时随机生成一个PlayerID，后面改成从DB服务器获取
 }
 
 
@@ -30,6 +33,8 @@ void UPlayerDataComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME_CONDITION(UPlayerDataComponent, Gold, COND_OwnerOnly); //仅同步给拥有者
+	
 	// DOREPLIFETIME_CONDITION(UPlayerDataComponent, PlayerName, COND_InitialOnly);
 	// DOREPLIFETIME_CONDITION(UPlayerDataComponent, TeamType, COND_InitialOnly)
 	// DOREPLIFETIME_CONDITION(UPlayerDataComponent, PlayerID, COND_InitialOnly);
