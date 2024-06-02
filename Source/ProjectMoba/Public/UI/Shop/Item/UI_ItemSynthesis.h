@@ -20,27 +20,27 @@ struct FDrawEquipLine
 
 	// | 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* VerticalLine;
+	UTexture2D* VerticalLine; //垂直线
 
 	//！！
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* HorizontalLine;
-
-	//_|_
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* TurnLeftAndRightVertically;
-
-	//|-
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* TurnRight;
-
-	//-|
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* TurnLeft;
+	UTexture2D* HorizontalLine; //水平线
 
 	//-|-
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* TLine;
+	UTexture2D* TLine; //T型线
+	
+	//_|_
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UTexture2D* Re_TLine; //倒T型线
+
+	//|-
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UTexture2D* TurnRight; //右拐角
+
+	//-|
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UTexture2D* TurnLeft; //左拐角
 };
 
 struct FDrawSlot
@@ -48,11 +48,13 @@ struct FDrawSlot
 	// 对应一个合成线
 	struct FSlot
 	{
+		FSlot(){}
+		
 		FSlot(UCanvasPanelSlot* InSlot)
 			: CanvasPanelSlot(InSlot)
 		{}
 
-		void SetPosition(const FVector2D& InPosition);
+		void SetPosition(const FVector2D& InPosition) const;
 		FVector2D GetSize() const;
 
 	private:
@@ -63,6 +65,10 @@ struct FDrawSlot
 	// 对应一个物品按钮
 	struct FAsset : public FSlot
 	{
+		FAsset(): SlotAsset(nullptr)
+		{
+		}
+
 		FAsset(UCanvasPanelSlot* InSlot, const FSlotAsset* InSlotAsset)
 			: FSlot(InSlot)
 			, SlotAsset(InSlotAsset)
@@ -76,12 +82,13 @@ struct FDrawSlot
 
 	TArray<FSlot> LREndPanel; //拐弯先
 	TArray<FSlot> VLinePanel; //垂直线
+	TArray<FSlot> HLinePanel; //水平线
 	TArray<FSlot> TLinePanel; //T型线
-	TArray<FSlot> LRVLinePanel; //倒T型线
+	TArray<FSlot> Re_TLinePanel; //倒T型线
 	TArray<FAsset> ItemPanel; //物品
 };
 
-/** 物品合成UI */
+/** 物品合成UI(BUG) */
 UCLASS()
 class PROJECTMOBA_API UUI_ItemSynthesis : public UUI_NativeOnDrop
 {
@@ -96,14 +103,15 @@ public:
 
 protected:
 	//递归创建Slot
-	void RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const FVector2D& StartPosition, int8 SlotLayer);
-	
+	void RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const FVector2D& InStartPosition, int8 SlotLayer);
+
+	int32 GetLayerDepth(const FSlotAsset* SlotAsset, float InDepth = 1);
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UCanvasPanel> ItemCanvasPanel;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|UI")
-	FVector2D StartPositon;
+	FVector2D StartPosition;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|UI")
 	FVector2D IconSize;
