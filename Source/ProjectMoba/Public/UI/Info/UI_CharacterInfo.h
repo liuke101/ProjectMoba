@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/MobaUIBase.h"
+#include "UI/UI_Panel.h"
 #include "UI_CharacterInfo.generated.h"
 
 enum class ECharacterAttributeType : uint8;
@@ -13,26 +13,22 @@ class UTextBlock;
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_CharacterInfo : public UMobaUIBase
+class PROJECTMOBA_API UUI_CharacterInfo : public UUI_Panel
 {
 	GENERATED_BODY()
 public:
-	UUI_CharacterInfo();
 	
 	virtual void NativeConstruct() override;
 
-	/** 请求更新属性 */
-	void RequestUpdateSlot(const ECharacterAttributeType CharacterAttributeType);
 
+protected:
 	/** 响应更新属性 */
-	void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType, float Value);
+	virtual void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType) override;
 
-	FORCEINLINE void SetPlayerID(const int64& InPlayerID) { PlayerID = InPlayerID; }
 private:
-	int64 PlayerID;
-	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> CharacterIcon;
+	
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> PhysicalAttack; 
@@ -45,7 +41,9 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> AttackSpeed;
-
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> CriticalRate;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MagicAttack;
@@ -58,7 +56,5 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> WalkSpeed;
-
-	
 
 };

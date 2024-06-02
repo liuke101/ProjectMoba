@@ -13,7 +13,7 @@ class UDataTable;
 struct FCharacterAsset;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
-DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpdateAttributeDelegate, int64/*PlayerID*/, const ECharacterAttributeType, float/*Value*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FUpdateAttributeDelegate, int64/*PlayerID*/, const ECharacterAttributeType);
 
 UCLASS()
 class PROJECTMOBA_API AMobaGameState : public AGameStateBase
@@ -31,14 +31,16 @@ protected:
 	
 public:
 	/** 从DataTable中读数据 */
-	const TArray<FCharacterAsset*>* GetCharacterAssets();
+	const TArray<FCharacterAsset*>* GetCachedCharacterAssets();
 	const FCharacterAsset* GetCharacterAssetFromCharacterID(const int32 CharacterID); //CharacterID即DataID
 	const FCharacterAsset* GetCharacterAssetFromPlayerID(const int64 PlayerID);
-	const TArray<FCharacterAttribute*>* GetCharacterAttributes();
+	const TArray<FCharacterAttribute*>* GetCachedCharacterAttributes();
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 CharacterID);
-	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 PlayerID);
+	
 
 	/** CharacterAttribute */
+	FORCEINLINE TMap<int64, FCharacterAttribute>* GetCharacterAttributes() {return &CharacterAttributes;}
+	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 PlayerID);
 	void AddCharacterAttribute(const int64 PlayerID,const int32 CharacterID); 
 
 	/** ChracterLocation */
@@ -79,11 +81,11 @@ protected:
 	TObjectPtr<UDataTable> DT_CharacterAttribute;
 private:
 	/** 存储DataTable数据 */
-	TArray<FCharacterAsset*> CacheCharacterAssets; 
-	TArray<FCharacterAttribute*> CacheCharacterAttributes;
+	TArray<FCharacterAsset*> CachedCharacterAssets; 
+	TArray<FCharacterAttribute*> CachedCharacterAttributes;
 
 	//在服务端，是角色数据
-	//在客户端，是数据缓存
+	//在客户端，是缓存池
 	TMap<int64, FCharacterAttribute> CharacterAttributes;  //PlayerID用于识别局内对象，不同于CharacterID，ChracterID用于识别不同英雄
 
 	UPROPERTY(Replicated)

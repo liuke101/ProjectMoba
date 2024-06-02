@@ -53,10 +53,10 @@ struct FCharacterAttribute : public FMobaTableBase
 	float AttackSpeed; //攻击速度
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
-	float MaxEXP; //最大经验值
+	float MaxExp; //最大经验值
 
 	UPROPERTY()
-	float CurrentEXP; //当前经验值
+	float CurrentExp; //当前经验值
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float AttackRange; //攻击范围
@@ -71,5 +71,5 @@ struct FCharacterAttribute : public FMobaTableBase
 
 	float GetHealthPercent() const;
 	float GetManaPercent() const;
-	float GetEXPPercent() const;
+	float GetExpPercent() const;
 };

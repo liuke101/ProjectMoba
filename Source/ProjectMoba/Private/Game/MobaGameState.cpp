@@ -22,26 +22,26 @@ void AMobaGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 }
 
 
-const TArray<FCharacterAsset*>* AMobaGameState::GetCharacterAssets()
+const TArray<FCharacterAsset*>* AMobaGameState::GetCachedCharacterAssets()
 {
-	if(CacheCharacterAssets.IsEmpty())
+	if(CachedCharacterAssets.IsEmpty())
 	{
 		checkf(DT_CharacterAsset, TEXT("CharacterAssetTable为空，请在BP_MobaGameState中配置"));
-		DT_CharacterAsset->GetAllRows(TEXT("Character Table"), CacheCharacterAssets);
+		DT_CharacterAsset->GetAllRows(TEXT("Character Table"), CachedCharacterAssets);
 	}
 
-	return &CacheCharacterAssets;
+	return &CachedCharacterAssets;
 }
 
-const TArray<FCharacterAttribute*>* AMobaGameState::GetCharacterAttributes()
+const TArray<FCharacterAttribute*>* AMobaGameState::GetCachedCharacterAttributes()
 {
-	if(CacheCharacterAttributes.IsEmpty())
+	if(CachedCharacterAttributes.IsEmpty())
 	{
 		checkf(DT_CharacterAttribute, TEXT("CharacterAttributeTable为空，请在BP_MobaGameState中配置"));
-		DT_CharacterAttribute->GetAllRows(TEXT("Character Attribute"), CacheCharacterAttributes);
+		DT_CharacterAttribute->GetAllRows(TEXT("Character Attribute"), CachedCharacterAttributes);
 	}
 
-	return &CacheCharacterAttributes;
+	return &CachedCharacterAttributes;
 }
 
 
@@ -56,7 +56,7 @@ void AMobaGameState::AddCharacterAttribute(const int64 PlayerID, const int32 Cha
 
 const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const int32 CharacterID)
 {
-	for(auto Asset : *GetCharacterAssets())
+	for(auto Asset : *GetCachedCharacterAssets())
 	{
 		if(Asset->DataID == CharacterID)
 		{
@@ -69,7 +69,7 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromCharacterID(const in
 
 const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64 PlayerID)
 {
-	for(auto Asset : *GetCharacterAssets())
+	for(auto Asset : *GetCachedCharacterAssets())
 	{
 		if(Asset->DataID == GetCharacterIDFromPlayerID(PlayerID))
 		{
@@ -82,7 +82,7 @@ const FCharacterAsset* AMobaGameState::GetCharacterAssetFromPlayerID(const int64
 
 const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(const int32 CharacterID)
 {
-	for(auto Attribute : *GetCharacterAttributes())
+	for(auto Attribute : *GetCachedCharacterAttributes())
 	{
 		if(Attribute->DataID == CharacterID)
 		{
@@ -94,14 +94,15 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 
 FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 PlayerID)
 {
-	for(auto& MAP : CharacterAttributes)
-	{
-		if(MAP.Key == PlayerID)
-		{
-			return &MAP.Value;
-		}
-	}
-	return nullptr;
+	return CharacterAttributes.Find(PlayerID);
+	// for(auto& MAP : CharacterAttributes)
+	// {
+	// 	if(MAP.Key == PlayerID)
+	// 	{
+	// 		return &MAP.Value;
+	// 	}
+	// }
+	// return nullptr;
 }
 
 void AMobaGameState::UpdateCharacterLocation(const int64 PlayerID, const FVector& Location)
@@ -207,10 +208,10 @@ void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64
 			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.AttackSpeed);
 			break;
 		case ECharacterAttributeType::ECAT_MaxEXP:
-			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxEXP);
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxExp);
 			break;
 		case ECharacterAttributeType::ECAT_CurrentEXP:
-			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentEXP);
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentExp);
 			break;
 		case ECharacterAttributeType::ECAT_CriticalRate:
 			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CriticalRate);
@@ -223,8 +224,71 @@ void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64
 
 void AMobaGameState::Server_ResponseUpdateCharacterAttribute_Implementation(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value)
 {
-	//不需要缓存属性数据，直接广播委托，更新UI
-	OnUpdateAttributeDelegate.Broadcast(PlayerID, CharacterAttributeType, Value);
+	if(PlayerID == INDEX_NONE) return;
+
+	//获取PlayerID对应的属性，如果不存在则创建一个新的属性
+	FCharacterAttribute* CharacterAttribute = GetCharacterAttributeFromPlayerID(PlayerID);
+	if (!CharacterAttribute)
+	{
+		CharacterAttribute = new FCharacterAttribute();
+		CharacterAttributes.Add(PlayerID, *CharacterAttribute);
+	}
+
+	//缓存属性数据
+	switch (CharacterAttributeType) {
+	case ECharacterAttributeType::ECAT_Level:
+		CharacterAttribute->Level = Value;
+		break;
+	case ECharacterAttributeType::ECAT_MaxHealth:
+		CharacterAttribute->MaxHealth = Value;
+		break;
+	case ECharacterAttributeType::ECAT_CurrentHealth:
+		CharacterAttribute->CurrentHealth = Value;
+		break;
+	case ECharacterAttributeType::ECAT_MaxMana:
+		CharacterAttribute->MaxMana = Value;
+		break;
+	case ECharacterAttributeType::ECAT_CurrentMana:
+		CharacterAttribute->CurrentMana = Value;
+		break;
+	case ECharacterAttributeType::ECAT_PhysicalAttack:
+		CharacterAttribute->PhysicalAttack = Value;
+		break;
+	case ECharacterAttributeType::ECAT_Armor:
+		CharacterAttribute->Armor = Value;
+		break;
+	case ECharacterAttributeType::ECAT_PhysicalPenetration:
+		CharacterAttribute->PhysicalPenetration = Value;	
+		break;
+	case ECharacterAttributeType::ECAT_MagicAttack:
+		CharacterAttribute->MagicAttack = Value;
+		break;
+	case ECharacterAttributeType::ECAT_MagicResistance:
+		CharacterAttribute->MagicResistance = Value;
+		break;
+	case ECharacterAttributeType::ECAT_MagicPenetration:
+		CharacterAttribute->MagicPenetration = Value;
+		break;
+	case ECharacterAttributeType::ECAT_WalkSpeed:
+		CharacterAttribute->WalkSpeed = Value;
+		break;
+	case ECharacterAttributeType::ECAT_AttackSpeed:
+		CharacterAttribute->AttackSpeed = Value;
+		break;
+	case ECharacterAttributeType::ECAT_MaxEXP:
+		CharacterAttribute->MaxExp = Value;
+		break;
+	case ECharacterAttributeType::ECAT_CurrentEXP:
+		CharacterAttribute->CurrentExp = Value;
+		break;
+	case ECharacterAttributeType::ECAT_CriticalRate:
+		CharacterAttribute->CriticalRate = Value;
+		break;
+	default: ;
+	}
+	
+	//广播委托，更新UI
+	OnUpdateAttributeDelegate.Broadcast(PlayerID, CharacterAttributeType);
 }
 
 void AMobaGameState::Server_ResponseUpdateAllCharacterAttributes_Implementation(int64 PlayerID,

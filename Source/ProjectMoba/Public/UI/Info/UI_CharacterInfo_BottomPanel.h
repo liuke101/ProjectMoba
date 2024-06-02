@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/MobaUIBase.h"
+#include "UI/UI_Panel.h"
 #include "UI_CharacterInfo_BottomPanel.generated.h"
 
 class UProgressBar;
@@ -15,12 +15,22 @@ class UUI_SkillBar;
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_CharacterInfo_BottomPanel : public UMobaUIBase
+class PROJECTMOBA_API UUI_CharacterInfo_BottomPanel : public UUI_Panel
 {
 	GENERATED_BODY()
-
+public:
+	virtual void NativeConstruct() override;
+	
+protected:
+	/** 响应更新属性 */
+	virtual void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType) override;
+	
+private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUI_CharacterInfo> CharacterInfo; // 角色信息
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> GolbText; // 金币
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUI_SkillBar> SkillBar; // 技能栏
@@ -30,9 +40,6 @@ class PROJECTMOBA_API UUI_CharacterInfo_BottomPanel : public UMobaUIBase
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Level; // 等级
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> GolbText; // 金币
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> HealthText; // 生命值
@@ -47,8 +54,9 @@ class PROJECTMOBA_API UUI_CharacterInfo_BottomPanel : public UMobaUIBase
 	TObjectPtr<UProgressBar> ManaBar; // 魔法条
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> ExpText; // 经验值
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> ExpBar; // 经验条
 
-public:
-	virtual void NativeConstruct() override;
 };

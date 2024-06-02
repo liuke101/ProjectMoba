@@ -23,8 +23,8 @@ void FCharacterAttribute::InitAttribute()
 	MagicPenetration = 0.0f;
 	WalkSpeed = 300.0f;
 	AttackSpeed = 0.8f;
-	MaxEXP = 100.0f;
-	CurrentEXP = 0.0f;
+	MaxExp = 100.0f;
+	CurrentExp = 0.0f;
 	AttackRange = 1000.0f;
 	CriticalRate = 0.0f;
 }
@@ -45,7 +45,7 @@ float FCharacterAttribute::GetManaPercent() const
 	return FMath::Clamp(CurrentMana / MaxMana, 0.0f, 1.0f);
 }
 
-float FCharacterAttribute::GetEXPPercent() const
+float FCharacterAttribute::GetExpPercent() const
 {
-	return FMath::Clamp(CurrentEXP / MaxEXP, 0.0f, 1.0f);
+	return FMath::Clamp(CurrentExp / MaxExp, 0.0f, 1.0f);
 }
