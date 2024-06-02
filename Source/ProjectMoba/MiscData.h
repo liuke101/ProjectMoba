@@ -83,3 +83,4 @@ struct FSlotDataNetPackage
 	UPROPERTY()
 	TArray<FSlotData> SlotDatas; //存了DataID
 };
+

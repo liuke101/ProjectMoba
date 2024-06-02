@@ -6,6 +6,7 @@
 #include "UI/MobaUIBase.h"
 #include "UI_CharacterInfo.generated.h"
 
+enum class ECharacterAttributeType : uint8;
 class UImage;
 class UTextBlock;
 /**
@@ -16,11 +17,22 @@ class PROJECTMOBA_API UUI_CharacterInfo : public UMobaUIBase
 {
 	GENERATED_BODY()
 public:
+	UUI_CharacterInfo();
+	
 	virtual void NativeConstruct() override;
 
-	void UpdateSlot();
+	/** 请求更新属性 */
+	void RequestUpdateSlot(const ECharacterAttributeType CharacterAttributeType);
 
+	/** 响应更新属性 */
+	void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType, float Value);
+
+	FORCEINLINE void SetPlayerID(const int64& InPlayerID) { PlayerID = InPlayerID; }
 private:
+	int64 PlayerID;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> CharacterIcon;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> PhysicalAttack; 
@@ -39,7 +51,7 @@ private:
 	TObjectPtr<UTextBlock> MagicAttack;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> MagicDefense;
+	TObjectPtr<UTextBlock> MagicResistance;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MagicPenetration;
@@ -47,6 +59,6 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> WalkSpeed;
 
-	UPROPERTY(meta = (BindWidget))
-	UImage* CharacterIcon;
+	
+
 };

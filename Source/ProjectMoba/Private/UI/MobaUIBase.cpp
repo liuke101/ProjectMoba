@@ -2,8 +2,8 @@
 
 
 #include "UI/MobaUIBase.h"
-
 #include "Game/MobaPlayerState.h"
+#include "Game/MobaGameState.h"
 #include "UI/MobaHUD.h"
 
 AMobaHUD* UMobaUIBase::GetMobaHUD() const
@@ -14,4 +14,9 @@ AMobaHUD* UMobaUIBase::GetMobaHUD() const
 AMobaPlayerState* UMobaUIBase::GetMobaPlayerState() const
 {
 	return GetWorld()->GetFirstPlayerController()->GetPlayerState<AMobaPlayerState>();
+}
+
+AMobaGameState* UMobaUIBase::GetMobaGameState() const
+{
+	return GetWorld()->GetGameState<AMobaGameState>();
 }

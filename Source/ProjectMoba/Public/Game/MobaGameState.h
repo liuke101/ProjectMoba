@@ -4,19 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+#include "ProjectMoba/MobaType.h"
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
 struct FPlayerLocation;
 class UDataTable;
 struct FCharacterAsset;
-/**
- * 
- */
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpdateAttributeDelegate, int64/*PlayerID*/, const ECharacterAttributeType, float/*Value*/);
+
 UCLASS()
 class PROJECTMOBA_API AMobaGameState : public AGameStateBase
 {
 	GENERATED_BODY()
+public:
+	FUpdateAllAttributesDelegate OnUpdateAllAttributesDelegate; //更新整包属性
+	FUpdateAttributeDelegate OnUpdateAttributeDelegate; //更新协议指定属性
 public:
 	AMobaGameState();
 
@@ -47,6 +52,25 @@ public:
 
 	/** ID */
 	int32 GetCharacterIDFromPlayerID(const int64 PlayerID);
+
+#pragma region RPC
+public:
+	/** 请求更新属性 */
+	UFUNCTION(Server, Reliable)
+	void Server_RequestUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType);
+
+protected:
+	/** 响应更新属性 */
+	//更新协议相应的属性
+	UFUNCTION(Server, Reliable)
+	void Server_ResponseUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
+
+	//更新整包
+	UFUNCTION(Server, Reliable)
+	void Server_ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute); 
+	
+#pragma endregion
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|DataTable")
     TObjectPtr<UDataTable> DT_CharacterAsset;
@@ -57,7 +81,9 @@ private:
 	/** 存储DataTable数据 */
 	TArray<FCharacterAsset*> CacheCharacterAssets; 
 	TArray<FCharacterAttribute*> CacheCharacterAttributes;
-	
+
+	//在服务端，是角色数据
+	//在客户端，是数据缓存
 	TMap<int64, FCharacterAttribute> CharacterAttributes;  //PlayerID用于识别局内对象，不同于CharacterID，ChracterID用于识别不同英雄
 
 	UPROPERTY(Replicated)

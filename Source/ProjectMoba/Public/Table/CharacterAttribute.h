@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "MobaTableBase.h"
-#include "ProjectMoba/MobaType.h"
 #include "CharacterAttribute.generated.h"
 
 USTRUCT(BlueprintType)
@@ -28,12 +27,6 @@ struct FCharacterAttribute : public FMobaTableBase
 
 	UPROPERTY()
 	float CurrentMana; //当前魔法值
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
-	float MaxAnger; //最大怒气值
-
-	UPROPERTY()
-	float CurrentAnger; //当前怒气值
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float PhysicalAttack; //物理攻击
@@ -79,5 +72,4 @@ struct FCharacterAttribute : public FMobaTableBase
 	float GetHealthPercent() const;
 	float GetManaPercent() const;
 	float GetEXPPercent() const;
-	float GetAngerPercent() const;
 };

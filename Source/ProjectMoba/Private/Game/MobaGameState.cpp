@@ -151,3 +151,95 @@ int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 PlayerID)
 	return INDEX_NONE;
 }
 
+void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType)
+{
+	if(PlayerID == INDEX_NONE) return;
+
+	if(CharacterAttributes.Contains(PlayerID))
+	{
+		//获取角色属性
+		const FCharacterAttribute& CharacterAttribute = CharacterAttributes[PlayerID];
+
+		//响应更新属性
+		switch (CharacterAttributeType)
+		{
+		case ECharacterAttributeType::ECAT_None:
+			//ECAT_NONE代表更新整包
+			Server_ResponseUpdateAllCharacterAttributes(PlayerID, CharacterAttribute);
+			break;
+		case ECharacterAttributeType::ECAT_Level:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.Level);
+			break;
+		case ECharacterAttributeType::ECAT_MaxHealth:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxHealth);
+			break;
+		case ECharacterAttributeType::ECAT_CurrentHealth:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentHealth);
+			break;
+		case ECharacterAttributeType::ECAT_MaxMana:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxMana);
+			break;
+		case ECharacterAttributeType::ECAT_CurrentMana:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentMana);
+			break;
+		case ECharacterAttributeType::ECAT_PhysicalAttack:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.PhysicalAttack);
+			break;
+		case ECharacterAttributeType::ECAT_Armor:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.Armor);
+			break;
+		case ECharacterAttributeType::ECAT_PhysicalPenetration:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.PhysicalPenetration);
+			break;
+		case ECharacterAttributeType::ECAT_MagicAttack:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MagicAttack);
+			break;
+		case ECharacterAttributeType::ECAT_MagicResistance:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MagicResistance);
+			break;
+		case ECharacterAttributeType::ECAT_MagicPenetration:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MagicPenetration);
+			break;
+		case ECharacterAttributeType::ECAT_WalkSpeed:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.WalkSpeed);
+			break;
+		case ECharacterAttributeType::ECAT_AttackSpeed:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.AttackSpeed);
+			break;
+		case ECharacterAttributeType::ECAT_MaxEXP:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxEXP);
+			break;
+		case ECharacterAttributeType::ECAT_CurrentEXP:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentEXP);
+			break;
+		case ECharacterAttributeType::ECAT_CriticalRate:
+			Server_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CriticalRate);
+			break;
+		}
+	}
+	
+	
+}
+
+void AMobaGameState::Server_ResponseUpdateCharacterAttribute_Implementation(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value)
+{
+	//不需要缓存属性数据，直接广播委托，更新UI
+	OnUpdateAttributeDelegate.Broadcast(PlayerID, CharacterAttributeType, Value);
+}
+
+void AMobaGameState::Server_ResponseUpdateAllCharacterAttributes_Implementation(int64 PlayerID,
+	const FCharacterAttribute& CharacterAttribute)
+{
+	// 缓存属性数据
+	if(CharacterAttributes.Contains(PlayerID))
+	{
+		CharacterAttributes[PlayerID] = CharacterAttribute;
+	}
+	else
+	{
+		CharacterAttributes.Add(PlayerID, CharacterAttribute);
+	}
+
+	// 广播委托，更新UI
+	OnUpdateAllAttributesDelegate.Broadcast(PlayerID);
+}

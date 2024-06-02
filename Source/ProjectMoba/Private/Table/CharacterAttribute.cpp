@@ -15,8 +15,6 @@ void FCharacterAttribute::InitAttribute()
 	CurrentHealth = MaxHealth;
 	MaxMana = 0.0f;
 	CurrentMana = MaxMana;
-	MaxAnger = 0.0f;
-	CurrentAnger = MaxAnger;
 	PhysicalAttack = 50.0f;
 	Armor = 20.0f;
 	PhysicalPenetration = 0.0f;
@@ -50,9 +48,4 @@ float FCharacterAttribute::GetManaPercent() const
 float FCharacterAttribute::GetEXPPercent() const
 {
 	return FMath::Clamp(CurrentEXP / MaxEXP, 0.0f, 1.0f);
-}
-
-float FCharacterAttribute::GetAngerPercent() const
-{
-	return FMath::Clamp(CurrentAnger / MaxAnger, 0.0f, 1.0f);
 }

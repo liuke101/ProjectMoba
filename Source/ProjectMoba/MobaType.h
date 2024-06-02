@@ -75,3 +75,27 @@ enum class ESkillType : uint8
 	EST_Burst UMETA(DisplayName="Burst"), // 爆发
 	EST_Continuous UMETA(DisplayName="Continuous"), //持续
 };
+
+/** 角色属性协议 */
+UENUM(Blueprintable)
+enum class ECharacterAttributeType : uint8
+{
+	ECAT_None UMETA(DisplayName="None"), //代表更新所有数据（整包）
+	ECAT_Level UMETA(DisplayName="Level"), 
+	ECAT_MaxHealth UMETA(DisplayName = "MaxHealth"),
+	ECAT_CurrentHealth UMETA(DisplayName = "CurrentHealth"),
+	ECAT_MaxMana UMETA(DisplayName = "MaxMana"),
+	ECAT_CurrentMana UMETA(DisplayName = "CurrentMana"),
+	ECAT_PhysicalAttack UMETA(DisplayName = "PhysicalAttack"),
+	ECAT_Armor UMETA(DisplayName = "Armor"),
+	ECAT_PhysicalPenetration UMETA(DisplayName = "PhysicalPenetration"),
+	ECAT_MagicAttack UMETA(DisplayName = "MagicAttack"),
+	ECAT_MagicResistance UMETA(DisplayName = "MagicResistance"),
+	ECAT_MagicPenetration UMETA(DisplayName = "MagicPenetration"),
+	ECAT_WalkSpeed UMETA(DisplayName = "WalkSpeed"),
+	ECAT_AttackSpeed UMETA(DisplayName = "AttackSpeed"),
+	ECAT_MaxEXP UMETA(DisplayName = "MaxEXP"),
+	ECAT_CurrentEXP UMETA(DisplayName = "CurrentEXP"),
+	ECAT_CriticalRate UMETA(DisplayName = "CriticalRate"),
+	//攻击范围AttackRange暂不同步，不会受装备影响
+};
