@@ -3,32 +3,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/UI_Bar.h"
-#include "UI_SkillBar.generated.h"
+#include "UI/UI_Info.h"
+#include "UI_CharacterInfo_TopPanel.generated.h"
 
-class UUI_SkillSlot;
-class UHorizontalBox;
+class UUniformGridPanel;
+class UUI_CharacterInfo;
 /**
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_SkillBar : public UUI_Bar
+class PROJECTMOBA_API UUI_CharacterInfo_TopPanel : public UUI_Info
 {
 	GENERATED_BODY()
-protected:
+
+public:
 	virtual void NativeConstruct() override;
 
 	virtual void InitSlotLayout() override;
 
-public:
 	virtual UPanelWidget* GetSlotLayoutPanel() override;
 
 private:
-		
+	
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UHorizontalBox> SkillSlotArray;
+	TObjectPtr<UUI_CharacterInfo> CharacterInfo;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Moba|UI")
-	TSubclassOf<UUI_SkillSlot> SkillSlotClass;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UUniformGridPanel> SlotArrayInventory;
 
 };

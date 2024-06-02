@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MobaUIBase.h"
+#include "UI_Info.h"
 #include "Components/PanelWidget.h"
 #include "UI_Bar.generated.h"
 
@@ -12,26 +13,15 @@ class UUI_Slot;
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_Bar : public UMobaUIBase
+class PROJECTMOBA_API UUI_Bar : public UUI_Info
 {
 	GENERATED_BODY()
 protected:
 	virtual void NativeConstruct() override;
 
 public:
-	// 必须实现
-	virtual UPanelWidget* GetSlotLayoutPanel() const;
-	
-protected:
-	// 初始化Slot布局
-	virtual void InitSlotLayout() const;
-	
 	// 绑定委托
 	void BindSlotDelegate() ;
-
-	// 呼叫所有的Slot
-	template<class T>
-	void CallAllSlot(TFunction<bool(T*)> SlotLamada) const;
 
 	//行
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
@@ -42,20 +32,3 @@ protected:
 	int32 Layout_Col = 1;
 };
 
-template <class T>
-void UUI_Bar::CallAllSlot(TFunction<bool(T*)> SlotLamada) const
-{
-	if(GetSlotLayoutPanel())
-	{
-		for (const auto& TmpSlot : GetSlotLayoutPanel()->GetAllChildren())
-		{
-			if (T* InventorySlot = Cast<T>(TmpSlot))
-			{
-				if (!SlotLamada(InventorySlot)) //如果Lamada返回false，停止Call
-				{
-					break; 
-				}
-			}
-		}
-	}
-}

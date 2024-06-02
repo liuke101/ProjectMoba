@@ -23,11 +23,10 @@ protected:
 	virtual void NativeConstruct() override;
 
 	// 初始化Slot分布
-	virtual void InitSlotLayout() const override;
-
+	virtual void InitSlotLayout() override;
 
 public:
-	virtual UPanelWidget* GetSlotLayoutPanel() const override;
+	virtual UPanelWidget* GetSlotLayoutPanel() override;
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> InventorySlotArray;

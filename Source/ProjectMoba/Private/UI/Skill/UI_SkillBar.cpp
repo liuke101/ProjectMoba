@@ -16,7 +16,7 @@ void UUI_SkillBar::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UUI_SkillBar::InitSlotLayout() const
+void UUI_SkillBar::InitSlotLayout()
 {
 	// 防止重复初始化，因为该函数绑定在多播委托
 	if(SkillSlotArray->GetChildrenCount() > 0) return;
@@ -56,7 +56,7 @@ void UUI_SkillBar::InitSlotLayout() const
 	}
 }
 
-UPanelWidget* UUI_SkillBar::GetSlotLayoutPanel() const
+UPanelWidget* UUI_SkillBar::GetSlotLayoutPanel()
 {
 	return SkillSlotArray;
 }

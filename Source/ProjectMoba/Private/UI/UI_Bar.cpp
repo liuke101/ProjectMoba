@@ -15,15 +15,6 @@ void UUI_Bar::NativeConstruct()
 	GThread::GetCoroutines().BindUObject(0.5f, this, &UUI_Bar::BindSlotDelegate);
 }
 
-UPanelWidget* UUI_Bar::GetSlotLayoutPanel() const
-{
-	return nullptr;
-}
-
-void UUI_Bar::InitSlotLayout() const
-{
-}
-
 void UUI_Bar::BindSlotDelegate()
 {
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())

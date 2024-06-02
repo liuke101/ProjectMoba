@@ -14,7 +14,7 @@ void UUI_InventoryBar::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UUI_InventoryBar::InitSlotLayout() const
+void UUI_InventoryBar::InitSlotLayout() 
 {
 	// 防止重复初始化，因为该函数绑定在多播委托
 	if(InventorySlotArray->GetChildrenCount() > 0) return; 
@@ -53,7 +53,7 @@ void UUI_InventoryBar::InitSlotLayout() const
 	
 }
 
-UPanelWidget* UUI_InventoryBar::GetSlotLayoutPanel() const
+UPanelWidget* UUI_InventoryBar::GetSlotLayoutPanel()
 {
 	return InventorySlotArray;
 }

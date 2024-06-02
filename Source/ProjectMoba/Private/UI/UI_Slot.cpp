@@ -24,22 +24,26 @@ void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	//客户端更新CD
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		if(SlotData->CD > 0.0f)
+		//客户端更新CD
+		if(FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
 		{
-			SlotData->CD -= InDeltaTime;
-			DrawSlotCDMat(SlotData->CD / BuildSlot.MaxCD); //注意这里要除MaxCD
-			DrawSlotCDText(SlotData->CD);
-			
-			if(SlotData->CD <= 0.0f)
+			if(SlotData->CD > 0.0f)
 			{
-				DrawSlotCDMat(0.0f);
-				DrawSlotCDText(0.0f);
+				SlotData->CD -= InDeltaTime;
+				DrawSlotCDMat(SlotData->CD / BuildSlot.MaxCD); //注意这里要除MaxCD
+				DrawSlotCDText(SlotData->CD);
+			
+				if(SlotData->CD <= 0.0f)
+				{
+					DrawSlotCDMat(0.0f);
+					DrawSlotCDText(0.0f);
+				}
 			}
 		}
 	}
+	
 }
 
 void UUI_Slot::ResetSlot()
@@ -51,36 +55,45 @@ void UUI_Slot::ResetSlot()
 
 void UUI_Slot::UpdateSlot()
 {
-	if(const FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		if(SlotData->DataID != INDEX_NONE)
+		if(const FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
 		{
-			UpdateIcon(SlotData->SlotIcon);
-			DrawSlotCDMat(SlotData->CD);
-			DrawSlotCDText(SlotData->CD);
-		}
-		else if(SlotData->DataID == INDEX_NONE)
-		{
-			ResetSlot(); 
+			if(SlotData->DataID != INDEX_NONE)
+			{
+				UpdateIcon(SlotData->SlotIcon);
+				DrawSlotCDMat(SlotData->CD);
+				DrawSlotCDText(SlotData->CD);
+			}
+			else if(SlotData->DataID == INDEX_NONE)
+			{
+				ResetSlot(); 
+			}
 		}
 	}
 }
 
 void UUI_Slot::StartUpdateCD()
 {
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		BuildSlot.MaxCD = SlotData->CD;
+		if(const FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
+		{
+			BuildSlot.MaxCD = SlotData->CD;
+		}
 	}
 }
 
 void UUI_Slot::EndUpdateCD()
 {
-	if(FSlotData* SlotData = GetMobaPlayerState()->GetSlotData(GetSlotID()))
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		UpdateIcon(SlotData->SlotIcon);
-		DrawSlotCDMat(SlotData->CD);
-		DrawSlotCDText(SlotData->CD);
+		if(FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
+		{
+			UpdateIcon(SlotData->SlotIcon);
+			DrawSlotCDMat(SlotData->CD);
+			DrawSlotCDText(SlotData->CD);
+		}
 	}
 }
 
