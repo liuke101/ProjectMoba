@@ -1,12 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "UI/Info/UI_CharacterInfo_TopPanel.h"
+#include "UI/CharacterInfo/UI_CharacterInfo_TopPanel.h"
 
 #include "ThreadManage.h"
 #include "Components/UniformGridPanel.h"
 #include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
-#include "UI/Info/UI_CharacterInfo.h"
+#include "UI/CharacterInfo/UI_CharacterInfo.h"
 #include "UI/Inventory/UI_InventorySlot.h"
 
 void UUI_CharacterInfo_TopPanel::NativeConstruct()

@@ -2,6 +2,9 @@
 
 
 #include "UI/MobaUIBase.h"
+
+#include "Animation/WidgetAnimation.h"
+#include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Game/MobaPlayerState.h"
 #include "Game/MobaGameState.h"
 #include "UI/MobaHUD.h"
@@ -19,4 +22,16 @@ AMobaPlayerState* UMobaUIBase::GetMobaPlayerState() const
 AMobaGameState* UMobaUIBase::GetMobaGameState() const
 {
 	return GetWorld()->GetGameState<AMobaGameState>();
+}
+
+UWidgetAnimation* UMobaUIBase::GetNameWidgetAnimation(const FString& WidgetAnimationName) const
+{
+	if (UWidgetBlueprintGeneratedClass* WidgetBlueprintGenerated = Cast<UWidgetBlueprintGeneratedClass>(GetClass()))
+	{
+		TArray<UWidgetAnimation*> TArrayAnimations = WidgetBlueprintGenerated->Animations;
+		UWidgetAnimation** MyTempAnimation = TArrayAnimations.FindByPredicate([&](const UWidgetAnimation* OurAnimation) {return OurAnimation->GetFName().ToString() == (WidgetAnimationName + FString("_INST")); });
+		return *MyTempAnimation;
+	}
+
+	return nullptr;
 }

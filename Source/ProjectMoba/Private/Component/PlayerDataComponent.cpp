@@ -36,10 +36,6 @@ void UPlayerDataComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(UPlayerDataComponent, Gold, COND_OwnerOnly); //仅同步给拥有者
-	
-	// DOREPLIFETIME_CONDITION(UPlayerDataComponent, PlayerName, COND_InitialOnly);
-	// DOREPLIFETIME_CONDITION(UPlayerDataComponent, TeamType, COND_InitialOnly)
-	// DOREPLIFETIME_CONDITION(UPlayerDataComponent, PlayerID, COND_InitialOnly);
 }
 
 

@@ -23,4 +23,6 @@ public:
 	AMobaPlayerState* GetMobaPlayerState() const;
 
 	AMobaGameState* GetMobaGameState() const;
+
+	UWidgetAnimation* GetNameWidgetAnimation(const FString& WidgetAnimationName) const;
 };
