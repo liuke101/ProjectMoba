@@ -13,6 +13,9 @@ void UUI_CharacterInfo_TopPanel::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	//默认隐藏
+	SetVisibility(ESlateVisibility::Hidden);
+	
 	//绑定委托
 	GThread::GetCoroutines().BindLambda(0.3f, [&]()
 	{
@@ -31,12 +34,20 @@ void UUI_CharacterInfo_TopPanel::NativeConstruct()
 					InSlot->UpdateSlot();
 					return true;
 				});
+
+				SetVisibility(ESlateVisibility::HitTestInvisible);
 			});
 
-			// 绑定初始化Slot分布
+			// 绑定初始化Slot委托
 			MobaPlayerState->InitSlotDelegate.AddLambda([&](const TArray<int32>& InSlotIDs)
 			{
 				InitSlotLayout(InSlotIDs);  
+			});
+
+			// 绑定隐藏TopPanel委托
+			MobaPlayerState->HideTopPanelDelegate.BindLambda([&]()
+			{
+				SetVisibility(ESlateVisibility::Hidden);
 			});
 		}
 		
@@ -45,6 +56,8 @@ void UUI_CharacterInfo_TopPanel::NativeConstruct()
 		{
 			MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(CharacterInfo, &UUI_CharacterInfo::ResponseUpdateSlots);
 		}
+
+		
 	});
 }
 

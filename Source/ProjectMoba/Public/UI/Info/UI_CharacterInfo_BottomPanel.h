@@ -21,6 +21,8 @@ class PROJECTMOBA_API UUI_CharacterInfo_BottomPanel : public UUI_Panel
 public:
 	virtual void NativeConstruct() override;
 
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 	virtual void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType) override;
 
 	virtual void ResponseUpdateSlots(int64 InPlayerID) override;

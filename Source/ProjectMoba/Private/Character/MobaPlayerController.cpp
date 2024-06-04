@@ -149,7 +149,7 @@ void AMobaPlayerController::Server_GetClickTargetCharacterInfo_Implementation(co
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionQueryParams(SCENE_QUERY_STAT(ClickableTrace), false);
 
-		// 检测到角色就显示角色信息面板
+		// 检测到角色就显示角色信息TopPanel
 		if(GetWorld()->LineTraceSingleByChannel(HitResult, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, ECC_Character, CollisionQueryParams)) 
 		{
 			if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(HitResult.GetActor()))
@@ -163,9 +163,13 @@ void AMobaPlayerController::Server_GetClickTargetCharacterInfo_Implementation(co
 				}
 			}
 		}
-		else //如果没检测到就隐藏角色信息面板
+		//如果没检测到就隐藏角色信息TopPanel
+		else if(GetWorld()->LineTraceSingleByChannel(HitResult, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, ECC_Visibility, CollisionQueryParams))
 		{
-			
+			if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(PlayerState))
+			{
+				MobaPlayerState->Client_HideCharacterInfoTopPanel();
+			}
 		}
 	}
 }

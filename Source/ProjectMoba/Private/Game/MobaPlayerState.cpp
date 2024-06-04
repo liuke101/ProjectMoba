@@ -579,13 +579,6 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	}
 }
 
-void AMobaPlayerState::Client_UpdatePlayerID_Implementation(const int64 InPlayerID)
-{
-	if(!BindPlayerIDDelegate.ExecuteIfBound(InPlayerID))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerIDDelegate委托"));
-	}
-}
 
 void AMobaPlayerState::Client_ResponseUpdateCharacterAttribute_Implementation(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType, float Value)
 {
@@ -603,6 +596,23 @@ void AMobaPlayerState::Client_ResponseUpdateAllCharacterAttributes_Implementatio
 		MobaGameState->ResponseUpdateAllCharacterAttributes(InPlayerID, CharacterAttribute);
 	}
 }
+
+void AMobaPlayerState::Client_UpdatePlayerID_Implementation(const int64 InPlayerID)
+{
+	if(!BindPlayerIDDelegate.ExecuteIfBound(InPlayerID))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerIDDelegate委托"));
+	}
+}
+
+void AMobaPlayerState::Client_HideCharacterInfoTopPanel_Implementation()
+{
+	if(!HideTopPanelDelegate.ExecuteIfBound())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定HideTopPanelDelegate委托"));
+	}
+}
+
 
 void AMobaPlayerState::Server_Buy_Implementation(int32 DataID)
 {

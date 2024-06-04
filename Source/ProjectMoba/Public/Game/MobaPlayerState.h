@@ -38,6 +38,7 @@ public:
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
 	
 	FBindPlayerIDDelegate BindPlayerIDDelegate; //绑定PlayerID
+	FSimpleDelegate HideTopPanelDelegate; //隐藏角色信息TopPanel
 #pragma endregion
 
 #pragma region DataTable数据读取 
@@ -119,9 +120,6 @@ public:
 private:
 	void GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotDataNetPackage& OutNetPackage);
 
-	UFUNCTION(Client, Reliable)
-	void Client_UpdatePlayerID(const int64 InPlayerID);
-
 	//------------------Inventory-------------------//
 public:
 	// 交换和移动物品
@@ -169,6 +167,12 @@ public:
 	//更新整包
 	UFUNCTION(Client, Reliable)
 	void Client_ResponseUpdateAllCharacterAttributes(int64 InPlayerID, const FCharacterAttribute& CharacterAttribute);
+	
+	UFUNCTION(Client, Reliable)
+	void Client_UpdatePlayerID(const int64 InPlayerID);
+
+	UFUNCTION(Client, Reliable)
+	void Client_HideCharacterInfoTopPanel();
 #pragma endregion
 
 #pragma region 成员变量

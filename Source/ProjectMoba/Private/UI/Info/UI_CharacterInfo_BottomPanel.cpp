@@ -4,9 +4,11 @@
 #include "UI/Info/UI_CharacterInfo_BottomPanel.h"
 
 #include "ThreadManage.h"
+#include "Component/PlayerDataComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Game/MobaGameState.h"
+#include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MobaType.h"
 #include "UI/Info/UI_CharacterInfo.h"
 
@@ -23,6 +25,20 @@ void UUI_CharacterInfo_BottomPanel::NativeConstruct()
 			MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
 		}
 	});
+}
+
+void UUI_CharacterInfo_BottomPanel::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	{
+		if(MobaPlayerState->GetPlayerDataComponent())
+		{
+			// 更新金币
+			GolbText->SetText(FText::FromString(FString::FromInt(MobaPlayerState->GetPlayerDataComponent()->Gold)));
+		}
+	}
 }
 
 void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlot(int64 InPlayerID,

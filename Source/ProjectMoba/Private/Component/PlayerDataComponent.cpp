@@ -6,9 +6,11 @@
 UPlayerDataComponent::UPlayerDataComponent()
 	: PlayerName("DefaultName"),
 	TeamType(ETeamType::ETT_Neutral),
-	Gold(500)
+	Gold(900)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+	SetIsReplicatedByDefault(true);
 
 	PlayerID = FMath::RandRange(0, 100000); //暂时随机生成一个PlayerID，后面改成从DB服务器获取
 }
