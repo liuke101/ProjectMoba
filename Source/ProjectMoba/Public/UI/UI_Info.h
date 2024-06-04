@@ -17,7 +17,7 @@ class PROJECTMOBA_API UUI_Info : public UMobaUIBase
 
 public:
 	// 初始化Slot布局
-	virtual void InitSlotLayout();
+	virtual void InitSlotLayout(const TArray<int32>& SlotIDs);
 	
 	virtual UPanelWidget* GetSlotLayoutPanel();
 protected:

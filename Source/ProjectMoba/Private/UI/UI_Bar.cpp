@@ -20,9 +20,9 @@ void UUI_Bar::BindSlotDelegate()
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
 		// 绑定初始化Slot分布
-		MobaPlayerState->InitSlotDelegate.AddLambda([&]()
+		MobaPlayerState->InitSlotDelegate.AddLambda([&](const TArray<int32>& InSlotIDs)
 		{
-			InitSlotLayout();  
+			InitSlotLayout(InSlotIDs);  
 		});
 
 		// 绑定更新ID对应的Slot

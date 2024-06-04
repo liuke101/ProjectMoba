@@ -70,6 +70,10 @@ void UUI_Slot::UpdateSlot()
 				ResetSlot(); 
 			}
 		}
+		else
+		{
+			ResetSlot(); 
+		}
 	}
 }
 

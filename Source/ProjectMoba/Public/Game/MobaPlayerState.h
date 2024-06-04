@@ -32,7 +32,7 @@ protected:
 	
 public:
 #pragma region Delegate
-	FSimpleMulticastDelegate InitSlotDelegate;  //通知客户端
+	FSimpleOneKeysDelegate InitSlotDelegate;  //通知客户端
 	FSimpleOneKeyDelegate UpdateSlotDelegate; //更新Slot
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
@@ -170,7 +170,6 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_ResponseUpdateAllCharacterAttributes(int64 InPlayerID, const FCharacterAttribute& CharacterAttribute);
 #pragma endregion
-
 
 #pragma region 成员变量
 public:

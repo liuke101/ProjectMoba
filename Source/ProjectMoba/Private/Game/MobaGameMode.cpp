@@ -67,25 +67,18 @@ void AMobaGameMode::SpawnMinions()
 				}
 				
 				
-				UClass* DefaultCharacterClass = nullptr;
 				if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
 				{
-					DefaultCharacterClass = CharacterAsset->CharacterClass;
-				}
-				else
-				{
-					return;
-				}
-	 		
-				if(DefaultCharacterClass)
-				{
-					if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(DefaultCharacterClass, CharacterSpawnPoint->GetActorLocation(), CharacterSpawnPoint->GetActorRotation()))
+					if(CharacterAsset->CharacterClass)
 					{
-						PlayerID++; //保证每个实例的PlayerID不同
-				
-						if(PlayerID!= INDEX_NONE)
+						if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(CharacterAsset->CharacterClass, CharacterSpawnPoint->GetActorLocation(), CharacterSpawnPoint->GetActorRotation()))
 						{
-							MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, ETeamType::ETT_None, ECharacterType::ECT_None);
+							PlayerID++; //保证每个实例的PlayerID不同
+				
+							if(PlayerID!= INDEX_NONE)
+							{
+								MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, ETeamType::ETT_None, ECharacterType::ECT_None);
+							}
 						}
 					}
 				}

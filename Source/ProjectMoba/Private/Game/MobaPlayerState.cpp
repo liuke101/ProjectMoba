@@ -41,10 +41,6 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 				{
 					
 				}
-				// else
-				// {
-				// 	
-				// }
 
 				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
 				{
@@ -543,6 +539,18 @@ void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 	Client_UpdatePlayerID(InPlayerID);
 
 	//更新Inventory
+	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(), [&](AMobaPlayerState* MobaPlayerState)
+	{
+		if(MobaPlayerState->GetPlayerDataComponent()->PlayerID == InPlayerID)
+		{
+			FSlotDataNetPackage NetInventoryPackage;
+			MobaPlayerState->GetInventorySlotNetPackage(NetInventoryPackage); //获取整包
+			Client_InitInventorySlots(NetInventoryPackage); //发送整包到本机
+			
+			return MethodUnit::EServerCallType::ECT_ProgressComplete;
+		}
+		return MethodUnit::EServerCallType::ECT_InProgress;
+	});
 
 	//更新属性(通过发送整包）
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
@@ -579,8 +587,7 @@ void AMobaPlayerState::Client_UpdatePlayerID_Implementation(const int64 InPlayer
 	}
 }
 
-void AMobaPlayerState::Client_ResponseUpdateCharacterAttribute_Implementation(int64 InPlayerID,
-                                                                              const ECharacterAttributeType CharacterAttributeType, float Value)
+void AMobaPlayerState::Client_ResponseUpdateCharacterAttribute_Implementation(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType, float Value)
 {
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
@@ -714,17 +721,21 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 
 void AMobaPlayerState::Client_InitInventorySlots_Implementation(const FSlotDataNetPackage& SlotDataNetPackage)
 {
-	//清空旧数据
-	PlayerDataComponent->InventorySlots.Empty(); 
-
-	//读取网络包，加载到InventorySlots
+	//客户端缓存数据
 	for(int32 i = 0; i < SlotDataNetPackage.SlotIDs.Num(); i++)
 	{
-		PlayerDataComponent->InventorySlots.Add(SlotDataNetPackage.SlotIDs[i], SlotDataNetPackage.SlotDatas[i]);
+		if(PlayerDataComponent->InventorySlots.Contains(SlotDataNetPackage.SlotIDs[i]))
+		{
+			PlayerDataComponent->InventorySlots[SlotDataNetPackage.SlotIDs[i]] = SlotDataNetPackage.SlotDatas[i];
+		}
+		else
+		{
+			PlayerDataComponent->InventorySlots.Add(SlotDataNetPackage.SlotIDs[i], SlotDataNetPackage.SlotDatas[i]);
+		}
 	}
 
 	//多播委托
-	InitSlotDelegate.Broadcast();
+	InitSlotDelegate.Broadcast(SlotDataNetPackage.SlotIDs);
 }
 
 
@@ -740,7 +751,7 @@ void AMobaPlayerState::Client_InitSkillSlots_Implementation(const FSlotDataNetPa
 	}
 
 	//多播委托
-	InitSlotDelegate.Broadcast();
+	InitSlotDelegate.Broadcast(SlotDataNetPackage.SlotIDs);
 }
 
 void AMobaPlayerState::Client_UpdateSlot_Implementation(int32 SlotID, const FSlotData& NetSlotData)

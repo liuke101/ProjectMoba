@@ -62,6 +62,7 @@ void UUI_CharacterInfo::ResponseUpdateSlots(int64 InPlayerID)
 {
 	SetPlayerID(InPlayerID);
 
+	//根据PlayerID读取CharacterAttribute，更新UI
 	if(AMobaGameState* MobaGameState = GetMobaGameState())
 	{
 		if(const FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(InPlayerID))

@@ -3,7 +3,7 @@
 
 #include "UI/UI_Info.h"
 
-void UUI_Info::InitSlotLayout()
+void UUI_Info::InitSlotLayout(const TArray<int32>& SlotIDs)
 {
 }
 

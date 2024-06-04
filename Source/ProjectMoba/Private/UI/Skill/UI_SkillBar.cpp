@@ -16,18 +16,17 @@ void UUI_SkillBar::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UUI_SkillBar::InitSlotLayout()
+void UUI_SkillBar::InitSlotLayout(const TArray<int32>& SlotIDs)
 {
 	// 防止重复初始化，因为该函数绑定在多播委托
 	if(SkillSlotArray->GetChildrenCount() > 0) return;
 
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		//获取所有SkillSlotID
-		TArray<int32> SkillSlotIDs;
-		MobaPlayerState->GetAllSkillSlotIDs(SkillSlotIDs);
-
-		if(!SkillSlotIDs.IsEmpty())
+		TArray<int32> IDs;
+		MobaPlayerState->GetAllSkillSlotIDs(IDs);
+		
+		if(!IDs.IsEmpty())
 		{
 			if (SkillSlotClass)
 			{
@@ -44,7 +43,7 @@ void UUI_SkillBar::InitSlotLayout()
 								GridSlot->SetHorizontalAlignment(HAlign_Fill);
 								GridSlot->SetVerticalAlignment(VAlign_Fill);
 							}
-							SlotWidget->SetSlotID(SkillSlotIDs[y]); //设置SlotID
+							SlotWidget->SetSlotID(IDs[y]); //设置SlotID
 
 							//Update
 							SlotWidget->UpdateSlot();

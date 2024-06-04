@@ -14,7 +14,7 @@ void UUI_InventoryBar::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UUI_InventoryBar::InitSlotLayout() 
+void UUI_InventoryBar::InitSlotLayout(const TArray<int32>& SlotIDs) 
 {
 	// 防止重复初始化，因为该函数绑定在多播委托
 	if(InventorySlotArray->GetChildrenCount() > 0) return; 
@@ -23,9 +23,6 @@ void UUI_InventoryBar::InitSlotLayout()
 	{
 		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 		{
-			//获取所有Inventory SlotID
-			TArray<int32> InventorySlotIDs;
-			MobaPlayerState->GetAllInventorySlotIDs(InventorySlotIDs);
 			
 			for (int32 x = 0; x < Layout_Row; x++)
 			{
@@ -41,7 +38,7 @@ void UUI_InventoryBar::InitSlotLayout()
 							GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 						}
 						//设置SlotID
-						SlotWidget->SetSlotID(InventorySlotIDs[x * Layout_Col + y]);
+						SlotWidget->SetSlotID(SlotIDs[x * Layout_Col + y]);
 						
 						//更新Slot
 						SlotWidget->UpdateSlot();

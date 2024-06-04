@@ -18,7 +18,7 @@ class PROJECTMOBA_API UUI_SkillBar : public UUI_Bar
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void InitSlotLayout() override;
+	virtual void InitSlotLayout(const TArray<int32>& SlotIDs) override;
 
 public:
 	virtual UPanelWidget* GetSlotLayoutPanel() override;

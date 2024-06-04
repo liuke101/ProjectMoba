@@ -23,13 +23,13 @@ void AMobaGameState::BeginPlay()
 	if(GetWorld()->IsNetMode(NM_DedicatedServer))
 	{
 		// 延迟执行，等待客户端生成
-		GThread::GetCoroutines().BindLambda(2.0f,[&]()
+		GThread::GetCoroutines().BindLambda(4.0f,[&]()
 		{
 			//调用玩家的PlayerState，请求更新属性
 			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
 			{
 				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerDataComponent()->PlayerID,MobaPlayerState->GetPlayerDataComponent()->PlayerID, ECharacterAttributeType::ECAT_All);
-				return MethodUnit::EServerCallType::ECT_ProgressComplete;
+				return MethodUnit::EServerCallType::ECT_InProgress;
 			});
 		});
 	}

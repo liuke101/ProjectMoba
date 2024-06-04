@@ -23,7 +23,7 @@ protected:
 	virtual void NativeConstruct() override;
 
 	// 初始化Slot分布
-	virtual void InitSlotLayout() override;
+	virtual void InitSlotLayout(const TArray<int32>& SlotIDs) override;
 
 public:
 	virtual UPanelWidget* GetSlotLayoutPanel() override;

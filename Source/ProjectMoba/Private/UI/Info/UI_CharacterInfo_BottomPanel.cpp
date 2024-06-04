@@ -30,6 +30,7 @@ void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlot(int64 InPlayerID,
 {
 	if(InPlayerID != GetPlayerID()) return;
 
+	//根据PlayerID读取CharacterAttribute，更新UI
 	if(AMobaGameState* MobaGameState = GetMobaGameState())
 	{
 		if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(InPlayerID))
@@ -66,27 +67,32 @@ void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlot(int64 InPlayerID,
 
 void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots(int64 InPlayerID)
 {
-	//更新整包 是一个初始化过程
-	SetPlayerID(InPlayerID);
-	
-	if(AMobaGameState* MobaGameState = GetMobaGameState())
+	if(GetPlayerID() == INDEX_NONE)
 	{
-		//更新属性
-		if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(InPlayerID))
+		SetPlayerID(InPlayerID);
+	}
+	
+	if(InPlayerID == GetPlayerID())
+	{
+		//根据PlayerID读取CharacterAttribute，更新UI
+		if(AMobaGameState* MobaGameState = GetMobaGameState())
 		{
-			Level->SetText(FText::FromString(FString::FromInt(CharacterAttribute->Level)));
+			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(InPlayerID))
+			{
+				Level->SetText(FText::FromString(FString::FromInt(CharacterAttribute->Level)));
 			
-			HealthText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentHealth), static_cast<int32>(CharacterAttribute->MaxHealth))));
-			HealthBar->SetPercent(CharacterAttribute->GetHealthPercent());
+				HealthText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentHealth), static_cast<int32>(CharacterAttribute->MaxHealth))));
+				HealthBar->SetPercent(CharacterAttribute->GetHealthPercent());
 		
-			ManaText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentMana), static_cast<int32>(CharacterAttribute->MaxMana))));
-			ManaBar->SetPercent(CharacterAttribute->GetManaPercent());
+				ManaText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentMana), static_cast<int32>(CharacterAttribute->MaxMana))));
+				ManaBar->SetPercent(CharacterAttribute->GetManaPercent());
 			
-			ExpText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentExp), static_cast<int32>(CharacterAttribute->MaxExp))));
-			ExpBar->SetPercent(CharacterAttribute->GetExpPercent());
+				ExpText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentExp), static_cast<int32>(CharacterAttribute->MaxExp))));
+				ExpBar->SetPercent(CharacterAttribute->GetExpPercent());
 
-			//初始化CharacterInfo
-			CharacterInfo->ResponseUpdateSlots(InPlayerID);
+				//初始化CharacterInfo
+				CharacterInfo->ResponseUpdateSlots(InPlayerID);
+			}
 		}
 	}
 }
