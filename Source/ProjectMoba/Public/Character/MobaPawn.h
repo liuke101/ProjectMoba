@@ -41,10 +41,10 @@ public:
 	FORCEINLINE AMobaHeroCharacter* GetControlledMobaHero() const { return ControlledMobaHero; }
 	
 	UFUNCTION(Server, Reliable)
-	void CharacterMoveToOnServer(const FVector& Destination);
+	void Server_CharacterMoveTo(const FVector& Destination);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void CharacterMoveToTargetWithAttackOnServer(const FVector& Destination, const APawn* TargetPawn);
+	void Server_CharacterMoveToTargetWithAttack(const FVector& Destination, const APawn* TargetPawn);
 
 	void SkillAttack(int32 SkillDataID) const;
 	

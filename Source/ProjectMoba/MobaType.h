@@ -80,7 +80,7 @@ enum class ESkillType : uint8
 UENUM(Blueprintable)
 enum class ECharacterAttributeType : uint8
 {
-	ECAT_None UMETA(DisplayName="None"), //代表更新所有数据（整包）
+	ECAT_All UMETA(DisplayName="None"), //代表更新所有数据（整包）
 	ECAT_Level UMETA(DisplayName="Level"), 
 	ECAT_MaxHealth UMETA(DisplayName = "MaxHealth"),
 	ECAT_CurrentHealth UMETA(DisplayName = "CurrentHealth"),

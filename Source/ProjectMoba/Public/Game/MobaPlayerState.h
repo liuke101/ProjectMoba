@@ -17,6 +17,7 @@ class UPlayerDataComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
+DECLARE_DELEGATE_OneParam(FBindPlayerIDDelegate, int64);
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -35,6 +36,8 @@ public:
 	FSimpleOneKeyDelegate UpdateSlotDelegate; //更新Slot
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
+	
+	FBindPlayerIDDelegate BindPlayerIDDelegate; //绑定PlayerID
 #pragma endregion
 
 #pragma region DataTable数据读取 
@@ -103,6 +106,10 @@ public:
 	void GetAllSkillSlotIDs(TArray<int32>& OutSlotIDs) const;
 	int32 GetSkillDataIDFromSlotID(int32 SlotID) const;
 #pragma endregion
+
+#pragma region 角色属性信息
+	void UpdateCharacterInfo(const int64& InPlayerID);
+#pragma endregion
 	
 #pragma region RPC
 	//------------------数据-------------------
@@ -111,6 +118,9 @@ public:
 	void GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage);
 private:
 	void GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotDataNetPackage& OutNetPackage);
+
+	UFUNCTION(Client, Reliable)
+	void Client_UpdatePlayerID(const int64 InPlayerID);
 
 	//------------------Inventory-------------------//
 public:
@@ -158,7 +168,7 @@ public:
 
 	//更新整包
 	UFUNCTION(Client, Reliable)
-	void Client_ResponseUpdateAllCharacterAttributes(int64 InPlayerID, const FCharacterAttribute& CharacterAttribute); 
+	void Client_ResponseUpdateAllCharacterAttributes(int64 InPlayerID, const FCharacterAttribute& CharacterAttribute);
 #pragma endregion
 
 

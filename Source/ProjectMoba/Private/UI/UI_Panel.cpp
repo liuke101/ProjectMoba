@@ -31,7 +31,7 @@ void UUI_Panel::RequestUpdateSlot(const ECharacterAttributeType CharacterAttribu
 	//客户端通过操作UI请求更新->服务器执行更新并广播委托->UI监听委托并更新UI
 	if(AMobaGameState* MobaGameState = GetMobaGameState())
 	{
-		MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, CharacterAttributeType);
+		MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID, CharacterAttributeType);
 	}
 }
 

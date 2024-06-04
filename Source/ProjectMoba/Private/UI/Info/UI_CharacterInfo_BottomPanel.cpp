@@ -20,7 +20,7 @@ void UUI_CharacterInfo_BottomPanel::NativeConstruct()
 	{
 		if(AMobaGameState* MobaGameState = GetMobaGameState())
 		{
-			MobaGameState->OnUpdateAllAttributesDelegate.BindUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
+			MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
 		}
 	});
 }
@@ -67,7 +67,6 @@ void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlot(int64 InPlayerID,
 void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots(int64 InPlayerID)
 {
 	//更新整包 是一个初始化过程
-	
 	SetPlayerID(InPlayerID);
 	
 	if(AMobaGameState* MobaGameState = GetMobaGameState())

@@ -21,9 +21,7 @@ AMobaGameMode::AMobaGameMode()
 void AMobaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	
 }
-
 
 void AMobaGameMode::BeginPlay()
 {
@@ -38,7 +36,6 @@ void AMobaGameMode::BeginPlay()
 
 void AMobaGameMode::SpawnMinions()
 {
-
 	//在服务器上生成小兵
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{

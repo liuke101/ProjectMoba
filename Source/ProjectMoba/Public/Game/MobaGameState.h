@@ -12,7 +12,7 @@ struct FPlayerLocation;
 class UDataTable;
 struct FCharacterAsset;
 
-DECLARE_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpdateAttributeDelegate, int64/*PlayerID*/, const ECharacterAttributeType);
 
 UCLASS()
@@ -62,7 +62,7 @@ public:
 public:
 	/** 请求更新属性 */
 	UFUNCTION(Server, Reliable)
-	void Server_RequestUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType);
+	void Server_RequestUpdateCharacterAttribute(int64 PlayerID, int64 UpdatedPlayerID, const ECharacterAttributeType CharacterAttributeType);
 
 	/** 响应更新属性 */
 	//GameState不能执行ClentRPC，我们通过在PlayerState中执行ClientRPC来调用下列接口

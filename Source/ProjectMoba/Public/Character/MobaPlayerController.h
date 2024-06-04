@@ -75,19 +75,30 @@ protected:
 	void MoveToMouseCursor();
 
 	/** Input Action 回调函数 */
+	void OnLeftClickPressed();
+	void OnLeftClickReleased();
 	void OnRightClickPressed();
 	void OnRightClickReleased();
 
-	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void VerifyMouseWorldPositionClickOnServer(const FVector& WorldOrigin, const FVector& WorldDirection);
-
 	void SpawnNavigateClickFX() const;
+
+	/** 获取鼠标点击位置的世界坐标 */
+	bool GetClientWorldPosFromScreenPos(FVector& WorldOrigin, FVector& WorldDirection) const;
+
+	/** RPC */
+	UFUNCTION(Server, Reliable)
+	void Server_VerifyMouseWorldPositionClick(const FVector& WorldOrigin, const FVector& WorldDirection);
+
+	UFUNCTION(Server, Reliable)
+	void Server_GetClickTargetCharacterInfo(const FVector& WorldOrigin, const FVector& WorldDirection);
+	
 private:
 	/** 点击粒子特效 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|FX", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UNiagaraSystem> FXCursor = nullptr;
 	
 };
+
+
 
 

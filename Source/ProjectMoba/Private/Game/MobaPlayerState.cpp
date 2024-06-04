@@ -537,6 +537,21 @@ int32 AMobaPlayerState::GetSkillDataIDFromSlotID(int32 SlotID) const
 	return INDEX_NONE;
 }
 
+void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
+{
+	//更新ID
+	Client_UpdatePlayerID(InPlayerID);
+
+	//更新Inventory
+
+	//更新属性(通过发送整包）
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerDataComponent->PlayerID, InPlayerID, ECharacterAttributeType::ECAT_All);
+	}
+	
+}
+
 void AMobaPlayerState::GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage)
 {
 	GetSlotNetPackage(GetInventorySlots(), OutNetPackage);
@@ -556,8 +571,16 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	}
 }
 
+void AMobaPlayerState::Client_UpdatePlayerID_Implementation(const int64 InPlayerID)
+{
+	if(!BindPlayerIDDelegate.ExecuteIfBound(InPlayerID))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerIDDelegate委托"));
+	}
+}
+
 void AMobaPlayerState::Client_ResponseUpdateCharacterAttribute_Implementation(int64 InPlayerID,
-	const ECharacterAttributeType CharacterAttributeType, float Value)
+                                                                              const ECharacterAttributeType CharacterAttributeType, float Value)
 {
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{

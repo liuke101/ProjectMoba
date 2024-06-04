@@ -156,11 +156,24 @@ void AMobaCharacter::MultiCastReborn_Implementation()
 {
 	if(GetLocalRole() == ROLE_Authority)
 	{
+		
 		if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 		{
+			//重置属性
 			CharacterAttribute->ResetAttribute();
+			
+			//更新血条蓝条
 			MultiCastStatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+			
+			//更新属性面板
+			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+			{
+				MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);
+				MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentMana);
+			}
 		}
+
+		
 	}
 	StopAnimMontage(); //停止死亡动画
 }
@@ -240,25 +253,41 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		GetCharacterAttribute()->CurrentHealth += DamageAmount;
-		MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent());
-		
-		//攻击角色
-		if(IsDead())
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 		{
-			//随机播放死亡动画广播到客户端
-			if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+			GetCharacterAttribute()->CurrentHealth += DamageAmount;
+
+			//限制血量
+			if(GetCharacterAttribute()->CurrentHealth > GetCharacterAttribute()->MaxHealth)
 			{
-				MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+				GetCharacterAttribute()->CurrentHealth = GetCharacterAttribute()->MaxHealth;
+			}
+			else if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
+			{
+				GetCharacterAttribute()->CurrentHealth = 0.0f;
 			}
 			
-			//5s后复活
-			GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
+			//更新UI
+			MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent()); //血条
+			MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 			
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+			//攻击角色
+			if(IsDead())
+			{
+				//随机播放死亡动画广播到客户端
+				if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+				{
+					MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+				}
+			
+				//5s后复活
+				GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
+			
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+			}
 		}
 	}
 	return 0;

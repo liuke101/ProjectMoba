@@ -142,14 +142,14 @@ UPlayerDataComponent* AMobaPawn::GetPlayerDataComponent() const
 	return nullptr;
 }
 
-bool AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Validate(const FVector& Destination, const APawn* TargetPawn)
+bool AMobaPawn::Server_CharacterMoveToTargetWithAttack_Validate(const FVector& Destination, const APawn* TargetPawn)
 {
 	// 如果目标角色不为空，且目标角色不是自己则通过验证
 	//return TargetPawn != nullptr && TargetPawn != MobaCharacter;
 	return true;
 }
 
-void AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Implementation(const FVector& Destination,
+void AMobaPawn::Server_CharacterMoveToTargetWithAttack_Implementation(const FVector& Destination,
                                                                        const APawn* TargetPawn)
 {
 	if(ControlledMobaHero)
@@ -161,7 +161,7 @@ void AMobaPawn::CharacterMoveToTargetWithAttackOnServer_Implementation(const FVe
 	}
 }
 
-void AMobaPawn::CharacterMoveToOnServer_Implementation(const FVector& Destination)
+void AMobaPawn::Server_CharacterMoveTo_Implementation(const FVector& Destination)
 {
 	if(ControlledMobaHero)
 	{

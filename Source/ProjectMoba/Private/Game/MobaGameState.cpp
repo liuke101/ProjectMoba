@@ -28,7 +28,7 @@ void AMobaGameState::BeginPlay()
 			//调用玩家的PlayerState，请求更新属性
 			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
 			{
-				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerDataComponent()->PlayerID, ECharacterAttributeType::ECAT_None);
+				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerDataComponent()->PlayerID,MobaPlayerState->GetPlayerDataComponent()->PlayerID, ECharacterAttributeType::ECAT_All);
 				return MethodUnit::EServerCallType::ECT_ProgressComplete;
 			});
 		});
@@ -174,14 +174,14 @@ int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 PlayerID)
 	return INDEX_NONE;
 }
 
-void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType)
+void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64 PlayerID, int64 UpdatedPlayerID, const ECharacterAttributeType CharacterAttributeType)
 {
-	if(PlayerID == INDEX_NONE) return;
+	if(PlayerID == INDEX_NONE || UpdatedPlayerID == INDEX_NONE) return;
 
-	if(CharacterAttributes.Contains(PlayerID))
+	if(CharacterAttributes.Contains(UpdatedPlayerID))
 	{
-		//获取角色属性
-		const FCharacterAttribute& CharacterAttribute = CharacterAttributes[PlayerID];
+		//获取待更新角色属性
+		const FCharacterAttribute& CharacterAttribute = CharacterAttributes[UpdatedPlayerID];
 
 		//调用玩家的PlayerState，更新属性
 		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
@@ -191,57 +191,57 @@ void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64
 				//响应更新属性
 				switch (CharacterAttributeType)
 				{
-				case ECharacterAttributeType::ECAT_None:
-					//ECAT_NONE代表更新整包
-					MobaPlayerState->Client_ResponseUpdateAllCharacterAttributes(PlayerID, CharacterAttribute);
+				case ECharacterAttributeType::ECAT_All:
+					//ECAT_All代表更新整包
+					MobaPlayerState->Client_ResponseUpdateAllCharacterAttributes(UpdatedPlayerID, CharacterAttribute);
 					break;
 				case ECharacterAttributeType::ECAT_Level:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.Level);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.Level);
 					break;
 				case ECharacterAttributeType::ECAT_MaxHealth:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxHealth);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.MaxHealth);
 					break;
 				case ECharacterAttributeType::ECAT_CurrentHealth:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentHealth);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.CurrentHealth);
 					break;
 				case ECharacterAttributeType::ECAT_MaxMana:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxMana);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.MaxMana);
 					break;
 				case ECharacterAttributeType::ECAT_CurrentMana:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentMana);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.CurrentMana);
 					break;
 				case ECharacterAttributeType::ECAT_PhysicalAttack:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.PhysicalAttack);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.PhysicalAttack);
 					break;
 				case ECharacterAttributeType::ECAT_Armor:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.Armor);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.Armor);
 					break;
 				case ECharacterAttributeType::ECAT_PhysicalPenetration:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.PhysicalPenetration);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.PhysicalPenetration);
 					break;
 				case ECharacterAttributeType::ECAT_MagicAttack:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MagicAttack);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.MagicAttack);
 					break;
 				case ECharacterAttributeType::ECAT_MagicResistance:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MagicResistance);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.MagicResistance);
 					break;
 				case ECharacterAttributeType::ECAT_MagicPenetration:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MagicPenetration);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.MagicPenetration);
 					break;
 				case ECharacterAttributeType::ECAT_WalkSpeed:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.WalkSpeed);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.WalkSpeed);
 					break;
 				case ECharacterAttributeType::ECAT_AttackSpeed:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.AttackSpeed);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.AttackSpeed);
 					break;
 				case ECharacterAttributeType::ECAT_MaxEXP:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.MaxExp);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.MaxExp);
 					break;
 				case ECharacterAttributeType::ECAT_CurrentEXP:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CurrentExp);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.CurrentExp);
 					break;
 				case ECharacterAttributeType::ECAT_CriticalRate:
-					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(PlayerID, CharacterAttributeType, CharacterAttribute.CriticalRate);
+					MobaPlayerState->Client_ResponseUpdateCharacterAttribute(UpdatedPlayerID, CharacterAttributeType, CharacterAttribute.CriticalRate);
 					break;
 				}
 				
@@ -339,8 +339,5 @@ void AMobaGameState::ResponseUpdateAllCharacterAttributes(int64 PlayerID,
 	}
 
 	// 广播委托，更新UI
-	if(!OnUpdateAllAttributesDelegate.ExecuteIfBound(PlayerID))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("OnUpdateAllAttributesDelegate未绑定"));
-	}
+	OnUpdateAllAttributesDelegate.Broadcast(PlayerID);
 }
