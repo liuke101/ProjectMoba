@@ -38,3 +38,7 @@ void UUI_Panel::RequestUpdateSlot(const ECharacterAttributeType CharacterAttribu
 void UUI_Panel::ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType)
 {
 }
+
+void UUI_Panel::ResponseUpdateSlots(int64 InPlayerID)
+{
+}

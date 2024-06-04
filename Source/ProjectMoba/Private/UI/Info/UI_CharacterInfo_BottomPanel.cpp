@@ -3,15 +3,26 @@
 
 #include "UI/Info/UI_CharacterInfo_BottomPanel.h"
 
+#include "ThreadManage.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Game/MobaGameState.h"
 #include "ProjectMoba/MobaType.h"
+#include "UI/Info/UI_CharacterInfo.h"
 
 
 void UUI_CharacterInfo_BottomPanel::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	//绑定 属性更新委托
+	GThread::GetCoroutines().BindLambda(0.3f, [&]()
+	{
+		if(AMobaGameState* MobaGameState = GetMobaGameState())
+		{
+			MobaGameState->OnUpdateAllAttributesDelegate.BindUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
+		}
+	});
 }
 
 void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlot(int64 InPlayerID,
@@ -48,6 +59,35 @@ void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlot(int64 InPlayerID,
 			default:
 				break;
 			}
+		}
+	}
+}
+
+
+void UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots(int64 InPlayerID)
+{
+	//更新整包 是一个初始化过程
+	
+	SetPlayerID(InPlayerID);
+	
+	if(AMobaGameState* MobaGameState = GetMobaGameState())
+	{
+		//更新属性
+		if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(InPlayerID))
+		{
+			Level->SetText(FText::FromString(FString::FromInt(CharacterAttribute->Level)));
+			
+			HealthText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentHealth), static_cast<int32>(CharacterAttribute->MaxHealth))));
+			HealthBar->SetPercent(CharacterAttribute->GetHealthPercent());
+		
+			ManaText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentMana), static_cast<int32>(CharacterAttribute->MaxMana))));
+			ManaBar->SetPercent(CharacterAttribute->GetManaPercent());
+			
+			ExpText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"),static_cast<int32>(CharacterAttribute->CurrentExp), static_cast<int32>(CharacterAttribute->MaxExp))));
+			ExpBar->SetPercent(CharacterAttribute->GetExpPercent());
+
+			//初始化CharacterInfo
+			CharacterInfo->ResponseUpdateSlots(InPlayerID);
 		}
 	}
 }

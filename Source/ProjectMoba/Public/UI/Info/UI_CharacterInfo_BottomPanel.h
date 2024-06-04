@@ -20,11 +20,10 @@ class PROJECTMOBA_API UUI_CharacterInfo_BottomPanel : public UUI_Panel
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
-	
-protected:
-	/** 响应更新属性 */
+
 	virtual void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType) override;
-	
+
+	virtual void ResponseUpdateSlots(int64 InPlayerID) override;
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUI_CharacterInfo> CharacterInfo; // 角色信息

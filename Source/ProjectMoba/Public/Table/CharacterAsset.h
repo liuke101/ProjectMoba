@@ -38,6 +38,9 @@ struct FCharacterAsset : public FMobaTableBase
 	TSubclassOf<APawn> CharacterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
+	TObjectPtr<UTexture2D> CharacterIcon; 
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
 	ECharacterType CharacterType = ECharacterType::ECT_None; //角色类型
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attack Montage")

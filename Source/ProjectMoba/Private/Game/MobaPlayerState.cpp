@@ -7,6 +7,7 @@
 #include "Character/Tool/CharacterSpawnPoint.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
+#include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProjectMoba/MiscData.h"
 #include "Table/CharacterAsset.h"
@@ -552,6 +553,24 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	{
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
+}
+
+void AMobaPlayerState::Client_ResponseUpdateCharacterAttribute_Implementation(int64 InPlayerID,
+	const ECharacterAttributeType CharacterAttributeType, float Value)
+{
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		MobaGameState->ResponseUpdateCharacterAttribute(InPlayerID, CharacterAttributeType, Value);
+	}
+}
+
+void AMobaPlayerState::Client_ResponseUpdateAllCharacterAttributes_Implementation(int64 InPlayerID,
+	const FCharacterAttribute& CharacterAttribute)
+{
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		MobaGameState->ResponseUpdateAllCharacterAttributes(InPlayerID, CharacterAttribute);
 	}
 }
 

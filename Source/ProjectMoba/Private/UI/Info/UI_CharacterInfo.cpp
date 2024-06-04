@@ -3,10 +3,11 @@
 
 #include "UI/Info/UI_CharacterInfo.h"
 
-#include "ThreadManage.h"
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Game/MobaGameState.h"
 #include "ProjectMoba/MobaType.h"
+#include "Table/CharacterAsset.h"
 
 void UUI_CharacterInfo::NativeConstruct()
 {
@@ -55,5 +56,33 @@ void UUI_CharacterInfo::ResponseUpdateSlot(int64 InPlayerID, const ECharacterAtt
 		}
 	}
 	
+}
+
+void UUI_CharacterInfo::ResponseUpdateSlots(int64 InPlayerID)
+{
+	SetPlayerID(InPlayerID);
+
+	if(AMobaGameState* MobaGameState = GetMobaGameState())
+	{
+		if(const FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(InPlayerID))
+		{
+			//更新属性
+			PhysicalAttack->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->PhysicalAttack))));
+			Armor->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->Armor))));
+			PhysicalPenetration->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->PhysicalPenetration))));
+			AttackSpeed->SetText(FText::FromString(FString::SanitizeFloat(CharacterAttribute->AttackSpeed, 1)));
+			CriticalRate->SetText(FText::FromString(FString::SanitizeFloat(CharacterAttribute->CriticalRate, 1)));
+			MagicAttack->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->MagicAttack))));
+			MagicResistance->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->MagicResistance))));
+			MagicPenetration->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->MagicPenetration))));
+			WalkSpeed->SetText(FText::FromString(FString::FromInt(static_cast<int32>(CharacterAttribute->WalkSpeed))));
+
+			//更新头像
+			if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromPlayerID(InPlayerID))
+			{
+				CharacterIcon->SetBrushFromTexture(CharacterAsset->CharacterIcon);
+			}
+		}
+	}
 }
 

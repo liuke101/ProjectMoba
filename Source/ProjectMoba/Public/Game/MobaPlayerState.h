@@ -5,6 +5,8 @@
 #include "ProjectMoba/MiscData.h"
 #include "MobaPlayerState.generated.h"
 
+enum class ECharacterAttributeType : uint8;
+struct FCharacterAttribute;
 struct FSlotDataNetPackage;
 struct FSlotData;
 struct FSlotAttribute;
@@ -148,6 +150,15 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_EndUpdateCD(int32 SlotID, const FSlotData& NetSlotData);
+
+	//------------------响应属性更新-------------------//
+	//更新协议相应的属性
+	UFUNCTION(Client, Reliable)
+	void Client_ResponseUpdateCharacterAttribute(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
+
+	//更新整包
+	UFUNCTION(Client, Reliable)
+	void Client_ResponseUpdateAllCharacterAttributes(int64 InPlayerID, const FCharacterAttribute& CharacterAttribute); 
 #pragma endregion
 
 

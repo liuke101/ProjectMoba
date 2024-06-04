@@ -20,10 +20,9 @@ public:
 	
 	virtual void NativeConstruct() override;
 
-
-protected:
-	/** 响应更新属性 */
 	virtual void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType) override;
+
+	virtual void ResponseUpdateSlots(int64 InPlayerID) override;
 
 private:
 	UPROPERTY(meta = (BindWidget))

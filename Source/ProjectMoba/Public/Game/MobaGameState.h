@@ -12,7 +12,7 @@ struct FPlayerLocation;
 class UDataTable;
 struct FCharacterAsset;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
+DECLARE_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpdateAttributeDelegate, int64/*PlayerID*/, const ECharacterAttributeType);
 
 UCLASS()
@@ -26,8 +26,11 @@ public:
 	AMobaGameState();
 
 protected:
+	virtual void BeginPlay() override;
+	
 	/** 复制 */
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	
 public:
 	/** 从DataTable中读数据 */
@@ -61,15 +64,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_RequestUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType);
 
-protected:
 	/** 响应更新属性 */
+	//GameState不能执行ClentRPC，我们通过在PlayerState中执行ClientRPC来调用下列接口
 	//更新协议相应的属性
-	UFUNCTION(Server, Reliable)
-	void Server_ResponseUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
-
+	void ResponseUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
 	//更新整包
-	UFUNCTION(Server, Reliable)
-	void Server_ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute); 
+	void ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute); 
 	
 #pragma endregion
 	

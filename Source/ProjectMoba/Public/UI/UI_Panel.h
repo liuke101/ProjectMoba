@@ -24,11 +24,13 @@ public:
 	
 	/** 请求更新属性 */
 	virtual void RequestUpdateSlot(const ECharacterAttributeType CharacterAttributeType);
-protected:
-	/** 响应更新属性 */
+	
+	/** 响应协议更新 */
 	UFUNCTION()
 	virtual void ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType);
-	
-	
+
+	/** 响应整包更新 */
+	UFUNCTION()
+	virtual void ResponseUpdateSlots(int64 InPlayerID);
 	int64 PlayerID;
 };
