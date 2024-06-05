@@ -21,6 +21,12 @@ AMobaGameMode::AMobaGameMode()
 void AMobaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	// 运行击杀系统
+	if(AMobaGameState* MobaGameState = GetGameState<AMobaGameState>())
+	{
+		MobaGameState->KillSystem.Tick(DeltaSeconds);
+	}
 }
 
 void AMobaGameMode::BeginPlay()
@@ -30,11 +36,11 @@ void AMobaGameMode::BeginPlay()
 	/** GameMode仅存在于服务器, 不需要进行LocalRole判断 */
 
 	// 延迟在服务器上生成小兵
-	GThread::GetCoroutines().BindUObject(2.0f, this, &AMobaGameMode::SpawnMinions);
+	GThread::GetCoroutines().BindUObject(2.0f, this, &AMobaGameMode::SpawnMinionsOnServer);
 }
 
 
-void AMobaGameMode::SpawnMinions()
+void AMobaGameMode::SpawnMinionsOnServer()
 {
 	//在服务器上生成小兵
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
@@ -88,4 +94,29 @@ void AMobaGameMode::SpawnMinions()
 		
 		
 	}
+}
+
+void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if(AMobaGameState * MobaGameState = GetGameState<AMobaGameState>())
+	{
+		if(AMobaPlayerState* MobaPlayerState = NewPlayer->GetPlayerState<AMobaPlayerState>())
+		{
+			if(UPlayerDataComponent* PlayerDataComponent = MobaPlayerState->GetPlayerDataComponent())
+			{
+				
+				//TODO:拉取db服务器数据
+				//赋值playerID
+
+				//TODO:断线重连
+
+				
+				MobaGameState->KillSystem.AddKiller(PlayerDataComponent->PlayerID);
+			
+			}
+		}
+	}
+	
 }

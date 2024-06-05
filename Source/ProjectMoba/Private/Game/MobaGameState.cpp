@@ -26,11 +26,14 @@ void AMobaGameState::BeginPlay()
 		GThread::GetCoroutines().BindLambda(4.0f,[&]()
 		{
 			//调用玩家的PlayerState，请求更新属性
-			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
+			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
 			{
 				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
 				return MethodUnit::EServerCallType::ECT_InProgress;
 			});
+
+			//绑定击杀系统函数
+			BindKillFuntion();
 		});
 	}
 }
@@ -344,31 +347,46 @@ void AMobaGameState::ResponseUpdateAllCharacterAttributes(int64 PlayerID,
 
 void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 {
-	if(IsPlayer(KillerPlayerID) )
+	if(KillerPlayerID == KilledPlayerID) return;
+
+	const AMobaPlayerState* KillerPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KillerPlayerID);
+	const AMobaPlayerState* KilledPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KilledPlayerID);
+	
+	/** 1 击杀者是玩家, 被击杀者是玩家 */
+	if(KillerPlayerState && KilledPlayerState)
 	{
-		//1 击杀者是玩家, 被击杀者是玩家
-		if(IsPlayer(KilledPlayerID))
-		{
-			
-		}
-		else //2 击杀者是玩家, 被击杀者是AI
-		{
-			
-		}
+		//调用击杀系统
+		KillSystem.Kill(KillerPlayerID, KilledPlayerID);
 		
+		//记录玩家击杀数
+		KillerPlayerState->GetPlayerDataComponent()->KillNum++;
+		KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
+		//TODO:记录团队击杀数
+		
+		//助攻玩家记录助攻数，并获得奖励
+		for(const auto& Assit : KilledPlayerState->GetAssistPlayers())
+		{
+			if(AMobaPlayerState* AssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
+			{
+				AssitPlayerState->GetPlayerDataComponent()->AssistNum++;
+			}
+		}
+	}
+	/** 2 击杀者是玩家, 被击杀者是AI */
+	else if(KillerPlayerState && !KilledPlayerState)
+	{
+		//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
+		if()
+		//如果不是，记录补兵数
+	}
+	/** 3 击杀者是AI, 被击杀者是玩家 */
+	else if(!KillerPlayerState && KilledPlayerState)
+	{
 		
 	}
-	else
+	/** 4 击杀者是AI, 被击杀者是AI */
+	else if(!KillerPlayerState && !KilledPlayerState)
 	{
-		//3 击杀者是AI, 被击杀者是玩家
-		if(IsPlayer(KilledPlayerID))
-		{
-			
-		}
-		else //4 击杀者是AI, 被击杀者是AI
-		{
-			
-		}
 		
 	}
 }
@@ -376,4 +394,126 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 bool AMobaGameState::IsPlayer(int64 PlayerID) const
 {
 	return MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID) != nullptr;
+}
+
+void AMobaGameState::Death(int64 PlayerID)
+{
+	KillSystem.Death(PlayerID);
+}
+
+void AMobaGameState::BindKillFuntion()
+{
+	KillSystem.KillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+	
+	KillSystem.FirstBloodFuntion = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.DoubleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.TripleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.QuadraKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.PentaKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.DaShaTeShaFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.SuoXiangPiMiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.HunShenShiDanFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.YongGuanSanJunFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.YiJiDangQianFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.WanFuMoDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.JuShiWuShuangFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	KillSystem.TianXiaWuDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+		{
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	};
+
+	
 }

@@ -22,5 +22,5 @@ private:
 
 	//补兵
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> NumberOfSoldiersKilled;
+	TObjectPtr<UTextBlock> MinionKillNumber;
 };

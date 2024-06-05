@@ -4,9 +4,13 @@
 
 
 UPlayerDataComponent::UPlayerDataComponent()
-	: PlayerName("DefaultName"),
-	TeamType(ETeamType::ETT_Neutral),
-	Gold(900)
+	: PlayerName("DefaultName")
+	, TeamType(ETeamType::ETT_Neutral)
+	, Gold(900)
+	, KillNum(0)
+	, DeathNum(0)
+	, AssistNum(0)
+	, MinionKillNum(0)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;

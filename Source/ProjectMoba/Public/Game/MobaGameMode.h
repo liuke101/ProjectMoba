@@ -25,7 +25,10 @@ protected:
 	virtual void BeginPlay() override;
 
 protected:
-	void SpawnMinions();
+	void SpawnMinionsOnServer();
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
 };
 
 

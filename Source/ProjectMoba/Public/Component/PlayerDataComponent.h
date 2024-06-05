@@ -42,6 +42,18 @@ public:
 
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	int32 Gold;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int32 KillNum; //击杀数
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int32 DeathNum; //死亡数
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int32 AssistNum; //助攻数
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int32 MinionKillNum; //补兵数
 	
 	// 服务端物品栏x6
 	// 通过RPC状态同步到客户端,TMap不支持RPC，我们使用TArray来将其拆分, 为此我们创建了一个结构体FSlotDataNetPackage

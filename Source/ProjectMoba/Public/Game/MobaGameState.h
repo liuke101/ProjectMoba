@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "ProjectMoba/MobaType.h"
+#include "System/MobaKillSystem.h"
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+struct FMobaKillSystem;
 struct FPlayerLocation;
 class UDataTable;
 struct FCharacterAsset;
@@ -19,6 +21,9 @@ UCLASS()
 class PROJECTMOBA_API AMobaGameState : public AGameStateBase
 {
 	GENERATED_BODY()
+
+	friend class AMobaGameMode;
+	
 public:
 	FUpdateAllAttributesDelegate OnUpdateAllAttributesDelegate; //更新整包属性
 	FUpdateAttributeDelegate OnUpdateAttributeDelegate; //更新协议指定属性
@@ -76,6 +81,9 @@ public:
 	/** 死亡结算 */
 	void SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID);
 	bool IsPlayer(int64 PlayerID) const;
+	void Death(int64 PlayerID);
+	/** 击杀系统 */
+	void BindKillFuntion();
 #pragma endregion 
 	
 protected:
@@ -95,4 +103,7 @@ private:
 
 	UPROPERTY(Replicated)
 	TArray<FPlayerLocation> PlayerLocations;
+
+	/** 击杀系统 */
+	FMobaKillSystem KillSystem;
 };
