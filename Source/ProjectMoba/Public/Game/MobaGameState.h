@@ -78,7 +78,7 @@ public:
 	void ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute);
 
 	/** 更新击杀信息 */
-	void UpdateKillMessage(const FKillNetPackgae& KillNetPackgae);
+	void UpdateKillMessage(const FKillNetPackgae& KillNetPackgae) const;
 #pragma endregion
 
 #pragma region 战斗
@@ -88,6 +88,7 @@ public:
 	void Death(int64 PlayerID);
 	/** 击杀系统 */
 	void BindKillFuntion();
+	void MulticastKillMessage(EKillType KillType, int64 KillerPlayerID, int64 KilledPlayerID);
 #pragma endregion 
 	
 protected:

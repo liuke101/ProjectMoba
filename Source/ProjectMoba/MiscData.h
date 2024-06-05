@@ -129,11 +129,11 @@ struct FKillNetPackgae
 	TObjectPtr<UTexture2D> KillerIcon;
 	
 	UPROPERTY()
-	FString KillerName;
+	FName KillerName;
 
 	UPROPERTY()
 	TObjectPtr<UTexture2D> KilledIcon;
 	
 	UPROPERTY()
-	FString KilledName;
+	FName KilledName;
 };

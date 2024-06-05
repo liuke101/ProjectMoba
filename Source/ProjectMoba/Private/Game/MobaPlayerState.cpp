@@ -635,7 +635,7 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 
 void AMobaPlayerState::Client_UpdateKillMessage_Implementation(const FKillNetPackgae& KillNetPackgae)
 {
-	if(!BindPlayerKillMessageDelegate.ExecuteIfBound(KillNetPackgae))
+	if(!KillMessageDelegate.ExecuteIfBound(KillNetPackgae))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerKillMessageDelegate委托"));
 	}

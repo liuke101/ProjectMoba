@@ -42,7 +42,7 @@ public:
 	FBindPlayerIDDelegate BindPlayerIDDelegate; //绑定PlayerID
 	FSimpleDelegate HideTopPanelDelegate; //隐藏角色信息TopPanel
 	
-	FBindPlayerKillMessageDelegate BindPlayerKillMessageDelegate; //绑定击杀信息
+	FBindPlayerKillMessageDelegate KillMessageDelegate; //绑定击杀信息
 #pragma endregion
 
 #pragma region DataTable数据读取 

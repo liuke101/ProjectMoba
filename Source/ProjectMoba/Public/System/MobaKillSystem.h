@@ -47,6 +47,7 @@ public:
 	
 	void Tick(float DeltaSeconds);
 
+	/** 处理击杀信息 */
 	void Kill(const int64& KillerPlayerID, const int64& KilledPlayerID);
 
 	void Death(const int64& KilledPlayerID);
