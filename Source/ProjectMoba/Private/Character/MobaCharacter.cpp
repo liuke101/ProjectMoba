@@ -270,23 +270,35 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			//更新UI
 			MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent()); //血条
 			MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-			
-			//攻击角色
-			if(IsDead())
+
+			if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
 			{
-				//随机播放死亡动画广播到客户端
-				if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+				//攻击角色
+				if(IsDead())
 				{
-					MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+					//随机播放死亡动画广播到客户端
+					if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+					{
+						MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+					}
+
+					//死亡结算
+					MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
+					
+					//5s后复活
+					GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
 				}
-			
-				//5s后复活
-				GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
-			
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+
+					//添加助攻者
+					//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
+					if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+					{
+						MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+					}
+				}
 			}
 		}
 	}

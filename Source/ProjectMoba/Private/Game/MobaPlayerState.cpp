@@ -61,6 +61,22 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 		{
 			PlayerDataComponent->SlotCDQueue.Remove(RemoveSlot);
 		}
+
+		/** 计算助攻 */
+		TArray<FAssistPlayer> RemoveAssistPlayers;
+		for(auto& Tmp : AssistPlayers)
+		{
+			Tmp.AssistTime -= DeltaSeconds;
+			if(Tmp.AssistTime <= 0.f)
+			{
+				RemoveAssistPlayers.Add(Tmp);
+			}
+		}
+		
+		for(auto& Tmp : RemoveAssistPlayers)
+		{
+			RemoveAssistPlayers.Remove(Tmp);
+		}
 		
 		/** 服务器每秒增加2金币 */
 		GoldTime+=DeltaSeconds;
@@ -533,6 +549,44 @@ int32 AMobaPlayerState::GetSkillDataIDFromSlotID(int32 SlotID) const
 	return INDEX_NONE;
 }
 
+void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID)
+{
+	if(InPlayerID != INDEX_NONE)
+	{
+		FAssistPlayer AssistPlayer;
+		AssistPlayer.PlayerID = InPlayerID;
+
+		//如果已经存在助攻列表，更新时间
+		if(AssistPlayers.Contains(AssistPlayer))
+		{
+			const int32 Index = AssistPlayers.Find(AssistPlayer);
+			if(Index != INDEX_NONE)
+			{
+				AssistPlayers[Index].AssistTime = 5.0f;
+			}
+		}
+	}
+	
+}
+
+const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer() 
+{
+	FAssistPlayer* LastAssitPlayer = nullptr;
+
+	float LastTime = 0.0f;
+	//遍历所有助攻玩家，找到最后一次助攻的玩家，即AssistTime最大的玩家
+	for(auto& Tmp : AssistPlayers)
+	{
+		if(LastTime < Tmp.AssistTime)
+		{
+			LastTime = Tmp.AssistTime;
+			LastAssitPlayer = &Tmp;
+		}
+	}
+
+	return LastAssitPlayer;
+}
+
 void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 {
 	//更新ID
@@ -541,7 +595,7 @@ void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 	//更新Inventory
 	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(), [&](AMobaPlayerState* MobaPlayerState)
 	{
-		if(MobaPlayerState->GetPlayerDataComponent()->PlayerID == InPlayerID)
+		if(MobaPlayerState->GetPlayerID() == InPlayerID)
 		{
 			FSlotDataNetPackage NetInventoryPackage;
 			MobaPlayerState->GetInventorySlotNetPackage(NetInventoryPackage); //获取整包
@@ -555,7 +609,7 @@ void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 	//更新属性(通过发送整包）
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
-		MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerDataComponent->PlayerID, InPlayerID, ECharacterAttributeType::ECAT_All);
+		MobaGameState->Server_RequestUpdateCharacterAttribute(GetPlayerID(), InPlayerID, ECharacterAttributeType::ECAT_All);
 	}
 	
 }

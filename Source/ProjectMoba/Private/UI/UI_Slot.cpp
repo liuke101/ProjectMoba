@@ -12,12 +12,12 @@
 void UUI_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	// 绑定点击事件
-	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
-
+	
 	CDMaterialDynamic = UMaterialInstanceDynamic::Create(CDMaterialParent, this); //创建动态材质实例
 	SlotCD->SetBrushFromMaterial(CDMaterialDynamic); //设置图片为动态材质
+	
+	// 绑定点击事件
+	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
 }
 
 void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

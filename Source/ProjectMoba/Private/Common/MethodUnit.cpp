@@ -15,6 +15,27 @@ AMobaGameState* MethodUnit::GetMobaGameState(const UWorld* InWorld)
 	return nullptr;
 }
 
+AMobaPlayerState* MethodUnit::GetMobaPlayerStateFromPlayerID(UWorld* InWorld, const int64 PlayerID)
+{
+	if(InWorld)
+	{
+		AMobaPlayerState* MobaPlayerState = nullptr;
+		ServerCallAllPlayerState<AMobaPlayerState>(InWorld, [&](AMobaPlayerState* PlayerState)
+		{
+			if(PlayerState->GetPlayerID() == PlayerID)
+			{
+				MobaPlayerState = PlayerState;
+				return EServerCallType::ECT_ProgressComplete;
+			}
+			return EServerCallType::ECT_InProgress;
+		});
+
+		return MobaPlayerState;
+	}
+	return nullptr;
+	
+}
+
 const FCharacterAsset* MethodUnit::GetCharacterAssetFromCharacterID(const UWorld* InWorld, const int32 CharacterID)
 {
 	if(AMobaGameState* MobaGameState = GetMobaGameState(InWorld))

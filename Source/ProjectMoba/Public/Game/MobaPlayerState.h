@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Component/PlayerDataComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "ProjectMoba/MiscData.h"
 #include "MobaPlayerState.generated.h"
@@ -108,6 +109,13 @@ public:
 	int32 GetSkillDataIDFromSlotID(int32 SlotID) const;
 #pragma endregion
 
+#pragma region 助攻
+	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const { return AssistPlayers; }
+	void AddAssistPlayer(const int64& InPlayerID);
+	/** 获取最后一个助攻玩家 */
+	const FAssistPlayer* GetLastAssistPlayer();
+#pragma  endregion 
+
 #pragma region 角色属性信息
 	void UpdateCharacterInfo(const int64& InPlayerID);
 #pragma endregion
@@ -178,6 +186,7 @@ public:
 #pragma region 成员变量
 public:
 	FORCEINLINE UPlayerDataComponent* GetPlayerDataComponent() const { return PlayerDataComponent; }
+	FORCEINLINE int64 GetPlayerID() const { return PlayerDataComponent->PlayerID; }
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|Component")
@@ -193,6 +202,9 @@ private:
 	/** 存储DataTable数据 */
 	TArray<FSlotAsset*> CacheSlotAssets; 
 	TArray<FSlotAttribute*> CacheSlotAttributes;
+
+	/** 助攻列表（攻击我的敌方英雄） */
+	TArray<FAssistPlayer> AssistPlayers;
 
 	float GoldTime = 0.0f; //金币时间
 	FVector HomeShopLocation = FVector::ZeroVector; //商店位置

@@ -75,7 +75,7 @@ struct FSlotDataNetPackage
 {
 	GENERATED_BODY()
 
-	FSlotDataNetPackage(){};
+	FSlotDataNetPackage(){}
 	
 	UPROPERTY()
 	TArray<int32> SlotIDs;
@@ -84,3 +84,23 @@ struct FSlotDataNetPackage
 	TArray<FSlotData> SlotDatas; //存了DataID
 };
 
+/** 助攻 */
+USTRUCT(BlueprintType)
+struct FAssistPlayer
+{
+	GENERATED_BODY()
+
+	FAssistPlayer(){}
+
+	UPROPERTY()
+	int64 PlayerID = INDEX_NONE;
+
+	UPROPERTY()
+	float AssistTime = 5.0f; //每次参与助攻就刷新时间
+	
+};
+
+FORCEINLINE bool operator==(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)
+{
+	return Lhs.PlayerID == Rhs.PlayerID;
+}

@@ -219,9 +219,6 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 				}
 				else //如果目标Slot不为空，交换位置
 				{
-					// float TempCD = DraggedInventorySlot->BuildSlot.MaxCD;
-					// BuildSlot.MaxCD = DraggedInventorySlot->BuildSlot.MaxCD;
-					// DraggedInventorySlot->BuildSlot.MaxCD = TempCD;
 					Swap(DraggedInventorySlot->BuildSlot.MaxCD,BuildSlot.MaxCD);
 				}
 

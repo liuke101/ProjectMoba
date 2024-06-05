@@ -21,6 +21,7 @@ namespace MethodUnit
 	};
 	
 	AMobaGameState* GetMobaGameState(const UWorld* InWorld);
+	AMobaPlayerState* GetMobaPlayerStateFromPlayerID(UWorld* InWorld, int64 PlayerID);
 
 	const FCharacterAsset* GetCharacterAssetFromCharacterID(const UWorld* InWorld, int32 CharacterID);
 	const FCharacterAsset* GetCharacterAssetFromPlayerID(const UWorld* InWorld, int64 PlayerID);

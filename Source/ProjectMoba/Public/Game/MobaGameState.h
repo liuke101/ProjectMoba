@@ -70,8 +70,13 @@ public:
 	void ResponseUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
 	//更新整包
 	void ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute); 
-	
 #pragma endregion
+
+#pragma region 战斗
+	/** 死亡结算 */
+	void SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID);
+	bool IsPlayer(int64 PlayerID) const;
+#pragma endregion 
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|DataTable")

@@ -28,7 +28,7 @@ void AMobaGameState::BeginPlay()
 			//调用玩家的PlayerState，请求更新属性
 			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
 			{
-				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerDataComponent()->PlayerID,MobaPlayerState->GetPlayerDataComponent()->PlayerID, ECharacterAttributeType::ECAT_All);
+				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
 				return MethodUnit::EServerCallType::ECT_InProgress;
 			});
 		});
@@ -186,7 +186,7 @@ void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64
 		//调用玩家的PlayerState，更新属性
 		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
 		{
-			if(MobaPlayerState->GetPlayerDataComponent()->PlayerID == PlayerID)
+			if(MobaPlayerState->GetPlayerID() == PlayerID)
 			{
 				//响应更新属性
 				switch (CharacterAttributeType)
@@ -340,4 +340,40 @@ void AMobaGameState::ResponseUpdateAllCharacterAttributes(int64 PlayerID,
 
 	// 广播委托，更新UI
 	OnUpdateAllAttributesDelegate.Broadcast(PlayerID);
+}
+
+void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
+{
+	if(IsPlayer(KillerPlayerID) )
+	{
+		//1 击杀者是玩家, 被击杀者是玩家
+		if(IsPlayer(KilledPlayerID))
+		{
+			
+		}
+		else //2 击杀者是玩家, 被击杀者是AI
+		{
+			
+		}
+		
+		
+	}
+	else
+	{
+		//3 击杀者是AI, 被击杀者是玩家
+		if(IsPlayer(KilledPlayerID))
+		{
+			
+		}
+		else //4 击杀者是AI, 被击杀者是AI
+		{
+			
+		}
+		
+	}
+}
+
+bool AMobaGameState::IsPlayer(int64 PlayerID) const
+{
+	return MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID) != nullptr;
 }
