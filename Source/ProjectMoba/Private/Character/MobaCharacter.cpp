@@ -274,7 +274,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
 			{
 				//攻击角色
-				if(IsDead())
+				if(IsDead()) //死亡
 				{
 					//随机播放死亡动画广播到客户端
 					if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
@@ -287,12 +287,12 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 					
 					//5s后复活
 					GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
-				}
-				else
+				} 
+				else //受伤
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
 
-					//添加助攻者
+					//添加助攻
 					//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
 					if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
 					{
