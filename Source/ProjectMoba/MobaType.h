@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "MobaType.generated.h" // 生成反射信息
 
+/** 角色类型 */
 UENUM()
 enum class ECharacterType : uint8
 {
@@ -27,6 +28,7 @@ enum class ECharacterType : uint8
 	ECT_HomeShop UMETA(DisplayName="HomeShop"), //基地商店
 };
 
+/** 队伍类型 */
 UENUM() // 需要同步，所以使用UENUM引入反射
 enum class ETeamType : uint8
 {
@@ -37,6 +39,7 @@ enum class ETeamType : uint8
 	ETT_Neutral UMETA(DisplayName="Neutral")
 };
 
+/** Slot键位 */
 UENUM()
 enum class ESlotKey : uint8
 {
@@ -52,6 +55,7 @@ enum class ESlotKey : uint8
 	ESK_4 UMETA(DisplayName="4"),
 };
 
+/** Slot类型 */
 UENUM()
 enum class ESlotType : uint8
 {
@@ -69,6 +73,7 @@ enum class ESlotType : uint8
 	EST_Shoes UMETA(DisplayName="Shoes"), //鞋
 };
 
+/** 技能类型 */
 UENUM()
 enum class ESkillType : uint8
 {
@@ -98,4 +103,26 @@ enum class ECharacterAttributeType : uint8
 	ECAT_CurrentEXP UMETA(DisplayName = "CurrentEXP"),
 	ECAT_CriticalRate UMETA(DisplayName = "CriticalRate"),
 	//攻击范围AttackRange暂不同步，不会受装备影响
+};
+
+/** 击杀类型 */
+UENUM(Blueprintable)
+enum class EKillType : uint8
+{
+	EKT_NormalKill UMETA(DisplayName="NormalKill"), //普通击杀
+	EKT_FirstBlood UMETA(DisplayName="FirstBlood"), //一血
+
+	EKT_DoubleKill UMETA(DisplayName="DoubleKill"), //双杀
+	EKT_TripleKill UMETA(DisplayName="TripleKill"), //三杀
+	EKT_QuadraKill UMETA(DisplayName="QuadraKill"), //四杀
+	EKT_PentaKill UMETA(DisplayName="PentaKill"), //五杀
+
+	EKT_DaShaTeSha UMETA(DisplayName="DaShaTeSha"), //大杀特杀
+	EKT_SuoXiangPiMi UMETA(DisplayName="SuoXiangPiMi"), //所向披靡
+	EKT_HunShenShiDan UMETA(DisplayName="HunShenShiDan"), //浑身是胆
+	EKT_YongGuanSanJun UMETA(DisplayName="YongGuanSanJun"), //勇冠三军
+	EKT_YiJiDangQian UMETA(DisplayName="YiJiDangQian"), //一骑当千
+	EKT_WanFuMoDi UMETA(DisplayName="WanFuMoDi"), //万夫莫敌
+	EKT_JuShiWuShuang UMETA(DisplayName="JuShiWuShuang"), //举世无双
+	EKT_TianXiaWuDi UMETA(DisplayName="TianXiaWuDi"), //天下无敌
 };

@@ -19,6 +19,7 @@ class UPlayerDataComponent;
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
 DECLARE_DELEGATE_OneParam(FBindPlayerIDDelegate, int64);
+DECLARE_DELEGATE_OneParam(FBindPlayerKillMessageDelegate, const FKillNetPackgae&);
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -40,6 +41,8 @@ public:
 	
 	FBindPlayerIDDelegate BindPlayerIDDelegate; //绑定PlayerID
 	FSimpleDelegate HideTopPanelDelegate; //隐藏角色信息TopPanel
+	
+	FBindPlayerKillMessageDelegate BindPlayerKillMessageDelegate; //绑定击杀信息
 #pragma endregion
 
 #pragma region DataTable数据读取 
@@ -181,6 +184,11 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_HideCharacterInfoTopPanel();
+
+	//------------------击杀信息-------------------//
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateKillMessage(const FKillNetPackgae& KillNetPackgae);
+	
 #pragma endregion
 
 #pragma region 成员变量

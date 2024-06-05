@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MobaType.h"
 #include "MiscData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -104,3 +105,35 @@ FORCEINLINE bool operator==(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)
 {
 	return Lhs.PlayerID == Rhs.PlayerID;
 }
+
+FORCEINLINE bool operator!=(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)
+{
+	return Lhs.PlayerID != Rhs.PlayerID;
+}
+
+USTRUCT(BlueprintType)
+struct FKillNetPackgae
+{
+	GENERATED_BODY()
+
+	FKillNetPackgae()
+		: KillType(EKillType::EKT_NormalKill)
+		, KillerName("DefaultKiller")
+		, KilledName("DefaultKilled")
+	{}
+
+	UPROPERTY()
+	EKillType KillType;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> KillerIcon;
+	
+	UPROPERTY()
+	FString KillerName;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> KilledIcon;
+	
+	UPROPERTY()
+	FString KilledName;
+};

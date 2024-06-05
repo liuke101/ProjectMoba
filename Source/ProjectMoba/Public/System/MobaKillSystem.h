@@ -54,7 +54,7 @@ public:
 	//回调函数
 	typedef TFunction<void(const int64& /*KillerPlayerID*/, const int64& /*KilledPlayerID*/)> TKillFunction;
 	//普通击杀
-	TKillFunction KillFunction;
+	TKillFunction NormalKillFunction;
 	TKillFunction FirstBloodFuntion;
 
 	//连续击杀

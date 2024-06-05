@@ -38,6 +38,9 @@ struct FCharacterAsset : public FMobaTableBase
 	TSubclassOf<APawn> CharacterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
+	TSubclassOf<APawn> CharacterName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Class")
 	TObjectPtr<UTexture2D> CharacterIcon; 
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class")

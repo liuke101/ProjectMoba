@@ -345,12 +345,23 @@ void AMobaGameState::ResponseUpdateAllCharacterAttributes(int64 PlayerID,
 	OnUpdateAllAttributesDelegate.Broadcast(PlayerID);
 }
 
+void AMobaGameState::UpdateKillMessage(const FKillNetPackgae& KillNetPackgae)
+{
+	//广播
+	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)
+	{
+		MobaPlayerState->Client_UpdateKillMessage(KillNetPackgae);
+		return MethodUnit::EServerCallType::ECT_InProgress;
+	});
+}
+
 void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 {
 	if(KillerPlayerID == KilledPlayerID) return;
 
-	const AMobaPlayerState* KillerPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KillerPlayerID);
-	const AMobaPlayerState* KilledPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KilledPlayerID);
+	//击杀者和被击杀者的PlayerState，如果为nullptr则代表是AI
+	AMobaPlayerState* KillerPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KillerPlayerID);
+	AMobaPlayerState* KilledPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KilledPlayerID);
 	
 	/** 1 击杀者是玩家, 被击杀者是玩家 */
 	if(KillerPlayerState && KilledPlayerState)
@@ -375,19 +386,70 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	/** 2 击杀者是玩家, 被击杀者是AI */
 	else if(KillerPlayerState && !KilledPlayerState)
 	{
-		//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
-		if()
-		//如果不是，记录补兵数
+		if(const FCharacterAsset* KilledCharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), KilledPlayerID))
+		{
+			//如果击杀跑塔
+			//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
+			if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("玩家击杀炮塔"));
+			}
+			//如果击杀小兵和野怪，记录补兵数
+			else 
+			{
+				KillerPlayerState->GetPlayerDataComponent()->MinionKillNum++;
+				//TOOD:金币奖励和UI提示
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("玩家击杀小兵"));
+			}
+		}
 	}
 	/** 3 击杀者是AI, 被击杀者是玩家 */
 	else if(!KillerPlayerState && KilledPlayerState)
 	{
+		//在一定时间有玩家助攻
+		if(const FAssistPlayer* LastAssistPlayer = KilledPlayerState->GetLastAssistPlayer())
+		{
+			//找到最近助攻的玩家记录击杀数（记为玩家击杀玩家）
+			if(const AMobaPlayerState* LastAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), LastAssistPlayer->PlayerID))
+			{
+				LastAssitPlayerState->GetPlayerDataComponent()->KillNum++;
+
+				//其他助攻玩家记录助攻数
+				for(const auto& Assit : KilledPlayerState->GetAssistPlayers())
+				{
+					if(Assit != *LastAssistPlayer)
+					{
+						if(const AMobaPlayerState* OtherAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
+						{
+							OtherAssitPlayerState->GetPlayerDataComponent()->AssistNum++;
+						}
+					}
+				}
+			}
+		}
+		//没有玩家助攻，则播放AI击杀玩家信息
+		else
+		{
+			
+		}
 		
 	}
 	/** 4 击杀者是AI, 被击杀者是AI */
 	else if(!KillerPlayerState && !KilledPlayerState)
 	{
-		
+		if(const FCharacterAsset* KillerCharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), KillerPlayerID))
+		{
+			if(const FCharacterAsset* KilledCharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), KilledPlayerID))
+			{
+				//如果AI击杀炮塔，则判断在一定时间内是否有玩家助攻
+				//如果有玩家助攻，则找到最近助攻的玩家进行全额金币奖励，播放击杀信息。范围内的队友也获得奖励
+				//如果没有玩家助攻，范围内的队友也获得奖励，播放AI击杀炮塔信息
+				if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
+				{
+					//TODO: 因为KilledPlayerState为nullptr，所以无法获得助攻玩家列表
+				}
+			}
+		}
 	}
 }
 
@@ -403,7 +465,7 @@ void AMobaGameState::Death(int64 PlayerID)
 
 void AMobaGameState::BindKillFuntion()
 {
-	KillSystem.KillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	KillSystem.NormalKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
 		{

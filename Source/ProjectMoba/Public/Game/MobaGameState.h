@@ -9,6 +9,7 @@
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+struct FKillNetPackgae;
 struct FMobaKillSystem;
 struct FPlayerLocation;
 class UDataTable;
@@ -74,7 +75,10 @@ public:
 	//更新协议相应的属性
 	void ResponseUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
 	//更新整包
-	void ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute); 
+	void ResponseUpdateAllCharacterAttributes(int64 PlayerID, const FCharacterAttribute& CharacterAttribute);
+
+	/** 更新击杀信息 */
+	void UpdateKillMessage(const FKillNetPackgae& KillNetPackgae);
 #pragma endregion
 
 #pragma region 战斗
