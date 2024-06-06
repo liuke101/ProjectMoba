@@ -11,6 +11,10 @@ struct FMobaKillSystem
 {
 	GENERATED_BODY()
 public:
+	FMobaKillSystem()
+		: FirstBlood(INDEX_NONE)
+	{}
+
 	//累计击杀
 	struct FAccumulatedKill
 	{
@@ -28,12 +32,12 @@ public:
 		FContinuousKill();
 		FContinuousKill(const int64& KillerPlayerID, const int64& KilledPlayerID);
 
-		void ResetTime();
+		void ResetKillTime();
 		
 		int64 CurrentKillerPlayerID;
 		int64 CurrentKilledPlayerID;
 		int64 KillNumber; //KillTime内的连续击杀
-		int64 KillTime;
+		float KillTime;
 	};
 
 	// 记录
@@ -52,6 +56,10 @@ public:
 
 	void Death(const int64& KilledPlayerID);
 
+private:
+	/** 添加连续击杀击杀历史信息 */
+	void AddContinuousKillHistory(const int64& KillerPlayerID, const int64& KilledPlayerID);
+public:
 	//回调函数
 	typedef TFunction<void(const int64& /*KillerPlayerID*/, const int64& /*KilledPlayerID*/)> TKillFunction;
 	//普通击杀
@@ -75,7 +83,7 @@ public:
 	TKillFunction TianXiaWuDiFunction; //天下无敌
 
 	// 成就记录
-	int64 FirstBlood = INDEX_NONE;
+	int64 FirstBlood;
 	TArray<int64> DoubleKillsArray;
 	TArray<int64> TripleKillsArray;
 	TArray<int64> QuadraKillsArray;
@@ -89,6 +97,7 @@ public:
 	TArray<int64> WanFuMoDiArray;
 	TArray<int64> JuShiWuShuangArray;
 	TArray<int64> TianXiaWuDiArray;
+	
 	
 };
 

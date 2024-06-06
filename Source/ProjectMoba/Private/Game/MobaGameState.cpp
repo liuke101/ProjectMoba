@@ -31,10 +31,10 @@ void AMobaGameState::BeginPlay()
 				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
 				return MethodUnit::EServerCallType::ECT_InProgress;
 			});
-
-			//绑定击杀系统函数
-			BindKillFuntion();
 		});
+		
+		//绑定击杀系统函数
+		BindKillFuntion();
 	}
 }
 
@@ -496,6 +496,7 @@ void AMobaGameState::Death(int64 PlayerID)
 
 void AMobaGameState::BindKillFuntion()
 {
+	//TODO: 课程对三种击杀方式做了区分，这里暂时不区分
 	KillSystem.NormalKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_NormalKill, KillerPlayerID, KilledPlayerID);

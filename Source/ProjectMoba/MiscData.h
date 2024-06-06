@@ -92,13 +92,18 @@ struct FAssistPlayer
 {
 	GENERATED_BODY()
 
-	FAssistPlayer(){}
+	FAssistPlayer()
+		: PlayerID(INDEX_NONE)
+		, AssistTime(10.0f)
+	{}
 
 	UPROPERTY()
-	int64 PlayerID = INDEX_NONE;
+	int64 PlayerID;
 
 	UPROPERTY()
-	float AssistTime = 5.0f; //每次参与助攻就刷新时间
+	float AssistTime; //每次参与助攻就刷新时间
+
+	FORCEINLINE void ResetAssitTime() { AssistTime = 10.0f; }
 };
 
 FORCEINLINE bool operator==(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)

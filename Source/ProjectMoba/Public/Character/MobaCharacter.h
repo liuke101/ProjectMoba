@@ -85,5 +85,8 @@ protected:
 	int64 PlayerID;
 	ETeamType TeamType;
 	ECharacterType CharacterType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Character")
+	float RebornTime;
 };
 

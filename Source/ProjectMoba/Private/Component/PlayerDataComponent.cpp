@@ -15,14 +15,15 @@ UPlayerDataComponent::UPlayerDataComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 	SetIsReplicatedByDefault(true);
-
-	PlayerID = FMath::RandRange(0, 100000); //暂时随机生成一个PlayerID，后面改成从DB服务器获取
 }
 
 
 void UPlayerDataComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//暂时随机生成一个PlayerID，后面改成从DB服务器获取
+	PlayerID = FMath::RandRange(0, 1000000); 
 
 	// TODO:暂时通过读txt获取数据，后面改成通过socket从服务器读取
 	FString NumberString;

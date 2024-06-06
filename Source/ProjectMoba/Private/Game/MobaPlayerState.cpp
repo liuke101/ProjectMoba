@@ -9,6 +9,7 @@
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProjectMoba/GlobalVariable.h"
 #include "ProjectMoba/MiscData.h"
 #include "Table/CharacterAsset.h"
 #include "Table/SlotAttribute.h"
@@ -67,6 +68,8 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 		for(auto& Tmp : AssistPlayers)
 		{
 			Tmp.AssistTime -= DeltaSeconds;
+			//转换为每秒减一
+			
 			if(Tmp.AssistTime <= 0.f)
 			{
 				RemoveAssistPlayers.Add(Tmp);
@@ -562,7 +565,7 @@ void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID)
 			const int32 Index = AssistPlayers.Find(AssistPlayer);
 			if(Index != INDEX_NONE)
 			{
-				AssistPlayers[Index].AssistTime = 5.0f;
+				AssistPlayers[Index].ResetAssitTime();
 			}
 		}
 	}

@@ -18,7 +18,8 @@
 AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
 	  AttackCount(0),
-	  PlayerID(INDEX_NONE)
+	  PlayerID(INDEX_NONE),
+	  RebornTime(5.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -253,55 +254,58 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		if(!IsDead())
 		{
-			GetCharacterAttribute()->CurrentHealth += DamageAmount;
+			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+			{
+				GetCharacterAttribute()->CurrentHealth += DamageAmount;
 
-			//限制血量
-			if(GetCharacterAttribute()->CurrentHealth > GetCharacterAttribute()->MaxHealth)
-			{
-				GetCharacterAttribute()->CurrentHealth = GetCharacterAttribute()->MaxHealth;
-			}
-			else if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
-			{
-				GetCharacterAttribute()->CurrentHealth = 0.0f;
-			}
+				//限制血量
+				if(GetCharacterAttribute()->CurrentHealth > GetCharacterAttribute()->MaxHealth)
+				{
+					GetCharacterAttribute()->CurrentHealth = GetCharacterAttribute()->MaxHealth;
+				}
+				else if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
+				{
+					GetCharacterAttribute()->CurrentHealth = 0.0f;
+				}
 			
-			//更新UI
-			MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent()); //血条
-			MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-
-			if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
-			{
-				//攻击角色
-				if(IsDead()) //死亡
+				//更新UI
+				MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent()); //血条
+				MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
+			
+				if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
 				{
-					//随机播放死亡动画广播到客户端
-					if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+					//攻击角色
+					if(IsDead()) //死亡
 					{
-						MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
-					}
+						//随机播放死亡动画广播到客户端
+						if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+						{
+							MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+						}
 
-					//死亡结算
-					if(MobaGameState->IsPlayer(PlayerID))
-					{
-						MobaGameState->Death(PlayerID);
-					}
-					MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
+						//死亡结算
+						if(MobaGameState->IsPlayer(PlayerID))
+						{
+							MobaGameState->Death(PlayerID);
+						}
+						MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
 					
 					
-					//5s后复活
-					GThread::GetCoroutines().BindUObject(5.0f, this, &AMobaCharacter::MultiCastReborn);
-				} 
-				else //受伤
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
-
-					//添加助攻
-					//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
-					if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+						//复活
+						GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::MultiCastReborn);
+					} 
+					else //受伤
 					{
-						MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+
+						//添加助攻
+						//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
+						if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+						{
+							MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+						}
 					}
 				}
 			}

@@ -3,6 +3,8 @@
 
 #include "System/MobaKillSystem.h"
 
+#include "ProjectMoba/GlobalVariable.h"
+
 
 FMobaKillSystem::FAccumulatedKill::FAccumulatedKill()
 	: KillNumber(0)
@@ -28,10 +30,9 @@ FMobaKillSystem::FContinuousKill::FContinuousKill(const int64& KillerPlayerID, c
 	, KillNumber(0)
 	, KillTime(10.0f)
 {
-	ResetTime();
 }
 
-void FMobaKillSystem::FContinuousKill::ResetTime()
+void FMobaKillSystem::FContinuousKill::ResetKillTime()
 {
 	KillTime = 10.0f;
 }
@@ -62,7 +63,7 @@ void FMobaKillSystem::Tick(float DeltaSeconds)
 	TArray<FContinuousKill> Removes;
 	for(auto &Tmp : ContinuousKillHistory)
 	{
-		Tmp.KillTime -= DeltaSeconds;
+		Tmp.KillTime -= DeltaSeconds; 
 		if(Tmp.KillTime <= 0.0f)
 		{
 			Removes.Add(Tmp);
@@ -77,7 +78,9 @@ void FMobaKillSystem::Tick(float DeltaSeconds)
 
 void FMobaKillSystem::Kill(const int64& KillerPlayerID, const int64& KilledPlayerID)
 {
-	bool bCallKillFunction = false;
+	AddContinuousKillHistory(KillerPlayerID, KilledPlayerID);
+	
+	uint8 CallKillFunctionNum = 0;
 	
 	for(auto& CK : ContinuousKillHistory)
 	{
@@ -91,109 +94,104 @@ void FMobaKillSystem::Kill(const int64& KillerPlayerID, const int64& KilledPlaye
 			{
 				FirstBlood = CK.CurrentKillerPlayerID;
 				FirstBloodFuntion(CK.CurrentKillerPlayerID, KilledPlayerID);
+				CallKillFunctionNum = 1;
 			}
 
 			//连杀
-			switch (CK.KillNumber)
+			if(CK.KillNumber == 2)
 			{
-				case 2:
-					DoubleKillsArray.Add(CK.CurrentKillerPlayerID);
-					DoubleKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
-					bCallKillFunction = true;
-					break;
-				case 3:
-					TripleKillsArray.Add(CK.CurrentKillerPlayerID);
-					TripleKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
-					bCallKillFunction = true;
-					break;
-				case 4:
-					QuadraKillsArray.Add(CK.CurrentKillerPlayerID);
-					QuadraKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
-					bCallKillFunction = true;
-					break;
-				case 5:
-					PentaKillsArray.Add(CK.CurrentKillerPlayerID);
-					PentaKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
-					bCallKillFunction = true;
-					break;
-				
-				default:
-					break;
+				DoubleKillsArray.Add(CK.CurrentKillerPlayerID);
+				DoubleKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
+				CallKillFunctionNum = 1;
 			}
-
+			else if(CK.KillNumber == 3)
+			{
+				TripleKillsArray.Add(CK.CurrentKillerPlayerID);
+				TripleKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
+				CallKillFunctionNum = 1;
+			}
+			else if(CK.KillNumber == 4)
+			{
+				QuadraKillsArray.Add(CK.CurrentKillerPlayerID);
+				QuadraKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
+				CallKillFunctionNum = 1;
+			}
+			else if(CK.KillNumber>= 5)
+			{
+				PentaKillsArray.Add(CK.CurrentKillerPlayerID);
+				PentaKillFunction(CK.CurrentKillerPlayerID, KilledPlayerID);
+				CallKillFunctionNum = 1;
+			}
+			
 			//累计击杀
 			for(auto& AK : AccumulatedKillHistory)
 			{
 				if(AK.KillerPlayerID == KillerPlayerID)
 				{
 					AK.KillNumber++;
-
-					switch(AK.KillNumber)
+					
+					if(CallKillFunctionNum == 0)
 					{
-					case 3:
-						DaShaTeShaArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction) //优先处理连杀
+						if(AK.KillNumber == 3)
 						{
+							DaShaTeShaArray.Add(AK.KillerPlayerID);
 							DaShaTeShaFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 4:
-						SuoXiangPiMiArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber == 4)
 						{
+							SuoXiangPiMiArray.Add(AK.KillerPlayerID);
 							SuoXiangPiMiFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 5:
-						HunShenShiDanArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber == 5)
 						{
+							HunShenShiDanArray.Add(AK.KillerPlayerID);
 							HunShenShiDanFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 6:
-						YongGuanSanJunArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber == 6)
 						{
+							YongGuanSanJunArray.Add(AK.KillerPlayerID);
 							YongGuanSanJunFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 7:
-						YiJiDangQianArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber == 7)
 						{
+							YiJiDangQianArray.Add(AK.KillerPlayerID);
 							YiJiDangQianFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 8:
-						WanFuMoDiArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber == 8)
 						{
+							WanFuMoDiArray.Add(AK.KillerPlayerID);
 							WanFuMoDiFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 9:
-						JuShiWuShuangArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber == 9)
 						{
+							JuShiWuShuangArray.Add(AK.KillerPlayerID);
 							JuShiWuShuangFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					case 10:
-						TianXiaWuDiArray.Add(AK.KillerPlayerID);
-						if(!bCallKillFunction)
+						else if(AK.KillNumber >= 10)
 						{
+							TianXiaWuDiArray.Add(AK.KillerPlayerID);
 							TianXiaWuDiFunction(AK.KillerPlayerID, KilledPlayerID);
+							CallKillFunctionNum = 1;
 						}
-						break;
-					default:
-						break;
 					}
+					break;
 				}
 			}
+
+			if(CallKillFunctionNum == 0)
+			{
+				NormalKillFunction(KillerPlayerID, KilledPlayerID);
+			}
+			break;
 		}
 	}
-	
 }
 
 void FMobaKillSystem::Death(const int64& KilledPlayerID)
@@ -208,4 +206,30 @@ void FMobaKillSystem::Death(const int64& KilledPlayerID)
 			break;
 		}
 	}
+
+	for(auto& Tmp : ContinuousKillHistory)
+	{
+		// 如果击杀者死亡，则清空击杀者的连续击杀数
+		if(Tmp.CurrentKillerPlayerID == KilledPlayerID)
+		{
+			Tmp.KillTime = 0.0f;
+			break;
+		}
+	}
+}
+
+void FMobaKillSystem::AddContinuousKillHistory(const int64& KillerPlayerID, const int64& KilledPlayerID)
+{
+	FContinuousKill ContinuousKill = FContinuousKill(KillerPlayerID, KilledPlayerID);
+
+	int32 Index = ContinuousKillHistory.Find(ContinuousKill);
+	if(Index != INDEX_NONE)
+	{
+		ContinuousKillHistory[Index].ResetKillTime();
+	}
+	else
+	{
+		ContinuousKillHistory.Add(ContinuousKill);
+	}
+	
 }

@@ -18,17 +18,8 @@ class PROJECTMOBA_API UUI_KillMsg : public UMobaUIBase
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
-	void UpdateSlot();
-
-protected:
-	//普通击杀 
-	void NormalKill(const FKillNetPackgae& KillNetPackgae, const FText& KillType);
 	
-	//连续击杀
-	void ContinuousKill(const FKillNetPackgae& KillNetPackgae, const FText& KillType);
-
-	//累计击杀
-	void AccumulatedKill(const FKillNetPackgae& KillNetPackgae, const FText& KillType);
+	void UpdateSlot(const FKillNetPackgae& KillNetPackgae, const FText& KillType);
 
 private:
 	
