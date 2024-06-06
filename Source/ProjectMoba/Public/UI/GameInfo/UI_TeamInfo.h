@@ -6,6 +6,7 @@
 #include "UI/MobaUIBase.h"
 #include "UI_TeamInfo.generated.h"
 
+struct FPlayerTeamNetPackage;
 class UUI_PlayersInfo;
 class UVerticalBox;
 /**
@@ -20,6 +21,7 @@ public:
 	virtual void NativeConstruct() override;
 	void SpawnPlayerInfo(bool bEnemy,const int64 &InPlayerID,const TArray<int32>& InSlotsID) const;
 
+	void SpawnPlayerInfo(const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackages) const;
 protected:
 	void Show();
 private:

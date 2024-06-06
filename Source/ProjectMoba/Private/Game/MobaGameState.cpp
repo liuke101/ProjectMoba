@@ -24,13 +24,17 @@ void AMobaGameState::BeginPlay()
 	
 	if(GetWorld()->IsNetMode(NM_DedicatedServer))
 	{
+		TeamKillCount.Add(ETeamType::ETT_Red, 0);
+		TeamKillCount.Add(ETeamType::ETT_Blue, 0);
+		
 		// 延迟执行，等待客户端生成
 		GThread::GetCoroutines().BindLambda(4.0f,[&]()
 		{
 			//调用玩家的PlayerState，请求更新属性
-			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
+			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)
 			{
 				RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
+				
 				return MethodUnit::EServerCallType::ECT_InProgress;
 			});
 		});
@@ -359,6 +363,8 @@ void AMobaGameState::UpdateKillMessage(const FKillNetPackgae& KillNetPackgae) co
 
 void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 {
+	//TODO:金币奖励和金币UI
+	
 	if(KillerPlayerID == KilledPlayerID) return;
 
 	//击杀者和被击杀者的PlayerState，如果为nullptr则代表是AI
@@ -368,20 +374,27 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	/** 1 击杀者是玩家, 被击杀者是玩家 */
 	if(KillerPlayerState && KilledPlayerState)
 	{
-		//调用击杀系统(在其中处理击杀信息)
-		KillSystem.Kill(KillerPlayerID, KilledPlayerID);
+		//团队击杀
+		AddTeamKillCount(KillerPlayerState->GetPlayerDataComponent()->TeamType, 1);
 		
-		//记录玩家击杀数
+		//击杀提示
+		KillSystem.KillPrompt(KillerPlayerID, KilledPlayerID);
+		
+		//击杀结算
 		KillerPlayerState->GetPlayerDataComponent()->KillNum++;
+		KillerPlayerState->UpdateKDAInfo();
+
+		//被击杀结算
 		KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
-		//TODO:记录团队击杀数
-		
-		//助攻玩家记录助攻数，并获得奖励
+		KilledPlayerState->UpdateKDAInfo();
+
+		//助攻结算
 		for(const auto& Assit : KilledPlayerState->GetAssistPlayers())
 		{
 			if(AMobaPlayerState* AssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
 			{
 				AssitPlayerState->GetPlayerDataComponent()->AssistNum++;
+				AssitPlayerState->UpdateKDAInfo();
 			}
 		}
 	}
@@ -404,11 +417,12 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 					KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
 					UpdateKillMessage(KillNetPackgae);
 				}
-				//如果击杀小兵和野怪，记录补兵数
+				//如果击杀小兵和野怪
 				else 
 				{
+					//击杀结算
 					KillerPlayerState->GetPlayerDataComponent()->MinionKillNum++;
-					//TOOD:金币奖励和UI提示
+					KillerPlayerState->UpdateKDAInfo();
 				}
 			}
 		}
@@ -420,20 +434,31 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		if(const FAssistPlayer* LastAssistPlayer = KilledPlayerState->GetLastAssistPlayer())
 		{
 			//找到最近助攻的玩家记录击杀数（记为玩家击杀玩家）
-			if(const AMobaPlayerState* LastAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), LastAssistPlayer->PlayerID))
+			if(AMobaPlayerState* LastAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), LastAssistPlayer->PlayerID))
 			{
-				//调用击杀系统(在其中处理击杀信息)
-				KillSystem.Kill(LastAssistPlayer->PlayerID, KilledPlayerID);
+				//团队击杀
+				AddTeamKillCount(LastAssitPlayerState->GetPlayerDataComponent()->TeamType, 1);
+
+				//击杀提示
+				KillSystem.KillPrompt(LastAssistPlayer->PlayerID, KilledPlayerID);
+
+				//击杀者结算
 				LastAssitPlayerState->GetPlayerDataComponent()->KillNum++;
+				LastAssitPlayerState->UpdateKDAInfo();
 				
-				//其他助攻玩家记录助攻数
+				//被击杀者结算
+				KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
+				KilledPlayerState->UpdateKDAInfo();
+				
+				//助攻结算
 				for(const auto& Assit : KilledPlayerState->GetAssistPlayers())
 				{
 					if(Assit != *LastAssistPlayer)
 					{
-						if(const AMobaPlayerState* OtherAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
+						if(AMobaPlayerState* OtherAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
 						{
 							OtherAssitPlayerState->GetPlayerDataComponent()->AssistNum++;
+							OtherAssitPlayerState->UpdateKDAInfo();
 						}
 					}
 				}
@@ -446,6 +471,20 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 			{
 				if(const FCharacterAsset* KilledCharacterAsset = GetCharacterAssetFromPlayerID(KilledPlayerID))
 				{
+					//根据被击杀者队伍，为击杀者队伍增加击杀数
+					if(KilledPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Blue)
+					{
+						AddTeamKillCount(ETeamType::ETT_Red, 1);
+					}
+					else if(KilledPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Red)
+					{
+						AddTeamKillCount(ETeamType::ETT_Blue, 1);
+					}
+					
+					//被击杀者结算
+					KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
+					KilledPlayerState->UpdateKDAInfo();
+					
 					//收集和更新击杀信息
 					FKillNetPackgae KillNetPackgae;
 					KillNetPackgae.KillerName = KillerCharacterAsset->CharacterName;
@@ -635,3 +674,32 @@ void AMobaGameState::MulticastKillMessage(EKillType KillType, int64 KillerPlayer
 		return MethodUnit::EServerCallType::ECT_InProgress;
 	});
 }
+
+void AMobaGameState::AddTeamKillCount(const ETeamType TeamType, const int32 KillCount)
+{
+	if(TeamType == ETeamType::ETT_Red || TeamType == ETeamType::ETT_Blue)
+	{
+		TeamKillCount[TeamType] += KillCount;
+
+		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
+		{
+			int32 FriendlyKillCount = 0;
+			int32 EnemyKillCount = 0;
+			if(MobaPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Red)
+			{
+				FriendlyKillCount = TeamKillCount[ETeamType::ETT_Red];
+				EnemyKillCount = TeamKillCount[ETeamType::ETT_Blue];
+			}
+			else if(MobaPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Blue)
+			{
+				FriendlyKillCount = TeamKillCount[ETeamType::ETT_Blue];
+				EnemyKillCount = TeamKillCount[ETeamType::ETT_Red];
+			}
+
+			MobaPlayerState->Client_UpdateTeamKillCount(FriendlyKillCount, EnemyKillCount);
+
+			return MethodUnit::EServerCallType::ECT_InProgress;
+		});
+	}
+}
+

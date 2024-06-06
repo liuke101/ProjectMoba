@@ -18,9 +18,11 @@ class UPlayerDataComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
-DECLARE_DELEGATE_OneParam(FBindPlayerIDDelegate, int64);
-DECLARE_DELEGATE_OneParam(FBindPlayerKillMessageDelegate, const FKillNetPackgae&);
-DECLARE_DELEGATE_OneParam(FBindPlayerTeamDelegate,const TArray<FPlayerTeamNetPackage>& )
+DECLARE_DELEGATE_OneParam(FPlayerIDDelegate, int64);
+DECLARE_DELEGATE_OneParam(FPlayerKillMessageDelegate, const FKillNetPackgae&);
+DECLARE_DELEGATE_OneParam(FTeamInfoDelegate,const TArray<FPlayerTeamNetPackage>& )
+DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
+DECLARE_DELEGATE_TwoParams(FTeamKillCountDelegate, int32/*FriendlyKillCount*/, int32/*EnemyKillCount*/)
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -40,12 +42,18 @@ public:
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
 	
-	FBindPlayerIDDelegate PlayerIDDelegate; //绑定PlayerID
+	FPlayerIDDelegate PlayerIDDelegate; //绑定PlayerID
+	
 	FSimpleDelegate HideTopPanelDelegate; //隐藏角色信息TopPanel
 	
-	FBindPlayerKillMessageDelegate KillMessageDelegate; //绑定击杀信息
+	FPlayerKillMessageDelegate KillMessageDelegate; //击杀弹出信息
 
-	FBindPlayerTeamDelegate PlayerTeamDelegate; //绑定队伍信息
+	FTeamInfoDelegate TeamInfoDelegate; //队伍信息
+	
+	FKDAInfoDelegate KDAInfoDelegate; //KDA/补兵信息
+
+	FTeamKillCountDelegate TeamKillCountDelegate; //队伍击杀数
+	
 #pragma endregion
 
 #pragma region DataTable数据读取 
@@ -125,6 +133,12 @@ public:
 #pragma region 角色属性信息
 	void UpdateCharacterInfo(const int64& InPlayerID);
 #pragma endregion
+
+#pragma region 游戏信息
+	void GetPlayerKDANetPackage(FPlayerKDANetPackage& OutPlayerKDANetPackage);
+	/** 更新KDA信息栏 */
+	void UpdateKDAInfo();
+#pragma endregion
 	
 #pragma region RPC
 	//------------------数据-------------------
@@ -198,6 +212,13 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_ResponseAllPlayerTeamInfos(const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackage);
+
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateTeamKillCount(const int32& FriendlyKillCount, const int32& EnemyKillCount);
+
+	//------------------KDA信息-------------------//
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateKDAInfo(const FPlayerKDANetPackage& PlayerKDANetPackage);
 	
 #pragma endregion
 

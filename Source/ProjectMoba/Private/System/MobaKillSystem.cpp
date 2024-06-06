@@ -76,7 +76,7 @@ void FMobaKillSystem::Tick(float DeltaSeconds)
 	}
 }
 
-void FMobaKillSystem::Kill(const int64& KillerPlayerID, const int64& KilledPlayerID)
+void FMobaKillSystem::KillPrompt(const int64& KillerPlayerID, const int64& KilledPlayerID)
 {
 	AddContinuousKillHistory(KillerPlayerID, KilledPlayerID);
 	

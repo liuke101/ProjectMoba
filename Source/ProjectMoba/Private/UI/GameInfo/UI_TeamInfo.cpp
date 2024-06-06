@@ -8,7 +8,6 @@
 #include "Character/MobaPlayerController.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
-#include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
 #include "UI/GameInfo/UI_PlayersInfo.h"
 
@@ -31,35 +30,8 @@ void UUI_TeamInfo::NativeConstruct()
 	{
 		if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
 		{
-			MobaPlayerState->PlayerTeamDelegate.BindLambda([&](const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackages)
-			{
-				for(auto& Tmp : PlayerTeamNetPackages)
-				{
-					if(UUI_PlayersInfo* PlayerInfo = CreateWidget<UUI_PlayersInfo>(GetWorld(), PlayersInfoClass))
-					{
-						for(int i = 0; i<PlayerTeamNetPackages.Num();i++)
-						{
-							UVerticalBoxSlot* GridSlot = nullptr;
-							//目前还没区分队伍
-							if(i % 2 == 0) //偶数在左列
-							{
-								GridSlot = FriendlyTeam->AddChildToVerticalBox(PlayerInfo);
-							}
-							else //奇数在右列
-							{
-								GridSlot = EnemyTeam->AddChildToVerticalBox(PlayerInfo);
-							}
-						
-							GridSlot->SetPadding(1.0f);
-							GridSlot->SetHorizontalAlignment(HAlign_Fill);
-							GridSlot->SetVerticalAlignment(VAlign_Fill);
-
-							//更新
-							PlayerInfo->UpdateSlot(Tmp);
-						}
-					}
-				}
-			});
+			// 绑定委托
+			MobaPlayerState->TeamInfoDelegate.BindUObject(this, &UUI_TeamInfo::SpawnPlayerInfo);
 		}
 	});
 	
@@ -79,6 +51,36 @@ void UUI_TeamInfo::SpawnPlayerInfo(bool bEnemy, const int64& InPlayerID, const T
 	// 		}
 	// 	}
 	// }
+}
+
+void UUI_TeamInfo::SpawnPlayerInfo(const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackages) const
+{
+	for(auto& Tmp : PlayerTeamNetPackages)
+	{
+		if(UUI_PlayersInfo* PlayerInfo = CreateWidget<UUI_PlayersInfo>(GetWorld(), PlayersInfoClass))
+		{
+			for(int i = 0; i<PlayerTeamNetPackages.Num();i++)
+			{
+				UVerticalBoxSlot* GridSlot = nullptr;
+				//目前还没区分队伍
+				if(i % 2 == 0) //偶数在左列
+				{
+					GridSlot = EnemyTeam->AddChildToVerticalBox(PlayerInfo);
+				}
+				else //奇数在右列
+				{
+					GridSlot = FriendlyTeam->AddChildToVerticalBox(PlayerInfo);
+				}
+						
+				GridSlot->SetPadding(1.0f);
+				GridSlot->SetHorizontalAlignment(HAlign_Fill);
+				GridSlot->SetVerticalAlignment(VAlign_Fill);
+
+				//更新
+				PlayerInfo->UpdateSlot(Tmp);
+			}
+		}
+	}
 }
 
 void UUI_TeamInfo::Show()

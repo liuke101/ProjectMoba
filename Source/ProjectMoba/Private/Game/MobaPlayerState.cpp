@@ -615,6 +615,21 @@ void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 	
 }
 
+void AMobaPlayerState::GetPlayerKDANetPackage(FPlayerKDANetPackage& OutPlayerKDANetPackage)
+{
+	OutPlayerKDANetPackage.KillNum = GetPlayerDataComponent()->KillNum;
+	OutPlayerKDANetPackage.AssistNum = GetPlayerDataComponent()->AssistNum;
+	OutPlayerKDANetPackage.DeathNum = GetPlayerDataComponent()->DeathNum;
+	OutPlayerKDANetPackage.MinionKillNum = GetPlayerDataComponent()->MinionKillNum;
+}
+
+void AMobaPlayerState::UpdateKDAInfo()
+{
+	FPlayerKDANetPackage KDANetPackage;
+	GetPlayerKDANetPackage(KDANetPackage);
+	Client_UpdateKDAInfo(KDANetPackage);
+}
+
 void AMobaPlayerState::GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage)
 {
 	GetSlotNetPackage(GetInventorySlots(), OutNetPackage);
@@ -634,12 +649,29 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	}
 }
 
+void AMobaPlayerState::Client_UpdateTeamKillCount_Implementation(const int32& FriendlyKillCount,
+	const int32& EnemyKillCount)
+{
+	if(!TeamKillCountDelegate.ExecuteIfBound(FriendlyKillCount, EnemyKillCount))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindTeamKillCountDelegate委托"));
+	}
+}
+
+void AMobaPlayerState::Client_UpdateKDAInfo_Implementation(const FPlayerKDANetPackage& PlayerKDANetPackage)
+{
+	if(!KDAInfoDelegate.ExecuteIfBound(PlayerKDANetPackage))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindKDAInfoDelegate委托"));
+	}
+}
+
 void AMobaPlayerState::Server_RequestAllPlayerTeamInfos_Implementation()
 {
 	//收集队伍信息
 	TArray<FPlayerTeamNetPackage> PlayerTeamNetPackages;
 	
-	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(), [&](const AMobaPlayerState* MobaPlayerState)
+	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(), [&](AMobaPlayerState* MobaPlayerState)
 	{
 		FPlayerTeamNetPackage PlayerTeamNetPackage;
 
@@ -658,11 +690,8 @@ void AMobaPlayerState::Server_RequestAllPlayerTeamInfos_Implementation()
 			PlayerTeamNetPackage.PlayerInfoNetPackage.CharacterLevel = CharacterAttribute->Level;
 		}
 
-		//收集击杀信息
-		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.AssistNum = MobaPlayerState->GetPlayerDataComponent()->AssistNum;
-		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.DeathNum = MobaPlayerState->GetPlayerDataComponent()->DeathNum;
-		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.KillNum = MobaPlayerState->GetPlayerDataComponent()->KillNum;
-		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.MinionKillNum = MobaPlayerState->GetPlayerDataComponent()->MinionKillNum;
+		//收集KDA信息
+		MobaPlayerState->GetPlayerKDANetPackage(PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKDANetPackage);
 
 		//收集背包数据
 		for(auto& Tmp : *MobaPlayerState->GetInventorySlots())
@@ -684,7 +713,7 @@ void AMobaPlayerState::Server_RequestAllPlayerTeamInfos_Implementation()
 void AMobaPlayerState::Client_ResponseAllPlayerTeamInfos_Implementation(
 	const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackage)
 {
-	if(!PlayerTeamDelegate.ExecuteIfBound(PlayerTeamNetPackage))
+	if(!TeamInfoDelegate.ExecuteIfBound(PlayerTeamNetPackage))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerTeamDelegate委托"));
 	}

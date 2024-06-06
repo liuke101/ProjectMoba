@@ -98,11 +98,11 @@ struct FKillNetPackgae
 };
 
 USTRUCT(BlueprintType)
-struct FPlayerKillInfoNetPackage
+struct FPlayerKDANetPackage
 {
 	GENERATED_BODY()
 
-	FPlayerKillInfoNetPackage();
+	FPlayerKDANetPackage();
 
 	UPROPERTY()
 	int32 KillNum; //击杀数
@@ -122,6 +122,8 @@ struct FPlayerInfoNetPackage
 {
 	GENERATED_BODY()
 
+	FPlayerInfoNetPackage();
+	
 	UPROPERTY()
 	int64 PlayerID;
 
@@ -132,7 +134,7 @@ struct FPlayerInfoNetPackage
 	int32 CharacterLevel;
 
 	UPROPERTY()
-	FPlayerKillInfoNetPackage PlayerKillInfoNetPackage;
+	FPlayerKDANetPackage PlayerKDANetPackage;
 };
 
 USTRUCT(BlueprintType)

@@ -37,7 +37,6 @@ protected:
 	/** 复制 */
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	
 public:
 	/** 从DataTable中读数据 */
 	const TArray<FCharacterAsset*>* GetCachedCharacterAssets();
@@ -89,6 +88,9 @@ public:
 	/** 击杀系统 */
 	void BindKillFuntion();
 	void MulticastKillMessage(EKillType KillType, int64 KillerPlayerID, int64 KilledPlayerID);
+
+	/** 团队击杀数 */
+	void AddTeamKillCount(const ETeamType TeamType, const int32 KillCount);
 #pragma endregion 
 	
 protected:
@@ -111,4 +113,7 @@ private:
 
 	/** 击杀系统 */
 	FMobaKillSystem KillSystem;
+
+	/** 团队杀敌数 */
+	TMap<ETeamType, int32> TeamKillCount;
 };

@@ -64,8 +64,6 @@ struct FCharacterAttribute : public FMobaTableBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float CriticalRate; //暴击率
 
-	void InitAttribute();
-
 	/** 重置 */
 	void ResetAttribute();
 

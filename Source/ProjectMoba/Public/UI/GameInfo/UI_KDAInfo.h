@@ -4,25 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "UI/MobaUIBase.h"
-#include "UI_KillInfo.generated.h"
+#include "UI_KDAInfo.generated.h"
 
-struct FPlayerInfoNetPackage;
+struct FPlayerKDANetPackage;
 class UTextBlock;
 /**
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_KillInfo : public UMobaUIBase
+class PROJECTMOBA_API UUI_KDAInfo : public UMobaUIBase
 {
 	GENERATED_BODY()
 
 public:
-	void UpdateSlot(const FPlayerInfoNetPackage& PlayerInfoNetPackage) const;
+	virtual void NativeConstruct() override;
+	
+	void UpdateSlot(const FPlayerKDANetPackage& PlayerKDANetPackage) const;
 	
 private:
-	//击杀/死亡/助攻
+	//KDA
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> KillInfoText;
+	TObjectPtr<UTextBlock> KDAInfoText;
 
 	//补兵
 	UPROPERTY(meta = (BindWidget))

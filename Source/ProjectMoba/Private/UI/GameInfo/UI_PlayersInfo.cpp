@@ -7,7 +7,7 @@
 #include "Components/TextBlock.h"
 #include "ProjectMoba/MiscData.h"
 #include "UI/UI_Slot.h"
-#include "UI/GameInfo/UI_KillInfo.h"
+#include "UI/GameInfo/UI_KDAInfo.h"
 #include "UI/Inventory/UI_SimpleInventorySlot.h"
 
 UUI_PlayersInfo::UUI_PlayersInfo(): PlayerID(INDEX_NONE)
@@ -27,7 +27,7 @@ void UUI_PlayersInfo::UpdateSlot(const FPlayerTeamNetPackage& PlayerTeamNetPacka
 	LevelText->SetText(FText::FromString(FString::Printf(TEXT("%2d"), PlayerTeamNetPackage.PlayerInfoNetPackage.CharacterLevel)));
 	
 	//解析击杀信息
-	KillInfo->UpdateSlot(PlayerTeamNetPackage.PlayerInfoNetPackage);
+	KDAInfo->UpdateSlot(PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKDANetPackage);
 	
 	//解析背包信息
 	int i = 0;
@@ -35,6 +35,7 @@ void UUI_PlayersInfo::UpdateSlot(const FPlayerTeamNetPackage& PlayerTeamNetPacka
 	{
 		InSlot->SetSlotID(PlayerTeamNetPackage.SlotDataNetPackage.SlotIDs[i]);
 		InSlot->UpdateSlot(PlayerTeamNetPackage.SlotDataNetPackage.SlotDatas[i]);
+		i++;
 		return true;
 	});
 }

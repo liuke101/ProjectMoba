@@ -31,11 +31,15 @@ FKillNetPackgae::FKillNetPackgae()
 {
 }
 
-FPlayerKillInfoNetPackage::FPlayerKillInfoNetPackage()
+FPlayerKDANetPackage::FPlayerKDANetPackage()
 	: KillNum(0)
 	, DeathNum(0)
 	, AssistNum(0)
 	, MinionKillNum(0)
+{
+}
+
+FPlayerInfoNetPackage::FPlayerInfoNetPackage(): PlayerID(INDEX_NONE), CharacterLevel(0)
 {
 }
 

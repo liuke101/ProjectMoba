@@ -8,7 +8,7 @@
 #include "UI_PlayersInfo.generated.h"
 
 struct FPlayerTeamNetPackage;
-class UUI_KillInfo;
+class UUI_KDAInfo;
 class UHorizontalBox;
 class UImage;
 class UTextBlock;
@@ -41,6 +41,6 @@ private:
 	TObjectPtr<UHorizontalBox> SlotLayoutPanel;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUI_KillInfo> KillInfo;
+	TObjectPtr<UUI_KDAInfo> KDAInfo;
 	
 };
