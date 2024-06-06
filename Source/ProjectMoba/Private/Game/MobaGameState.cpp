@@ -4,6 +4,8 @@
 #include "Game/MobaGameState.h"
 
 #include "ThreadManage.h"
+#include "Character/MobaCharacter.h"
+#include "Character/Hero/MobaHeroCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
 #include "Engine/DataTable.h"
@@ -28,7 +30,7 @@ void AMobaGameState::BeginPlay()
 			//调用玩家的PlayerState，请求更新属性
 			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](const AMobaPlayerState* MobaPlayerState)
 			{
-				Server_RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
+				RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
 				return MethodUnit::EServerCallType::ECT_InProgress;
 			});
 		});
@@ -177,7 +179,7 @@ int32 AMobaGameState::GetCharacterIDFromPlayerID(const int64 PlayerID)
 	return INDEX_NONE;
 }
 
-void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64 PlayerID, int64 UpdatedPlayerID, const ECharacterAttributeType CharacterAttributeType)
+void AMobaGameState::RequestUpdateCharacterAttribute(int64 PlayerID, int64 UpdatedPlayerID, const ECharacterAttributeType CharacterAttributeType)
 {
 	if(PlayerID == INDEX_NONE || UpdatedPlayerID == INDEX_NONE) return;
 
@@ -186,7 +188,7 @@ void AMobaGameState::Server_RequestUpdateCharacterAttribute_Implementation(int64
 		//获取待更新角色属性
 		const FCharacterAttribute& CharacterAttribute = CharacterAttributes[UpdatedPlayerID];
 
-		//调用玩家的PlayerState，更新属性
+		//调用本地玩家的PlayerState，更新待更新角色的属性
 		MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)-> MethodUnit::EServerCallType
 		{
 			if(MobaPlayerState->GetPlayerID() == PlayerID)
@@ -565,6 +567,36 @@ void AMobaGameState::BindKillFuntion()
 	KillSystem.TianXiaWuDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_TianXiaWuDi, KillerPlayerID, KilledPlayerID);
+	};
+
+	KillSystem.TeamDeathFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	{
+		bool bTeamDie = true;
+
+		//这里要处理队伍信息
+		
+		if(AMobaPlayerState* KillPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(),KillerPlayerID))
+		{
+			MethodUnit::ServerCallAllHero<AMobaHeroCharacter>(GetWorld(), [&](AMobaHeroCharacter* MobaCharacter)
+			{
+				//有一个活的，就不算团灭
+				if(!MobaCharacter->IsDead())
+				{
+					bTeamDie = false;
+				}
+				return MethodUnit::EServerCallType::ECT_InProgress;
+			});
+
+			//团灭
+			if(bTeamDie)
+			{
+				GThread::GetCoroutines().BindLambda(3.0f, [&]()
+				{
+					MulticastKillMessage(EKillType::EKT_TeamDeath, KillerPlayerID, KilledPlayerID);
+				});
+			}
+		}
+		
 	};
 }
 

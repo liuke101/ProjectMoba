@@ -46,7 +46,7 @@ namespace MethodUnit
 	
 
 	template<class T>
-	void ServerCallAllCharacterAI(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
+	void ServerCallAllHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
 
 }
 
@@ -112,13 +112,13 @@ void MethodUnit::ServerCallAllPlayer(UWorld* InWorld, TFunction<EServerCallType(
 }
 
 template <class T>
-void MethodUnit::ServerCallAllCharacterAI(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+void MethodUnit::ServerCallAllHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
 {
 	ServerCallAllPlayer<AMobaPawn>(InWorld, [&](const AMobaPawn* MobaPawn)->EServerCallType
 	{
-		if(T* CharacterAI = Cast<T>(MobaPawn->GetControlledMobaHero()))
+		if(T* Hero = Cast<T>(MobaPawn->GetControlledMobaHero()))
 		{
-			return InImplement(CharacterAI);
+			return InImplement(Hero);
 		}
 		return EServerCallType::ECT_ProgressComplete;
 	});

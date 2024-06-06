@@ -65,13 +65,12 @@ public:
 	int32 GetCharacterIDFromPlayerID(const int64 PlayerID);
 
 #pragma region RPC
+	//GameState不能执行ClentRPC，我们通过在PlayerState中执行ClientRPC来调用下列接口
 public:
 	/** 请求更新属性 */
-	UFUNCTION(Server, Reliable)
-	void Server_RequestUpdateCharacterAttribute(int64 PlayerID, int64 UpdatedPlayerID, const ECharacterAttributeType CharacterAttributeType);
+	void RequestUpdateCharacterAttribute(int64 PlayerID, int64 UpdatedPlayerID, const ECharacterAttributeType CharacterAttributeType);
 
 	/** 响应更新属性 */
-	//GameState不能执行ClentRPC，我们通过在PlayerState中执行ClientRPC来调用下列接口
 	//更新协议相应的属性
 	void ResponseUpdateCharacterAttribute(int64 PlayerID, const ECharacterAttributeType CharacterAttributeType, float Value); 
 	//更新整包
@@ -79,6 +78,7 @@ public:
 
 	/** 更新击杀信息 */
 	void UpdateKillMessage(const FKillNetPackgae& KillNetPackgae) const;
+
 #pragma endregion
 
 #pragma region 战斗

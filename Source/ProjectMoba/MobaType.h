@@ -125,4 +125,6 @@ enum class EKillType : uint8
 	EKT_WanFuMoDi UMETA(DisplayName="WanFuMoDi"), //万夫莫敌
 	EKT_JuShiWuShuang UMETA(DisplayName="JuShiWuShuang"), //举世无双
 	EKT_TianXiaWuDi UMETA(DisplayName="TianXiaWuDi"), //天下无敌
+
+	EKT_TeamDeath UMETA(DisplayName="TuanMie"), //团灭
 };

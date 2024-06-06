@@ -48,7 +48,8 @@ void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UUI_Slot::ResetSlot()
 {
-	SlotIcon->SetVisibility(ESlateVisibility::Hidden);
+	Super::ResetSlot();
+	
 	SlotCD->SetVisibility(ESlateVisibility::Hidden);
 	SlotCDValue->SetVisibility(ESlateVisibility::Hidden);
 }
@@ -130,22 +131,6 @@ void UUI_Slot::DrawSlotCDText(float CD) const
 	SetTextNumber(SlotCDValue, CD);
 }
 
-void UUI_Slot::UpdateIcon(UTexture2D* IconTexture) const
-{
-	if (SlotIcon)
-	{
-		if (IconTexture)
-		{
-			SlotIcon->SetBrushFromTexture(IconTexture);
-			SlotIcon->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-		else
-		{
-			SlotIcon->SetVisibility(ESlateVisibility::Hidden);
-		}
-	}
-}
-
 void UUI_Slot::OnClickedWidget()
 {
 	
@@ -153,41 +138,4 @@ void UUI_Slot::OnClickedWidget()
 
 void UUI_Slot::OnReleasedWidget()
 {
-}
-
-void UUI_Slot::SetTextNumber(UTextBlock* TextNumberBlock, float TextNumber)
-{
-	if (TextNumber <= 0.f)
-	{
-		TextNumberBlock->SetVisibility(ESlateVisibility::Hidden);
-	}
-	else
-	{
-		//0.0~1.0 保留一位小数
-		if (TextNumber > 0.f && TextNumber <= 1.0f)
-		{
-			TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), TextNumber)));
-		}
-		// >1.0 只保留整数
-		else
-		{
-			TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%02d"), static_cast<int32>(TextNumber))));
-		}
-		
-		TextNumberBlock->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
-}
-
-void UUI_Slot::SetTextNumber(UTextBlock* TextNumberBlock, int32 TextNumber)
-{
-	if (TextNumber < 1)
-	{
-		TextNumberBlock->SetVisibility(ESlateVisibility::Hidden);
-	}
-	else
-	{
-		TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%02d"), TextNumber)));
-
-		TextNumberBlock->SetVisibility(ESlateVisibility::HitTestInvisible);
-	}
 }

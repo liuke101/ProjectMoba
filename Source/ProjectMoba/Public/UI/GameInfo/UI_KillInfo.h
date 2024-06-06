@@ -6,6 +6,7 @@
 #include "UI/MobaUIBase.h"
 #include "UI_KillInfo.generated.h"
 
+struct FPlayerInfoNetPackage;
 class UTextBlock;
 /**
  * 
@@ -15,6 +16,9 @@ class PROJECTMOBA_API UUI_KillInfo : public UMobaUIBase
 {
 	GENERATED_BODY()
 
+public:
+	void UpdateSlot(const FPlayerInfoNetPackage& PlayerInfoNetPackage) const;
+	
 private:
 	//击杀/死亡/助攻
 	UPROPERTY(meta = (BindWidget))
@@ -23,4 +27,5 @@ private:
 	//补兵
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> MinionKillNumber;
+
 };

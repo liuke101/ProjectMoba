@@ -64,6 +64,9 @@ void UUI_KillMsg::NativeConstruct()
 				case EKillType::EKT_TianXiaWuDi:
 					UpdateSlot(KillNetPackgae,FText::FromString(TEXT("天下无敌")));
 					break;
+				case EKillType::EKT_TeamDeath:
+					UpdateSlot(KillNetPackgae,FText::FromString(TEXT("团灭")));
+					break;
 				}
 			});
 		}

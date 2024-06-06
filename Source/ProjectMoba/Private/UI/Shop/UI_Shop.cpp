@@ -28,7 +28,7 @@ void UUI_Shop::NativeConstruct()
 	{
 		if(UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(MobaPlayerController->InputComponent))
 		{
-			EnhancedInputComponent->BindAction(MobaPlayerController->P_Action, ETriggerEvent::Started, this, &UUI_Shop::OnNativeKey);
+			EnhancedInputComponent->BindAction(MobaPlayerController->P_Action, ETriggerEvent::Started, this, &UUI_Shop::Show);
 		}
 	}
 
@@ -145,7 +145,7 @@ void UUI_Shop::OnClickedWidget()
 }
 
 
-void UUI_Shop::OnNativeKey()
+void UUI_Shop::Show()
 {
 	if (GetVisibility() == ESlateVisibility::Hidden)
 	{

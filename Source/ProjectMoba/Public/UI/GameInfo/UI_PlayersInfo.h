@@ -7,6 +7,7 @@
 #include "UI/UI_Bar.h"
 #include "UI_PlayersInfo.generated.h"
 
+struct FPlayerTeamNetPackage;
 class UUI_KillInfo;
 class UHorizontalBox;
 class UImage;
@@ -23,7 +24,7 @@ public:
 
 	virtual void NativeConstruct() override;
 
-	void UpdateSlot(const int64 &InPlayerID,const TArray<int32> &InSlotsID);
+	void UpdateSlot(const FPlayerTeamNetPackage& PlayerTeamNetPackage);
 protected:
 	virtual UPanelWidget* GetSlotLayoutPanel() override;
 

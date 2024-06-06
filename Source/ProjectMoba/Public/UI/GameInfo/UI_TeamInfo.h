@@ -20,7 +20,8 @@ public:
 	virtual void NativeConstruct() override;
 	void SpawnPlayerInfo(bool bEnemy,const int64 &InPlayerID,const TArray<int32>& InSlotsID) const;
 
-
+protected:
+	void Show();
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> EnemyTeam;

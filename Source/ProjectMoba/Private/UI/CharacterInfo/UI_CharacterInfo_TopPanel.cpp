@@ -23,7 +23,7 @@ void UUI_CharacterInfo_TopPanel::NativeConstruct()
 		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 		{
 			//ID绑定委托
-			MobaPlayerState->BindPlayerIDDelegate.BindLambda([&](int64 InPlayerID)
+			MobaPlayerState->PlayerIDDelegate.BindLambda([&](int64 InPlayerID)
 			{
 				CharacterInfo->SetPlayerID(InPlayerID);
 

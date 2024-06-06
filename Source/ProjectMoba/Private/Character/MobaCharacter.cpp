@@ -169,8 +169,8 @@ void AMobaCharacter::MultiCastReborn_Implementation()
 			//更新属性面板
 			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 			{
-				MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);
-				MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentMana);
+				MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);
+				MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentMana);
 			}
 		}
 
@@ -272,7 +272,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			
 				//更新UI
 				MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent()); //血条
-				MobaGameState->Server_RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
+				MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 			
 				if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
 				{

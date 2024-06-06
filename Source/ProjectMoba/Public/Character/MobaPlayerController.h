@@ -66,6 +66,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> P_Action;
 #pragma endregion
+
+#pragma region 队伍
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> Tab_Action;
+#pragma endregion
 	
 protected:
 	/** 如果Character应该移动到鼠标光标. */

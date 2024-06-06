@@ -11,13 +11,8 @@ struct FPlayerLocation
 {
 	GENERATED_BODY()
 
-	FPlayerLocation(){};
-
-	FPlayerLocation(const int64 InplayerID, const FVector& InLocation)
-		: PlayerID(InplayerID),
-		  Location(InLocation)
-	{
-	}
+	FPlayerLocation();
+	FPlayerLocation(const int64 InplayerID, const FVector& InLocation);
 
 	UPROPERTY()
 	int64 PlayerID = INDEX_NONE;
@@ -33,14 +28,7 @@ struct FSlotData
 {
 	GENERATED_BODY()
 
-	FSlotData()
-		: DataID(INDEX_NONE)
-		, SlotIcon(nullptr)
-		, CD(0.0f)
-		, Number(INDEX_NONE)
-		, MaxStackingQuantity(5)
-		, bCancelBuy(true)
-	{}
+	FSlotData();
 
 	UPROPERTY()
 	int32 DataID;  //DataID用于读取DataTable, 相当于存储了该Slot的表
@@ -76,7 +64,7 @@ struct FSlotDataNetPackage
 {
 	GENERATED_BODY()
 
-	FSlotDataNetPackage(){}
+	FSlotDataNetPackage();
 	
 	UPROPERTY()
 	TArray<int32> SlotIDs;
@@ -85,6 +73,79 @@ struct FSlotDataNetPackage
 	TArray<FSlotData> SlotDatas; //存了DataID
 };
 
+/** 击杀 */
+USTRUCT(BlueprintType)
+struct FKillNetPackgae
+{
+	GENERATED_BODY()
+
+	FKillNetPackgae();
+
+	UPROPERTY()
+	EKillType KillType;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> KillerIcon;
+	
+	UPROPERTY()
+	FName KillerName;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> KilledIcon;
+	
+	UPROPERTY()
+	FName KilledName;
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerKillInfoNetPackage
+{
+	GENERATED_BODY()
+
+	FPlayerKillInfoNetPackage();
+
+	UPROPERTY()
+	int32 KillNum; //击杀数
+
+	UPROPERTY()
+	int32 DeathNum; //死亡数
+
+	UPROPERTY()
+	int32 AssistNum; //助攻数
+
+	UPROPERTY()
+	int32 MinionKillNum; //补兵数
+};
+
+USTRUCT()
+struct FPlayerInfoNetPackage
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int64 PlayerID;
+
+	UPROPERTY()
+	TObjectPtr<UTexture2D> PlayerIcon;
+
+	UPROPERTY()
+	int32 CharacterLevel;
+
+	UPROPERTY()
+	FPlayerKillInfoNetPackage PlayerKillInfoNetPackage;
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerTeamNetPackage
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FPlayerInfoNetPackage PlayerInfoNetPackage;
+
+	UPROPERTY()
+	FSlotDataNetPackage SlotDataNetPackage;
+};
 
 /** 助攻 */
 USTRUCT(BlueprintType)
@@ -92,10 +153,7 @@ struct FAssistPlayer
 {
 	GENERATED_BODY()
 
-	FAssistPlayer()
-		: PlayerID(INDEX_NONE)
-		, AssistTime(10.0f)
-	{}
+	FAssistPlayer();
 
 	UPROPERTY()
 	int64 PlayerID;
@@ -115,30 +173,3 @@ FORCEINLINE bool operator!=(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)
 {
 	return Lhs.PlayerID != Rhs.PlayerID;
 }
-
-USTRUCT(BlueprintType)
-struct FKillNetPackgae
-{
-	GENERATED_BODY()
-
-	FKillNetPackgae()
-		: KillType(EKillType::EKT_NormalKill)
-		, KillerName("DefaultKiller")
-		, KilledName("DefaultKilled")
-	{}
-
-	UPROPERTY()
-	EKillType KillType;
-
-	UPROPERTY()
-	TObjectPtr<UTexture2D> KillerIcon;
-	
-	UPROPERTY()
-	FName KillerName;
-
-	UPROPERTY()
-	TObjectPtr<UTexture2D> KilledIcon;
-	
-	UPROPERTY()
-	FName KilledName;
-};

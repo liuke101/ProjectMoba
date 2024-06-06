@@ -82,6 +82,9 @@ public:
 	TKillFunction JuShiWuShuangFunction; //举世无双
 	TKillFunction TianXiaWuDiFunction; //天下无敌
 
+	//团灭
+	TKillFunction TeamDeathFunction;
+
 	// 成就记录
 	int64 FirstBlood;
 	TArray<int64> DoubleKillsArray;

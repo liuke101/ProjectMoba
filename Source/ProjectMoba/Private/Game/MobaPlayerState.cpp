@@ -9,7 +9,6 @@
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
-#include "ProjectMoba/GlobalVariable.h"
 #include "ProjectMoba/MiscData.h"
 #include "Table/CharacterAsset.h"
 #include "Table/SlotAttribute.h"
@@ -109,7 +108,6 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 		{
 			PlayerDataComponent->SaleSlotDistanceQueue.Remove(RemoveSaleSlot);
 		}
-
 	}
 }
 
@@ -612,7 +610,7 @@ void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 	//更新属性(通过发送整包）
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
-		MobaGameState->Server_RequestUpdateCharacterAttribute(GetPlayerID(), InPlayerID, ECharacterAttributeType::ECAT_All);
+		MobaGameState->RequestUpdateCharacterAttribute(GetPlayerID(), InPlayerID, ECharacterAttributeType::ECAT_All);
 	}
 	
 }
@@ -633,6 +631,62 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	{
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
+}
+
+void AMobaPlayerState::Server_RequestAllPlayerTeamInfos_Implementation()
+{
+	//收集队伍信息
+	TArray<FPlayerTeamNetPackage> PlayerTeamNetPackages;
+	
+	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(), [&](const AMobaPlayerState* MobaPlayerState)
+	{
+		FPlayerTeamNetPackage PlayerTeamNetPackage;
+
+		// 收集玩家信息
+		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerID = MobaPlayerState->GetPlayerID();
+		
+		if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(
+			GetWorld(), MobaPlayerState->GetPlayerID()))
+		{
+			PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerIcon = CharacterAsset->CharacterIcon;
+		}
+		
+		if(const FCharacterAttribute* CharacterAttribute = MethodUnit::GetCharacterAttributeFromPlayerID(
+				GetWorld(), MobaPlayerState->GetPlayerID()))
+		{
+			PlayerTeamNetPackage.PlayerInfoNetPackage.CharacterLevel = CharacterAttribute->Level;
+		}
+
+		//收集击杀信息
+		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.AssistNum = MobaPlayerState->GetPlayerDataComponent()->AssistNum;
+		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.DeathNum = MobaPlayerState->GetPlayerDataComponent()->DeathNum;
+		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.KillNum = MobaPlayerState->GetPlayerDataComponent()->KillNum;
+		PlayerTeamNetPackage.PlayerInfoNetPackage.PlayerKillInfoNetPackage.MinionKillNum = MobaPlayerState->GetPlayerDataComponent()->MinionKillNum;
+
+		//收集背包数据
+		for(auto& Tmp : *MobaPlayerState->GetInventorySlots())
+		{
+			PlayerTeamNetPackage.SlotDataNetPackage.SlotIDs.Add(Tmp.Key);
+			PlayerTeamNetPackage.SlotDataNetPackage.SlotDatas.Add(Tmp.Value);
+		}
+
+		
+		PlayerTeamNetPackages.Add(PlayerTeamNetPackage);
+		
+		return MethodUnit::EServerCallType::ECT_InProgress;
+	});
+
+	//发送网络传输包到客户端，客户端进行响应
+	Client_ResponseAllPlayerTeamInfos(PlayerTeamNetPackages);
+}
+
+void AMobaPlayerState::Client_ResponseAllPlayerTeamInfos_Implementation(
+	const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackage)
+{
+	if(!PlayerTeamDelegate.ExecuteIfBound(PlayerTeamNetPackage))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerTeamDelegate委托"));
 	}
 }
 
@@ -664,7 +718,7 @@ void AMobaPlayerState::Client_ResponseUpdateAllCharacterAttributes_Implementatio
 
 void AMobaPlayerState::Client_UpdatePlayerID_Implementation(const int64 InPlayerID)
 {
-	if(!BindPlayerIDDelegate.ExecuteIfBound(InPlayerID))
+	if(!PlayerIDDelegate.ExecuteIfBound(InPlayerID))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerIDDelegate委托"));
 	}

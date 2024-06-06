@@ -192,6 +192,9 @@ void FMobaKillSystem::Kill(const int64& KillerPlayerID, const int64& KilledPlaye
 			break;
 		}
 	}
+
+	//团灭
+	TeamDeathFunction(KillerPlayerID, KilledPlayerID);
 }
 
 void FMobaKillSystem::Death(const int64& KilledPlayerID)

@@ -40,7 +40,7 @@ protected:
 
 	/** F11商城显隐 */
 	UFUNCTION(BlueprintCallable)
-	void OnNativeKey();
+	void Show();
 
 	/** Item合成 */
 	UFUNCTION(BlueprintCallable)
