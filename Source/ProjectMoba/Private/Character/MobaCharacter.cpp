@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
+#include "Net/UnrealNetwork.h"
 #include "ProjectMoba/GlobalVariable.h"
 #include "Table/CharacterAsset.h"
 #include "UI/StatusBar/UI_StatusBar.h"
@@ -64,8 +65,13 @@ void AMobaCharacter::Tick(float DeltaSeconds)
 			MobaGameState->UpdateCharacterLocation(GetPlayerID(), GetActorLocation());
 		}
 	}
+}
 
-	
+void AMobaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(AMobaCharacter, TeamType, COND_SimulatedOnly);
 }
 
 void AMobaCharacter::BeginPlay()
@@ -74,6 +80,10 @@ void AMobaCharacter::BeginPlay()
 	if(GetLocalRole()==ROLE_Authority)
 	{
 		SpawnDefaultController(); //生成AIController
+	}
+	else
+	{
+		InitHealthBarColorfromTeamType();
 	}
 }
 
@@ -120,6 +130,7 @@ void AMobaCharacter::Multicast_StatusBar_Implementation(float HealthPercent, flo
 			StatusBarUI_Health->SetHealthPercent(HealthPercent);
 		}
 	}
+	
 }
 
 void AMobaCharacter::Multicast_StatusBar_Health_Implementation(float HealthPercent)
@@ -137,7 +148,13 @@ void AMobaCharacter::Multicast_StatusBar_Health_Implementation(float HealthPerce
 			StatusBarUI_Health->SetHealthPercent(HealthPercent);
 		}
 
+		//死亡后隐藏状态栏
+		if(HealthPercent <= 0.0f)
+		{
+			StatusBarComponent->SetVisibility(false);
+		}
 	}
+	
 }
 
 void AMobaCharacter::Multicast_StatusBar_Mana_Implementation(float ManaPercent)
@@ -152,11 +169,34 @@ void AMobaCharacter::Multicast_StatusBar_Mana_Implementation(float ManaPercent)
 	}
 }
 
+void AMobaCharacter::InitHealthBarColorfromTeamType()
+{
+	if(const AMobaPlayerState* MobaPlayerState = MethodUnit::GetMobaPlayerState(GetWorld()))
+	{
+		//队伍血条颜色区分
+		if(const UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			//PlayerDataComponet上的TeamType是本地玩家的队伍
+			if(MobaPlayerState->GetPlayerDataComponent()->TeamType == this->TeamType) //友军绿色
+			{
+				StatusBarUI_Health->SetColor(FLinearColor::Green);
+			}
+			else //敌方队伍 + 中立 红色
+			{
+				StatusBarUI_Health->SetColor(FLinearColor::Red);
+			}
+		}
+	}
+	else
+	{
+		GThread::GetCoroutines().BindUObject(0.3f, this, &AMobaCharacter::InitHealthBarColorfromTeamType);
+	}
+}
+
 void AMobaCharacter::Multicast_Reborn_Implementation()
 {
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		
 		if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 		{
 			//重置属性
@@ -172,9 +212,12 @@ void AMobaCharacter::Multicast_Reborn_Implementation()
 				MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentMana);
 			}
 		}
-
-		
 	}
+	else
+	{
+		StatusBarComponent->SetVisibility(true); //出生后显示状态栏
+	}
+	
 	StopAnimMontage(); //停止死亡动画
 }
 

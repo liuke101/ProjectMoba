@@ -19,8 +19,12 @@ public:
 
 	void SetHealthPercent(const float InPercent) const;
 
+	void SetColor(const FLinearColor& InColor) const;
+
 private:
 
 	UPROPERTY(meta= (BindWidget))
 	TObjectPtr<UProgressBar> HealthBar;
+
+	
 };

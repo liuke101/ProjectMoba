@@ -19,6 +19,10 @@ class PROJECTMOBA_API AMobaCharacter : public ACharacter
 public:
 	AMobaCharacter();
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -38,6 +42,8 @@ public:
 	void Multicast_StatusBar_Health(float HealthPercent);
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_StatusBar_Mana(float ManaPercent);
+	
+	void InitHealthBarColorfromTeamType(); //跟据队伍类型初始化血条颜色
 	
 	/** 重生 */
 	UFUNCTION(NetMulticast, Unreliable)
@@ -91,7 +97,10 @@ protected:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
 	int64 PlayerID;
+
+	UPROPERTY(Replicated)
 	ETeamType TeamType;
+	
 	ECharacterType CharacterType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Character")

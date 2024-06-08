@@ -34,7 +34,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	FName PlayerName;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	ETeamType TeamType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")

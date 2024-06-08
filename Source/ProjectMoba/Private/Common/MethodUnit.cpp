@@ -38,6 +38,15 @@ AMobaPlayerState* MethodUnit::GetMobaPlayerStateFromPlayerID(UWorld* InWorld, co
 	
 }
 
+AMobaPlayerState* MethodUnit::GetMobaPlayerState(UWorld* InWorld)
+{
+	if(InWorld)
+	{
+		return InWorld->GetFirstPlayerController()->GetPlayerState<AMobaPlayerState>();
+	}
+	return nullptr;
+}
+
 const FCharacterAsset* MethodUnit::GetCharacterAssetFromCharacterID(const UWorld* InWorld, const int32 CharacterID)
 {
 	if(AMobaGameState* MobaGameState = GetMobaGameState(InWorld))
@@ -55,7 +64,6 @@ const FCharacterAsset* MethodUnit::GetCharacterAssetFromPlayerID(const UWorld* I
 	}
 	return nullptr;
 }
-
 
 const FCharacterAttribute* MethodUnit::GetCharacterAttributeFromCharacterID(const UWorld* InWorld, const int32 CharacterID)
 {
@@ -94,7 +102,11 @@ AMobaPawn* MethodUnit::GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID)
 
 AMobaPawn* MethodUnit::GetMobaPawn(UWorld* InWorld)
 {
-	return Cast<AMobaPawn>(UGameplayStatics::GetPlayerPawn(InWorld, 0));
+	if(InWorld)
+	{
+		return InWorld->GetFirstPlayerController()->GetPawn<AMobaPawn>();
+	}
+	return nullptr;
 }
 
 

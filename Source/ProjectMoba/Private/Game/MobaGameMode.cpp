@@ -83,7 +83,7 @@ void AMobaGameMode::SpawnMinionsOnServer() const
 				
 							if(PlayerID!= INDEX_NONE)
 							{
-								MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, ETeamType::ETT_None, ECharacterType::ECT_None);
+								MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, CharacterSpawnPoint->GetTeamType() , CharacterSpawnPoint->GetCharacterType());
 							}
 						}
 					}
