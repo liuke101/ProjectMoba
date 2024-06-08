@@ -6,6 +6,7 @@
 #include "ThreadManage.h"
 #include "Components/TextBlock.h"
 #include "Game/MobaPlayerState.h"
+#include "UI/GameInfo/UI_KDAInfo.h"
 
 void UUI_GameInfo::NativeConstruct()
 {
@@ -16,10 +17,10 @@ void UUI_GameInfo::NativeConstruct()
 		if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
 		{
 			// 绑定委托
+			MobaPlayerState->KDAInfoDelegate.BindUObject(KDAInfo, &UUI_KDAInfo::UpdateSlot);
 			MobaPlayerState->TeamKillCountDelegate.BindUObject(this, &UUI_GameInfo::UpdateTeamKillCount);
 		}
 	});
-	
 }
 
 void UUI_GameInfo::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

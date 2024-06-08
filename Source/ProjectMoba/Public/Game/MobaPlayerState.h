@@ -4,8 +4,11 @@
 #include "Component/PlayerDataComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "ProjectMoba/MiscData.h"
+#include "System/MobaAssistSystem.h"
 #include "MobaPlayerState.generated.h"
 
+struct FMobaAssitSystem;
+struct FAssistPlayer;
 enum class ECharacterAttributeType : uint8;
 struct FCharacterAttribute;
 struct FSlotDataNetPackage;
@@ -122,13 +125,14 @@ public:
 	void GetAllSkillSlotIDs(TArray<int32>& OutSlotIDs) const;
 	int32 GetSkillDataIDFromSlotID(int32 SlotID) const;
 #pragma endregion
-
+	
 #pragma region 助攻
-	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const { return AssistPlayers; }
+	/** 助攻 */
+	FMobaAssitSystem* GetMobaAssistSystem() { return &MobaAssistSystem; }
+	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const;
 	void AddAssistPlayer(const int64& InPlayerID);
-	/** 获取最后一个助攻玩家 */
-	const FAssistPlayer* GetLastAssistPlayer();
-#pragma  endregion 
+	const FAssistPlayer* GetLastAssistPlayer(); //获取最后一个助攻玩家
+#pragma  endregion   
 
 #pragma region 角色属性信息
 	void UpdateCharacterInfo(const int64& InPlayerID);
@@ -242,11 +246,10 @@ private:
 	TArray<FSlotAsset*> CacheSlotAssets; 
 	TArray<FSlotAttribute*> CacheSlotAttributes;
 
-	/** 助攻列表（攻击我的敌方英雄） */
-	TArray<FAssistPlayer> AssistPlayers;
-
 	float GoldTime = 0.0f; //金币时间
 	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
 
+	/** 助攻系统 */
+	FMobaAssitSystem MobaAssistSystem;
 #pragma endregion 
 };

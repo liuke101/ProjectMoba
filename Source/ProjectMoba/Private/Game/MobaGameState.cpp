@@ -6,11 +6,13 @@
 #include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/Hero/MobaHeroCharacter.h"
+#include "Character/Turret/MobaTurretCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
 #include "Engine/DataTable.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectMoba/MiscData.h"
+#include "System/MobaAssistSystem.h"
 #include "Table/CharacterAsset.h"
 
 AMobaGameState::AMobaGameState()
@@ -370,6 +372,9 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	//击杀者和被击杀者的PlayerState，如果为nullptr则代表是AI
 	AMobaPlayerState* KillerPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KillerPlayerID);
 	AMobaPlayerState* KilledPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KilledPlayerID);
+
+	const FCharacterAsset* KillerCharacterAsset = GetCharacterAssetFromPlayerID(KillerPlayerID);
+	const FCharacterAsset* KilledCharacterAsset = GetCharacterAssetFromPlayerID(KilledPlayerID);
 	
 	/** 1 击杀者是玩家, 被击杀者是玩家 */
 	if(KillerPlayerState && KilledPlayerState)
@@ -378,7 +383,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		AddTeamKillCount(KillerPlayerState->GetPlayerDataComponent()->TeamType, 1);
 		
 		//击杀提示
-		KillSystem.KillPrompt(KillerPlayerID, KilledPlayerID);
+		MobaKillSystem.KillPrompt(KillerPlayerID, KilledPlayerID);
 		
 		//击杀结算
 		KillerPlayerState->GetPlayerDataComponent()->KillNum++;
@@ -401,59 +406,76 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	/** 2 击杀者是玩家, 被击杀者是AI */
 	else if(KillerPlayerState && !KilledPlayerState)
 	{
-		if(const FCharacterAsset* KillerCharacterAsset = GetCharacterAssetFromPlayerID(KillerPlayerID))
+		//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
+		//找到最近助攻的玩家记录击杀数（记为玩家击杀AI）
+		if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
 		{
-			if(const FCharacterAsset* KilledCharacterAsset = GetCharacterAssetFromPlayerID(KilledPlayerID))
+			if(AMobaTurretCharacter* Turret = Cast<AMobaTurretCharacter>(MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KilledPlayerID)))
 			{
-				//如果击杀跑塔
-				//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
-				if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
+				//炮塔击杀者
+				if(const FAssistPlayer* LastAssistPlayer = Turret->GetLastAssistPlayer())
 				{
-					//收集和更新击杀信息
-					FKillNetPackgae KillNetPackgae;
-					KillNetPackgae.KillerName = KillerPlayerState->GetPlayerDataComponent()->PlayerName;
-					KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
-					KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
-					KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
-					UpdateKillMessage(KillNetPackgae);
-				}
-				//如果击杀小兵和野怪
-				else 
-				{
-					//击杀结算
-					KillerPlayerState->GetPlayerDataComponent()->MinionKillNum++;
-					KillerPlayerState->UpdateKDAInfo();
+					
+					//炮塔助攻者
+					for(const auto& OtherAssitPlayer : Turret->GetAssistPlayers())
+					{
+						if(OtherAssitPlayer != *LastAssistPlayer)
+						{
+							//找到助攻玩家记录击杀数（记为玩家助攻AI）
+							if(AMobaPlayerState* AssistPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), OtherAssitPlayer.PlayerID))
+							{
+							
+							}
+						}
+					}
 				}
 			}
+			if(KillerCharacterAsset && KilledCharacterAsset)
+			{
+				//收集和更新击杀信息
+				FKillNetPackgae KillNetPackgae;
+				KillNetPackgae.KillerName = KillerPlayerState->GetPlayerDataComponent()->PlayerName;
+				KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
+				KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
+				KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
+				UpdateKillMessage(KillNetPackgae);
+			}
+		}
+		//如果击杀小兵和野怪
+		else 
+		{
+			//击杀结算
+			KillerPlayerState->GetPlayerDataComponent()->MinionKillNum++;
+			KillerPlayerState->UpdateKDAInfo();
 		}
 	}
 	/** 3 击杀者是AI, 被击杀者是玩家 */
 	else if(!KillerPlayerState && KilledPlayerState)
 	{
 		//在一定时间有玩家助攻
-		if(const FAssistPlayer* LastAssistPlayer = KilledPlayerState->GetLastAssistPlayer())
+		if(const FAssistPlayer* LastAssist = KilledPlayerState->GetLastAssistPlayer())
 		{
 			//找到最近助攻的玩家记录击杀数（记为玩家击杀玩家）
-			if(AMobaPlayerState* LastAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), LastAssistPlayer->PlayerID))
+			if(AMobaPlayerState* LastAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), LastAssist->PlayerID))
 			{
 				//团队击杀
 				AddTeamKillCount(LastAssitPlayerState->GetPlayerDataComponent()->TeamType, 1);
 
 				//击杀提示
-				KillSystem.KillPrompt(LastAssistPlayer->PlayerID, KilledPlayerID);
+				MobaKillSystem.KillPrompt(LastAssist->PlayerID, KilledPlayerID);
 
 				//击杀者结算
 				LastAssitPlayerState->GetPlayerDataComponent()->KillNum++;
 				LastAssitPlayerState->UpdateKDAInfo();
-				
+			
 				//被击杀者结算
 				KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
 				KilledPlayerState->UpdateKDAInfo();
-				
+			
 				//助攻结算
 				for(const auto& Assit : KilledPlayerState->GetAssistPlayers())
 				{
-					if(Assit != *LastAssistPlayer)
+					if(Assit != *LastAssist) //排除击杀者
 					{
 						if(AMobaPlayerState* OtherAssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
 						{
@@ -467,59 +489,52 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		//没有玩家助攻，则播放AI击杀玩家信息
 		else
 		{
-			if(const FCharacterAsset* KillerCharacterAsset = GetCharacterAssetFromPlayerID(KillerPlayerID))
+			if(KillerCharacterAsset && KilledCharacterAsset)
 			{
-				if(const FCharacterAsset* KilledCharacterAsset = GetCharacterAssetFromPlayerID(KilledPlayerID))
+				//根据被击杀者队伍，为击杀者队伍增加击杀数
+				if(KilledPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Blue)
 				{
-					//根据被击杀者队伍，为击杀者队伍增加击杀数
-					if(KilledPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Blue)
-					{
-						AddTeamKillCount(ETeamType::ETT_Red, 1);
-					}
-					else if(KilledPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Red)
-					{
-						AddTeamKillCount(ETeamType::ETT_Blue, 1);
-					}
-					
-					//被击杀者结算
-					KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
-					KilledPlayerState->UpdateKDAInfo();
-					
-					//收集和更新击杀信息
-					FKillNetPackgae KillNetPackgae;
-					KillNetPackgae.KillerName = KillerCharacterAsset->CharacterName;
-					KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
-					KillNetPackgae.KilledName = KilledPlayerState->GetPlayerDataComponent()->PlayerName;
-					KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
-					UpdateKillMessage(KillNetPackgae);
+					AddTeamKillCount(ETeamType::ETT_Red, 1);
 				}
+				else if(KilledPlayerState->GetPlayerDataComponent()->TeamType == ETeamType::ETT_Red)
+				{
+					AddTeamKillCount(ETeamType::ETT_Blue, 1);
+				}
+		
+				//被击杀者结算
+				KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
+				KilledPlayerState->UpdateKDAInfo();
+		
+				//收集和更新击杀信息
+				FKillNetPackgae KillNetPackgae;
+				KillNetPackgae.KillerName = KillerCharacterAsset->CharacterName;
+				KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
+				KillNetPackgae.KilledName = KilledPlayerState->GetPlayerDataComponent()->PlayerName;
+				KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
+				UpdateKillMessage(KillNetPackgae);
 			}
 		}
-		
 	}
 	/** 4 击杀者是AI, 被击杀者是AI */
 	else if(!KillerPlayerState && !KilledPlayerState)
 	{
-		if(const FCharacterAsset* KillerCharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), KillerPlayerID))
+		if(KillerCharacterAsset && KilledCharacterAsset)
 		{
-			if(const FCharacterAsset* KilledCharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), KilledPlayerID))
+			//如果AI击杀炮塔，则判断在一定时间内是否有玩家助攻
+			//如果有玩家助攻，则找到最近助攻的玩家进行全额金币奖励，播放击杀信息。范围内的队友也获得奖励
+			//如果没有玩家助攻，范围内的队友也获得奖励，播放AI击杀炮塔信息
+			if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
 			{
-				//如果AI击杀炮塔，则判断在一定时间内是否有玩家助攻
-				//如果有玩家助攻，则找到最近助攻的玩家进行全额金币奖励，播放击杀信息。范围内的队友也获得奖励
-				//如果没有玩家助攻，范围内的队友也获得奖励，播放AI击杀炮塔信息
-				if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
-				{
-					//TODO: 因为KilledPlayerState为nullptr，所以无法获得助攻玩家列表
+				//TODO: 因为KilledPlayerState为nullptr，所以无法获得助攻玩家列表
 
-					//AI拆塔也要显示
-					//收集和更新击杀信息
-					FKillNetPackgae KillNetPackgae;
-					KillNetPackgae.KillerName = KillerCharacterAsset->CharacterName;
-					KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
-					KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
-					KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
-					UpdateKillMessage(KillNetPackgae);
-				}
+				//AI拆塔也要显示
+				//收集和更新击杀信息
+				FKillNetPackgae KillNetPackgae;
+				KillNetPackgae.KillerName = KillerCharacterAsset->CharacterName;
+				KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
+				KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
+				KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
+				UpdateKillMessage(KillNetPackgae);
 			}
 		}
 	}
@@ -532,83 +547,83 @@ bool AMobaGameState::IsPlayer(int64 PlayerID) const
 
 void AMobaGameState::Death(int64 PlayerID)
 {
-	KillSystem.Death(PlayerID);
+	MobaKillSystem.Death(PlayerID);
 }
 
 void AMobaGameState::BindKillFuntion()
 {
-	//TODO: 课程对三种击杀方式做了区分，这里暂时不区分
-	KillSystem.NormalKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	//TODO: 可以对三种击杀方式做了区分，这里暂时不区分，统一调用MulticastKillMessage
+	MobaKillSystem.NormalKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_NormalKill, KillerPlayerID, KilledPlayerID);
 	};
 	
-	KillSystem.FirstBloodFuntion = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.FirstBloodFuntion = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_FirstBlood, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.DoubleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.DoubleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_DoubleKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.TripleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.TripleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_TripleKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.QuadraKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.QuadraKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_QuadraKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.PentaKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.PentaKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_PentaKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.DaShaTeShaFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.DaShaTeShaFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_DaShaTeSha, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.SuoXiangPiMiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.SuoXiangPiMiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_SuoXiangPiMi, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.HunShenShiDanFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.HunShenShiDanFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_HunShenShiDan, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.YongGuanSanJunFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.YongGuanSanJunFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_YongGuanSanJun, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.YiJiDangQianFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.YiJiDangQianFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_YiJiDangQian, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.WanFuMoDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.WanFuMoDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_WanFuMoDi, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.JuShiWuShuangFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.JuShiWuShuangFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_JuShiWuShuang, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.TianXiaWuDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.TianXiaWuDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_TianXiaWuDi, KillerPlayerID, KilledPlayerID);
 	};
 
-	KillSystem.TeamDeathFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystem.TeamDeathFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		bool bTeamDie = true;
 

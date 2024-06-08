@@ -29,6 +29,7 @@ namespace MethodUnit
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const UWorld* InWorld, int32 CharacterID);
 	 FCharacterAttribute* GetCharacterAttributeFromPlayerID(const UWorld* InWorld, int64 PlayerID);
 
+	AMobaCharacter* GetMobaCharacterFromPlayerID(UWorld* InWorld, int64 PlayerID);
 	bool IsPlayer(UWorld* InWorld, int64 InPlayerID);
 	
 	/** 服务器调用 */

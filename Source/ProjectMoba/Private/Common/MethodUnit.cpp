@@ -3,8 +3,10 @@
 
 #include "Common/MethodUnit.h"
 
+#include "Character/MobaCharacter.h"
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
+#include "Kismet/GameplayStatics.h"
 
 AMobaGameState* MethodUnit::GetMobaGameState(const UWorld* InWorld)
 {
@@ -70,6 +72,23 @@ FCharacterAttribute* MethodUnit::GetCharacterAttributeFromPlayerID(const UWorld*
 	if(AMobaGameState* MobaGameState = GetMobaGameState(InWorld))
 	{
 		return MobaGameState->GetCharacterAttributeFromPlayerID(PlayerID);
+	}
+	return nullptr;
+}
+
+AMobaCharacter* MethodUnit::GetMobaCharacterFromPlayerID(UWorld* InWorld, int64 PlayerID)
+{
+	TArray<AActor*> FindActors{};
+	UGameplayStatics::GetAllActorsOfClass(InWorld, AMobaCharacter::StaticClass(), FindActors);
+	for(AActor* Actor : FindActors)
+	{
+		if(AMobaCharacter* MobaCharacter = Cast<AMobaCharacter>(Actor))
+		{
+			if(MobaCharacter->GetPlayerID() == PlayerID)
+			{
+				return MobaCharacter;
+			}
+		}
 	}
 	return nullptr;
 }

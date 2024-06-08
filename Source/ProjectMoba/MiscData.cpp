@@ -42,9 +42,3 @@ FPlayerKDANetPackage::FPlayerKDANetPackage()
 FPlayerInfoNetPackage::FPlayerInfoNetPackage(): PlayerID(INDEX_NONE), CharacterLevel(0)
 {
 }
-
-FAssistPlayer::FAssistPlayer()
-	: PlayerID(INDEX_NONE)
-	, AssistTime(10.0f)
-{
-}

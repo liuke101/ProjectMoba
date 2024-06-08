@@ -9,6 +9,8 @@
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+struct FMobaAssitSystem;
+struct FAssistPlayer;
 struct FKillNetPackgae;
 struct FMobaKillSystem;
 struct FPlayerLocation;
@@ -79,7 +81,8 @@ public:
 	void UpdateKillMessage(const FKillNetPackgae& KillNetPackgae) const;
 
 #pragma endregion
-
+	
+	
 #pragma region 战斗
 	/** 死亡结算 */
 	void SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID);
@@ -112,8 +115,8 @@ private:
 	TArray<FPlayerLocation> PlayerLocations;
 
 	/** 击杀系统 */
-	FMobaKillSystem KillSystem;
-
+	FMobaKillSystem MobaKillSystem;
+	
 	/** 团队杀敌数 */
 	TMap<ETeamType, int32> TeamKillCount;
 };

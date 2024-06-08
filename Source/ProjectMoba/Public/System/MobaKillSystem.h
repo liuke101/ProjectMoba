@@ -19,7 +19,7 @@ public:
 	struct FAccumulatedKill
 	{
 		FAccumulatedKill();
-		FAccumulatedKill(const int64& InKillerPlayerID);
+		explicit FAccumulatedKill(const int64& InKillerPlayerID);
 		
 		int32 KillNumber; //一条命中的累计击杀
 		int64 KillerPlayerID;

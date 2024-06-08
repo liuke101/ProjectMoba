@@ -201,7 +201,7 @@ void FMobaKillSystem::Death(const int64& KilledPlayerID)
 {
 	for(auto& Tmp : AccumulatedKillHistory)
 	{
-		// 如果击杀者死亡，则清空击杀者的累计击杀数
+		// 清空的累计击杀数
 		if(Tmp.KillerPlayerID == KilledPlayerID)
 		{
 			Tmp.KillNumber = 0;
@@ -212,7 +212,7 @@ void FMobaKillSystem::Death(const int64& KilledPlayerID)
 
 	for(auto& Tmp : ContinuousKillHistory)
 	{
-		// 如果击杀者死亡，则清空击杀者的连续击杀数
+		// 清空连续击杀数
 		if(Tmp.CurrentKillerPlayerID == KilledPlayerID)
 		{
 			Tmp.KillTime = 0.0f;

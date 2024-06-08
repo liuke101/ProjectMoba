@@ -25,7 +25,7 @@ void AMobaGameMode::Tick(float DeltaSeconds)
 	// 运行击杀系统
 	if(AMobaGameState* MobaGameState = GetGameState<AMobaGameState>())
 	{
-		MobaGameState->KillSystem.Tick(DeltaSeconds);
+		MobaGameState->MobaKillSystem.Tick(DeltaSeconds);
 	}
 }
 
@@ -113,7 +113,7 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 				//TODO:断线重连
 
 				
-				MobaGameState->KillSystem.AddKiller(PlayerDataComponent->PlayerID);
+				MobaGameState->MobaKillSystem.AddKiller(PlayerDataComponent->PlayerID);
 			
 			}
 		}

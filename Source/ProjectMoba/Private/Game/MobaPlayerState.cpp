@@ -10,6 +10,7 @@
 #include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProjectMoba/MiscData.h"
+#include "System/MobaAssistSystem.h"
 #include "Table/CharacterAsset.h"
 #include "Table/SlotAttribute.h"
 #include "Table/SlotAsset.h"
@@ -62,23 +63,8 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 			PlayerDataComponent->SlotCDQueue.Remove(RemoveSlot);
 		}
 
-		/** 计算助攻 */
-		TArray<FAssistPlayer> RemoveAssistPlayers;
-		for(auto& Tmp : AssistPlayers)
-		{
-			Tmp.AssistTime -= DeltaSeconds;
-			//转换为每秒减一
-			
-			if(Tmp.AssistTime <= 0.f)
-			{
-				RemoveAssistPlayers.Add(Tmp);
-			}
-		}
-		
-		for(auto& Tmp : RemoveAssistPlayers)
-		{
-			RemoveAssistPlayers.Remove(Tmp);
-		}
+		/** 助攻系统Tick */
+		MobaAssistSystem.Tick(DeltaSeconds);
 		
 		/** 服务器每秒增加2金币 */
 		GoldTime+=DeltaSeconds;
@@ -550,42 +536,20 @@ int32 AMobaPlayerState::GetSkillDataIDFromSlotID(int32 SlotID) const
 	return INDEX_NONE;
 }
 
-void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID)
-{
-	if(InPlayerID != INDEX_NONE)
-	{
-		FAssistPlayer AssistPlayer;
-		AssistPlayer.PlayerID = InPlayerID;
 
-		//如果已经存在助攻列表，更新时间
-		if(AssistPlayers.Contains(AssistPlayer))
-		{
-			const int32 Index = AssistPlayers.Find(AssistPlayer);
-			if(Index != INDEX_NONE)
-			{
-				AssistPlayers[Index].ResetAssitTime();
-			}
-		}
-	}
-	
+TArray<FAssistPlayer> AMobaPlayerState::GetAssistPlayers() const
+{
+	return MobaAssistSystem.GetAssistPlayers();
 }
 
-const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer() 
+void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID)
 {
-	FAssistPlayer* LastAssitPlayer = nullptr;
+	MobaAssistSystem.AddAssistPlayer(InPlayerID);
+}
 
-	float LastTime = 0.0f;
-	//遍历所有助攻玩家，找到最后一次助攻的玩家，即AssistTime最大的玩家
-	for(auto& Tmp : AssistPlayers)
-	{
-		if(LastTime < Tmp.AssistTime)
-		{
-			LastTime = Tmp.AssistTime;
-			LastAssitPlayer = &Tmp;
-		}
-	}
-
-	return LastAssitPlayer;
+const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer()
+{
+	return MobaAssistSystem.GetLastAssistPlayer();
 }
 
 void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)

@@ -6,12 +6,12 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "ProjectMoba/MiscData.h"
-#include "UI/UI_Slot.h"
 #include "UI/GameInfo/UI_KDAInfo.h"
 #include "UI/Inventory/UI_SimpleInventorySlot.h"
 
 UUI_PlayersInfo::UUI_PlayersInfo(): PlayerID(INDEX_NONE)
 {
+	
 }
 
 void UUI_PlayersInfo::NativeConstruct()

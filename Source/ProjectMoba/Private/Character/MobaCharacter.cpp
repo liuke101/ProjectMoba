@@ -291,7 +291,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							MobaGameState->Death(PlayerID);
 						}
 						MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
-					
+						
 					
 						//复活
 						GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::MultiCastReborn);

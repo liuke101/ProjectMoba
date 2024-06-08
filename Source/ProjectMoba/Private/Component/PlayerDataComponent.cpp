@@ -5,7 +5,7 @@
 
 UPlayerDataComponent::UPlayerDataComponent()
 	: PlayerName("DefaultName")
-	, TeamType(ETeamType::ETT_Neutral)
+	, TeamType(ETeamType::ETT_Red)
 	, Gold(900)
 	, KillNum(0)
 	, DeathNum(0)

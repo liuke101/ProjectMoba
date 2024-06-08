@@ -148,30 +148,3 @@ struct FPlayerTeamNetPackage
 	UPROPERTY()
 	FSlotDataNetPackage SlotDataNetPackage;
 };
-
-/** 助攻 */
-USTRUCT(BlueprintType)
-struct FAssistPlayer
-{
-	GENERATED_BODY()
-
-	FAssistPlayer();
-
-	UPROPERTY()
-	int64 PlayerID;
-
-	UPROPERTY()
-	float AssistTime; //每次参与助攻就刷新时间
-
-	FORCEINLINE void ResetAssitTime() { AssistTime = 10.0f; }
-};
-
-FORCEINLINE bool operator==(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)
-{
-	return Lhs.PlayerID == Rhs.PlayerID;
-}
-
-FORCEINLINE bool operator!=(const FAssistPlayer& Lhs, const FAssistPlayer& Rhs)
-{
-	return Lhs.PlayerID != Rhs.PlayerID;
-}
