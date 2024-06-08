@@ -285,18 +285,17 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 					{
 						CharacterAttribute->CurrentHealth = 0.0f;
 					}
-
+			
 					//更新UI
 					Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
 					MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-
+					
+					//伤害字体
+					Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
+					
 					//伤害
 					if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
 					{
-						//伤害字体
-						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
-						
-						
 						if(IsDead()) //死亡
 						{
 							//随机播放死亡动画广播到客户端
@@ -317,8 +316,6 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 						} 
 						else //受伤
 						{
-							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
-
 							//添加助攻
 							//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
 							if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
