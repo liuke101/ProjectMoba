@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "ProjectMoba/MobaType.h"
 #include "MobaPawn.generated.h"
 
+class ADrawText;
 class AMobaHeroCharacter;
 class UNiagaraSystem;
 class UBoxComponent;
@@ -40,14 +40,18 @@ public:
 	
 	FORCEINLINE AMobaHeroCharacter* GetControlledMobaHero() const { return ControlledMobaHero; }
 	
+	void SkillAttack(int32 SkillDataID) const;
+
+#pragma region RPC
+
 	UFUNCTION(Server, Reliable)
 	void Server_CharacterMoveTo(const FVector& Destination);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_CharacterMoveToTargetWithAttack(const FVector& Destination, const APawn* TargetPawn);
-
-	void SkillAttack(int32 SkillDataID) const;
+#pragma endregion
 	
+#pragma region "Getter/Setter"
 	FORCEINLINE  UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE  USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
@@ -55,11 +59,13 @@ public:
 	int64 GetPlayerID();
 
 	UPlayerDataComponent* GetPlayerDataComponent() const;
+#pragma endregion
+	
 
 protected:
 	UPROPERTY() // 防止被GC回收
 	TObjectPtr<AMobaHeroCharacter> ControlledMobaHero;
-	
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> RootBox;

@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "SimpleDrawText",
+	"Description": "Gain experience points for attacks, recover life, etc. Draw fonts on the screen",
+	"Category": "RenZhai",
+	"CreatedBy": "Other Courses",
+	"CreatedByURL": "https://renzhai.net/",
+	"DocsURL": "https://renzhai.net/150.html",
+	"MarketplaceURL": "https://renzhai.net/150.html",
+	"SupportURL": "https://www.aboutcg.org/courseDetails/354/introduce",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "SimpleDrawText",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		}
+	]
+}

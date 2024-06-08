@@ -2,6 +2,8 @@
 
 #include "Character/MobaPawn.h"
 
+#include "SimpleDrawText.h"
+#include "Actor/DrawText.h"
 #include "AI/MobaAIController.h"
 #include "Camera/CameraComponent.h"
 #include "Character/MobaCharacter.h"

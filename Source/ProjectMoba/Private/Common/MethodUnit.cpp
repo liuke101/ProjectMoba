@@ -76,6 +76,28 @@ FCharacterAttribute* MethodUnit::GetCharacterAttributeFromPlayerID(const UWorld*
 	return nullptr;
 }
 
+AMobaPawn* MethodUnit::GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID)
+{
+	AMobaPawn* MobaPawn = nullptr;
+	ServerCallAllPlayer<AMobaPawn>(InWorld, [&](AMobaPawn* InMobaPawn)
+	{
+		if(InMobaPawn->GetPlayerID() == PlayerID)
+		{
+			MobaPawn = InMobaPawn;
+			return EServerCallType::ECT_ProgressComplete;
+		}
+		return EServerCallType::ECT_InProgress;
+	});
+
+	return MobaPawn;
+}
+
+AMobaPawn* MethodUnit::GetMobaPawn(UWorld* InWorld)
+{
+	return Cast<AMobaPawn>(UGameplayStatics::GetPlayerPawn(InWorld, 0));
+}
+
+
 AMobaCharacter* MethodUnit::GetMobaCharacterFromPlayerID(UWorld* InWorld, int64 PlayerID)
 {
 	TArray<AActor*> FindActors{};

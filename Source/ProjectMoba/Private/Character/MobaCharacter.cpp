@@ -4,6 +4,7 @@
 #include "Character/MobaCharacter.h"
 
 #include "ThreadManage.h"
+#include "Actor/DrawText.h"
 #include "Common/MethodUnit.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -96,14 +97,14 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 					}
 
 					//广播动画
-					MultiCastPlayerAnimMontage(Montage);
+					Multicast_PlayerAnimMontage(Montage);
 				}
 			}
 		}
 	}
 }
 
-void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, float ManaPercent)
+void AMobaCharacter::Multicast_StatusBar_Implementation(float HealthPercent, float ManaPercent)
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{
@@ -121,7 +122,7 @@ void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, floa
 	}
 }
 
-void AMobaCharacter::MultiCastStatusBar_Health_Implementation(float HealthPercent)
+void AMobaCharacter::Multicast_StatusBar_Health_Implementation(float HealthPercent)
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{
@@ -139,7 +140,7 @@ void AMobaCharacter::MultiCastStatusBar_Health_Implementation(float HealthPercen
 	}
 }
 
-void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
+void AMobaCharacter::Multicast_StatusBar_Mana_Implementation(float ManaPercent)
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{
@@ -151,7 +152,7 @@ void AMobaCharacter::MultiCastStatusBar_Mana_Implementation(float ManaPercent)
 	}
 }
 
-void AMobaCharacter::MultiCastReborn_Implementation()
+void AMobaCharacter::Multicast_Reborn_Implementation()
 {
 	if(GetLocalRole() == ROLE_Authority)
 	{
@@ -162,7 +163,7 @@ void AMobaCharacter::MultiCastReborn_Implementation()
 			CharacterAttribute->ResetAttribute();
 			
 			//更新血条蓝条
-			MultiCastStatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+			Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
 			
 			//更新属性面板
 			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
@@ -175,6 +176,19 @@ void AMobaCharacter::MultiCastReborn_Implementation()
 		
 	}
 	StopAnimMontage(); //停止死亡动画
+}
+
+void AMobaCharacter::Multicast_SpwanDrawText_Implementation(float Value, float Percent, const FLinearColor& Color,
+	const FVector& Location)
+{
+	if(ADrawText* DrawText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, Location, FRotator::ZeroRotator))
+	{
+		DrawText->SetTextBlock(FString::Printf(TEXT("%d"), static_cast<int>(Value)), Color, Percent);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("error"));
+	}
 }
 
 void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType, const ECharacterType InCharacterType)
@@ -198,13 +212,13 @@ void AMobaCharacter::InitCharacter()
 	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CharacterAttribute->WalkSpeed;  //设置移动速度
-		MultiCastStatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent()); // 广播状态栏
+		Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent()); // 广播状态栏
 	}
 }
 
 void AMobaCharacter::InitWidgetInfo()
 {
-	MultiCastStatusBar(GetCharacterAttribute()->GetHealthPercent(), GetCharacterAttribute()->GetManaPercent());
+	Multicast_StatusBar(GetCharacterAttribute()->GetHealthPercent(), GetCharacterAttribute()->GetManaPercent());
 }
 
 FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() const
@@ -258,52 +272,59 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		{
 			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 			{
-				GetCharacterAttribute()->CurrentHealth += DamageAmount;
+				if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+				{
+					CharacterAttribute->CurrentHealth += DamageAmount;
 
-				//限制血量
-				if(GetCharacterAttribute()->CurrentHealth > GetCharacterAttribute()->MaxHealth)
-				{
-					GetCharacterAttribute()->CurrentHealth = GetCharacterAttribute()->MaxHealth;
-				}
-				else if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
-				{
-					GetCharacterAttribute()->CurrentHealth = 0.0f;
-				}
-			
-				//更新UI
-				MultiCastStatusBar_Health(GetCharacterAttribute()->GetHealthPercent()); //血条
-				MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-			
-				if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
-				{
-					//攻击角色
-					if(IsDead()) //死亡
+					//限制血量
+					if(CharacterAttribute->CurrentHealth > CharacterAttribute->MaxHealth)
 					{
-						//随机播放死亡动画广播到客户端
-						if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
-						{
-							MultiCastPlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
-						}
+						CharacterAttribute->CurrentHealth = CharacterAttribute->MaxHealth;
+					}
+					else if(CharacterAttribute->CurrentHealth <= 0.0f)
+					{
+						CharacterAttribute->CurrentHealth = 0.0f;
+					}
 
-						//死亡结算
-						if(MobaGameState->IsPlayer(PlayerID))
+					//更新UI
+					Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
+					MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
+
+					//伤害
+					if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
+					{
+						//伤害字体
+						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
+						
+						
+						if(IsDead()) //死亡
 						{
-							MobaGameState->Death(PlayerID);
-						}
-						MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
+							//随机播放死亡动画广播到客户端
+							if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+							{
+								Multicast_PlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+							}
+
+							//死亡结算
+							if(MobaGameState->IsPlayer(PlayerID))
+							{
+								MobaGameState->Death(PlayerID);
+							}
+							MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
 					
-						//复活
-						GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::MultiCastReborn);
-					} 
-					else //受伤
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
-
-						//添加助攻
-						//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
-						if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+							//复活
+							GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
+						} 
+						else //受伤
 						{
-							MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("造成伤害：") + FString::SanitizeFloat(Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser)));
+
+							//添加助攻
+							//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
+							if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+							{
+								MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+							}
 						}
 					}
 				}
@@ -314,7 +335,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 }
 
 
-void AMobaCharacter::MultiCastPlayerAnimMontage_Implementation(UAnimMontage* InAnimMontage, float InPlayRate,
+void AMobaCharacter::Multicast_PlayerAnimMontage_Implementation(UAnimMontage* InAnimMontage, float InPlayRate,
                                                                FName StartSectionName)
 {
 	if(InAnimMontage)

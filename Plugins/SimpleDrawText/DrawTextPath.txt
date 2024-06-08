@@ -1,0 +1,2 @@
+Blueprint'/Game/DrawText_BP.DrawText_BP_C'
+/Game/Table/SimpleDrawTextStyle

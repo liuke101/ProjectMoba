@@ -91,7 +91,7 @@ void AMobaHeroCharacter::SkillAttack(int32 SkillDataID)
 	if(UAnimMontage* Montage = GetSkillMontageFromDataID(SkillDataID))
 	{
 		//广播动画
-		MultiCastPlayerAnimMontage(Montage);
+		Multicast_PlayerAnimMontage(Montage);
 	}
 }
 

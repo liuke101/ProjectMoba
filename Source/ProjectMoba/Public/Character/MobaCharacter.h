@@ -7,6 +7,7 @@
 #include "ProjectMoba/MobaType.h"
 #include "MobaCharacter.generated.h"
 
+class ADrawText;
 class UWidgetComponent;
 struct FCharacterAttribute;
 
@@ -28,19 +29,23 @@ public:
 
 	/** 动画广播 */
 	UFUNCTION(NetMulticast, Unreliable)
-	void MultiCastPlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
+	void Multicast_PlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
 
 	/** 状态栏广播 */
 	UFUNCTION(NetMulticast, Unreliable)
-	void MultiCastStatusBar(float HealthPercent, float ManaPercent);
+	void Multicast_StatusBar(float HealthPercent, float ManaPercent);
 	UFUNCTION(NetMulticast, Unreliable)
-	void MultiCastStatusBar_Health(float HealthPercent);
+	void Multicast_StatusBar_Health(float HealthPercent);
 	UFUNCTION(NetMulticast, Unreliable)
-	void MultiCastStatusBar_Mana(float ManaPercent);
+	void Multicast_StatusBar_Mana(float ManaPercent);
 	
 	/** 重生 */
 	UFUNCTION(NetMulticast, Unreliable)
-	void MultiCastReborn();
+	void Multicast_Reborn();
+
+	/** 显示伤害字体 */
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_SpwanDrawText(float Value, float Percent, const FLinearColor& Color, const FVector& Location);
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
 	UFUNCTION()
@@ -91,5 +96,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Character")
 	float RebornTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Character")
+	TSubclassOf<ADrawText> DrawTextClass;
 };
 
