@@ -21,7 +21,7 @@ AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
 	  AttackCount(0),
 	  PlayerID(INDEX_NONE),
-	  RebornTime(5.0f)
+	  RebornTime(10.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -154,7 +154,6 @@ void AMobaCharacter::Multicast_StatusBar_Health_Implementation(float HealthPerce
 			StatusBarComponent->SetVisibility(false);
 		}
 	}
-	
 }
 
 void AMobaCharacter::Multicast_StatusBar_Mana_Implementation(float ManaPercent)
@@ -313,32 +312,35 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	{
 		if(!IsDead())
 		{
-			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+			if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
 			{
-				if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+				//友军检测
+				if(MethodUnit::IsFriendly(InDamageCauser, this)) return 0;
+				
+				if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 				{
-					CharacterAttribute->CurrentHealth += DamageAmount;
+					if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+					{
+						CharacterAttribute->CurrentHealth += DamageAmount;
 
-					//限制血量
-					if(CharacterAttribute->CurrentHealth > CharacterAttribute->MaxHealth)
-					{
-						CharacterAttribute->CurrentHealth = CharacterAttribute->MaxHealth;
-					}
-					else if(CharacterAttribute->CurrentHealth <= 0.0f)
-					{
-						CharacterAttribute->CurrentHealth = 0.0f;
-					}
-			
-					//更新UI
-					Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
-					MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-					
-					//伤害字体
-					Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
-					
-					//伤害
-					if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
-					{
+						//限制血量
+						if(CharacterAttribute->CurrentHealth > CharacterAttribute->MaxHealth)
+						{
+							CharacterAttribute->CurrentHealth = CharacterAttribute->MaxHealth;
+						}
+						else if(CharacterAttribute->CurrentHealth <= 0.0f)
+						{
+							CharacterAttribute->CurrentHealth = 0.0f;
+						}
+		
+						//更新UI
+						Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
+						MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
+				
+						//伤害字体
+						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
+				
+						//伤害
 						if(IsDead()) //死亡
 						{
 							//随机播放死亡动画广播到客户端
@@ -353,7 +355,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 								MobaGameState->Death(PlayerID);
 							}
 							MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
-					
+			
 							//复活
 							GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
 						} 

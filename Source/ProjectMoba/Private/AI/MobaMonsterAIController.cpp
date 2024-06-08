@@ -4,6 +4,7 @@
 #include "AI/MobaMonsterAIController.h"
 
 #include "Character/Monster/MobaMonsterCharacter.h"
+#include "Common/MethodUnit.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -32,6 +33,7 @@ AMobaCharacter* AMobaMonsterAIController::FindTarget()
 	//范围内自己或友军被攻击 则选择目标
 	TArray<AActor*> OutActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMobaMonsterCharacter::StaticClass(), OutActors);
+	
 	if(AMobaMonsterCharacter* OwnerCharacter = Cast<AMobaMonsterCharacter>(GetPawn()))
 	{
 		for(auto& Actor : OutActors)

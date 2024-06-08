@@ -1,6 +1,7 @@
 ﻿#include "AI/MobaMinionAIController.h"
 
 #include "Character/Hero/MobaHeroCharacter.h"
+#include "Common/MethodUnit.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -44,12 +45,15 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 		FAITarget AITarget;
 		for(auto& Actor : FoundActors)
 		{
-			if(Actor != OwnerCharacter)
+			if(Actor != OwnerCharacter) //排除自己
 			{
-				float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
-				if(Distance <= 2000.0f)
+				if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(Actor))
 				{
-					if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(Actor))
+					//友军检测
+					if(MethodUnit::IsFriendly(OwnerCharacter, TargetCharacter)) continue;
+				
+					float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
+					if(Distance <= 2000.0f)
 					{
 						/** 目标优先级 */
 						//优先级一：小兵

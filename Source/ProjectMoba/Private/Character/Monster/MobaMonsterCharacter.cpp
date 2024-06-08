@@ -4,6 +4,7 @@
 #include "Character/Monster/MobaMonsterCharacter.h"
 
 #include "AI/MobaMonsterAIController.h"
+#include "Common/MethodUnit.h"
 
 
 AMobaMonsterCharacter::AMobaMonsterCharacter()
@@ -42,6 +43,9 @@ float AMobaMonsterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 		// 将攻击目标设置为伤害来源
 		if(AMobaCharacter* MobaDamgeCauser = Cast<AMobaCharacter>(DamageCauser))
 		{
+			//友军检测
+			if(MethodUnit::IsFriendly(MobaDamgeCauser, this)) return 0.f;
+			
 			if(AMobaMonsterAIController* MobaMonsterAIController = GetController<AMobaMonsterAIController>())
 			{
 				//当没有目标且不在回家过程中才会选择新目标

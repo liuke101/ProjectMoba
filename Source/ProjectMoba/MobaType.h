@@ -33,7 +33,6 @@ UENUM() // 需要同步，所以使用UENUM引入反射
 enum class ETeamType : uint8
 {
 	ETT_None UMETA(DisplayName="None"),
-	
 	ETT_Red UMETA(DisplayName="Red"),
 	ETT_Blue UMETA(DisplayName="Blue"),
 	ETT_Neutral UMETA(DisplayName="Neutral")

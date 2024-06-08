@@ -141,6 +141,15 @@ bool MethodUnit::IsPlayer(UWorld* InWorld, int64 InPlayerID)
 	return false;
 }
 
+bool MethodUnit::IsFriendly(const AMobaCharacter* CharacterA, const AMobaCharacter* CharacterB)
+{
+	if(CharacterA && CharacterB)
+	{
+		return CharacterA->GetTeamType() == CharacterB->GetTeamType();
+	}
+	return true;
+}
+
 
 
 

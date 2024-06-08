@@ -47,7 +47,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_CharacterMoveTo(const FVector& Destination);
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_CharacterMoveToTargetWithAttack(const FVector& Destination, const APawn* TargetPawn);
 #pragma endregion
 	

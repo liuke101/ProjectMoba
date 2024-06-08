@@ -36,6 +36,8 @@ namespace MethodUnit
 	AMobaCharacter* GetMobaCharacterFromPlayerID(UWorld* InWorld, int64 PlayerID);
 	bool IsPlayer(UWorld* InWorld, int64 InPlayerID);
 	
+	bool IsFriendly(const AMobaCharacter* CharacterA, const AMobaCharacter* CharacterB);
+	
 	/** 服务器调用 */
 	template<class T>
 	void ServerCallAllPlayerController(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);

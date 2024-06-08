@@ -85,6 +85,7 @@ protected:
 	void OnRightClickPressed();
 	void OnRightClickReleased();
 
+	void MouseLockedInViewport(); //鼠标锁定在视口
 	void SpawnNavigateClickFX() const;
 
 	/** 获取鼠标点击位置的世界坐标 */

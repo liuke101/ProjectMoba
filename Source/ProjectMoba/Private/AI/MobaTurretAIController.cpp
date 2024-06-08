@@ -4,6 +4,7 @@
 #include "AI/MobaTurretAIController.h"
 
 #include "Character/Turret/MobaTurretCharacter.h"
+#include "Common/MethodUnit.h"
 #include "Kismet/GameplayStatics.h"
 #include "Table/CharacterAttribute.h"
 
@@ -70,7 +71,7 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 	{
 		if(!bTargetInAttackRange)
 		{
-			float OwnerDistance = 99999.0f;
+			float OwnerDistance = 999999.0f;
 			AMobaCharacter* TargetCharacter= nullptr;
 			
 			for(auto& Actor : FoundActors)
@@ -79,18 +80,18 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 				{
 					if(AMobaCharacter* InTargetCharacter = Cast<AMobaCharacter>(Actor))
 					{
-						if(1) //后面要加上队伍判断
+						//友军检测
+						if(InTargetCharacter->IsDead() || MethodUnit::IsFriendly(OwnerCharacter, InTargetCharacter)) continue;
+						
+						float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
+						float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
+						if(Distance <= AttackRange)
 						{
-							float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
-							float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
-							if(Distance <= AttackRange)
+							if(Distance < OwnerDistance)
 							{
-								if(Distance < OwnerDistance)
-								{
-									OwnerDistance = Distance;
-									TargetCharacter = InTargetCharacter;
-									bTargetInAttackRange = true;
-								}
+								OwnerDistance = Distance;
+								TargetCharacter = InTargetCharacter;
+								bTargetInAttackRange = true;
 							}
 						}
 					}
@@ -122,39 +123,39 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 			{
 				if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(Actor))
 				{
-					if(1) //后面要加上队伍判断
+					//友军检测
+					if(TargetCharacter->IsDead() || MethodUnit::IsFriendly(OwnerCharacter, TargetCharacter)) continue;
+					
+					float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
+					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
+					if(Distance <= AttackRange)
 					{
-						float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
-						float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
-						if(Distance <= AttackRange)
+						/** 目标优先级 */
+						//优先级一：小兵
+						if(TargetCharacter->GetCharacterType() >= ECharacterType::ECT_RemoteMinion && TargetCharacter->GetCharacterType() <= ECharacterType::ECT_SuperMinion)
 						{
-							/** 目标优先级 */
-							//优先级一：小兵
-							if(TargetCharacter->GetCharacterType() >= ECharacterType::ECT_RemoteMinion && TargetCharacter->GetCharacterType() <= ECharacterType::ECT_SuperMinion)
+							if(Distance < AITarget.MinionMinDistance)
 							{
-								if(Distance < AITarget.MinionMinDistance)
-								{
-									AITarget.MinionMinDistance = Distance;
-									AITarget.Minion = TargetCharacter;
-								}
+								AITarget.MinionMinDistance = Distance;
+								AITarget.Minion = TargetCharacter;
 							}
-							//优先级二：玩家
-							else if(TargetCharacter->GetCharacterType() == ECharacterType::ECT_Player)
+						}
+						//优先级二：玩家
+						else if(TargetCharacter->GetCharacterType() == ECharacterType::ECT_Player)
+						{
+							if(Distance < AITarget.PlayerMinDistance)
 							{
-								if(Distance < AITarget.PlayerMinDistance)
-								{
-									AITarget.PlayerMinDistance = Distance;
-									AITarget.Player = TargetCharacter;
-								}
+								AITarget.PlayerMinDistance = Distance;
+								AITarget.Player = TargetCharacter;
 							}
-							//优先级三：野怪
-							else if(TargetCharacter->GetCharacterType() == ECharacterType::ECT_WildMonster || TargetCharacter->GetCharacterType() == ECharacterType::ECT_BossMonster)
+						}
+						//优先级三：野怪
+						else if(TargetCharacter->GetCharacterType() == ECharacterType::ECT_WildMonster || TargetCharacter->GetCharacterType() == ECharacterType::ECT_BossMonster)
+						{
+							if(Distance < AITarget.MonsterMinDistance)
 							{
-								if(Distance < AITarget.MonsterMinDistance)
-								{
-									AITarget.MonsterMinDistance = Distance;
-									AITarget.Monster = TargetCharacter;
-								}
+								AITarget.MonsterMinDistance = Distance;
+								AITarget.Monster = TargetCharacter;
 							}
 						}
 					}

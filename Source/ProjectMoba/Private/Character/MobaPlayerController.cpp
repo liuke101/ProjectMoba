@@ -49,6 +49,11 @@ void AMobaPlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	if(GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		MouseLockedInViewport();
+	}
 }
 
 void AMobaPlayerController::SetupInputComponent()
@@ -101,6 +106,15 @@ void AMobaPlayerController::OnRightClickPressed()
 void AMobaPlayerController::OnRightClickReleased()
 {
 	bMoveToMouseCursor = false;
+}
+
+void AMobaPlayerController::MouseLockedInViewport()
+{
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+	InputMode.SetHideCursorDuringCapture(false);
+
+	SetInputMode(InputMode);
 }
 
 void AMobaPlayerController::SpawnNavigateClickFX() const

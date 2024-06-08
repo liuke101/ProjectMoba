@@ -3,6 +3,7 @@
 #include "AI/MobaAIController.h"
 #include "Character/MobaCharacter.h"
 #include "Common/CalculationUnit.h"
+#include "Common/MethodUnit.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -43,35 +44,34 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 		if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(OtherActor))
 		{
 			//排除自己和友军
-			if(InstigatorCharacter != TargetCharacter /*&& InstigatorCharacter->GetTeamType() != TargetCharacter->GetTeamType()*/) 
+			if(InstigatorCharacter == TargetCharacter && MethodUnit::IsFriendly(InstigatorCharacter, TargetCharacter)) return;
+			
+			//服务器端
+			if(GetWorld()->IsNetMode(NM_DedicatedServer))
 			{
-				//服务器端
-				if(GetWorld()->IsNetMode(NM_DedicatedServer))
+				//单体目标检测
+				if(bSingleCheck)
 				{
-					//单体目标检测
-					if(bSingleCheck)
+					if(AMobaAIController* AIController = Cast<AMobaAIController>(InstigatorCharacter->GetController()))
 					{
-						if(AMobaAIController* AIController = Cast<AMobaAIController>(InstigatorCharacter->GetController()))
+						if(AIController->GetTarget() != TargetCharacter) 
 						{
-							if(AIController->GetTarget() != TargetCharacter) 
-							{
-								return;
-							}
+							return;
 						}
 					}
 				}
-				
-				//造成伤害
-				UGameplayStatics::ApplyDamage(
-					TargetCharacter,
-					CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
-					InstigatorCharacter->GetController(),
-					InstigatorCharacter,
-					UDamageType::StaticClass());
-
-				//销毁
-				Destroy();
 			}
+			
+			//造成伤害
+			UGameplayStatics::ApplyDamage(
+				TargetCharacter,
+				CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
+				InstigatorCharacter->GetController(),
+				InstigatorCharacter,
+				UDamageType::StaticClass());
+
+			//销毁
+			Destroy();
 		}
 	}
 }

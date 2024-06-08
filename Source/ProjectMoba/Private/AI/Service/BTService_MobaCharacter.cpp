@@ -30,13 +30,12 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 				if(UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent())
 				{
 					Blackboard->SetValueAsBool(Blackboard_Death.SelectedKeyName, OwnerCharacter->IsDead());
-					if (OwnerCharacter->IsDead())
-					{
-						return;
-					}
+
+					if (OwnerCharacter->IsDead()) return;
 					
 					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
-					if(!Target)
+					
+					if(!Target || Target->IsDead())//如果目标为空或者目标死亡，就重新寻找目标
 					{
 						Target = OwnerAIController->FindTarget();
 						if(Target)

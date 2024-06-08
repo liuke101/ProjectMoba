@@ -144,23 +144,26 @@ UPlayerDataComponent* AMobaPawn::GetPlayerDataComponent() const
 	return nullptr;
 }
 
-bool AMobaPawn::Server_CharacterMoveToTargetWithAttack_Validate(const FVector& Destination, const APawn* TargetPawn)
-{
-	// 如果目标角色不为空，且目标角色不是自己则通过验证
-	//return TargetPawn != nullptr && TargetPawn != MobaCharacter;
-	return true;
-}
-
 void AMobaPawn::Server_CharacterMoveToTargetWithAttack_Implementation(const FVector& Destination,
                                                                        const APawn* TargetPawn)
 {
 	if(ControlledMobaHero)
 	{
-		if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(ControlledMobaHero->GetController()))
+		if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(const_cast<APawn*>(TargetPawn)))
 		{
-			MobaAIController->SetTarget(Cast<AMobaCharacter>(const_cast<APawn*>(TargetPawn)));
+			//友军检测
+			if(MethodUnit::IsFriendly(ControlledMobaHero, TargetCharacter)) return;
+			
+			if(AMobaAIController* MobaAIController = Cast<AMobaAIController>(ControlledMobaHero->GetController()))
+			{
+				MobaAIController->SetTarget(TargetCharacter);
+			}
 		}
 	}
+	
+	
+	
+	
 }
 
 void AMobaPawn::Server_CharacterMoveTo_Implementation(const FVector& Destination)
