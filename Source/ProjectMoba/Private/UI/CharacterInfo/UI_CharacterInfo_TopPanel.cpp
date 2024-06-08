@@ -7,7 +7,7 @@
 #include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
 #include "UI/CharacterInfo/UI_CharacterInfo.h"
-#include "UI/Inventory/UI_InventorySlot.h"
+#include "UI/Inventory/UI_SimpleInventorySlot.h"
 
 void UUI_CharacterInfo_TopPanel::NativeConstruct()
 {
@@ -15,66 +15,60 @@ void UUI_CharacterInfo_TopPanel::NativeConstruct()
 
 	//默认隐藏
 	SetVisibility(ESlateVisibility::Hidden);
-	
-	//绑定委托
-	GThread::GetCoroutines().BindLambda(0.3f, [&]()
-	{
-		
-		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
-		{
-			//ID绑定委托
-			MobaPlayerState->PlayerIDDelegate.BindLambda([&](int64 InPlayerID)
-			{
-				CharacterInfo->SetPlayerID(InPlayerID);
-
-				// 清空Slot
-				CallAllSlot<UUI_Slot>([&](UUI_Slot* InSlot)
-				{
-					InSlot->SetSlotID(INDEX_NONE);
-					InSlot->UpdateSlot();
-					return true;
-				});
-
-				SetVisibility(ESlateVisibility::HitTestInvisible);
-			});
-
-			// 绑定初始化Slot委托
-			MobaPlayerState->InitSlotDelegate.AddLambda([&](const TArray<int32>& InSlotIDs)
-			{
-				InitSlotLayout(InSlotIDs);  
-			});
-
-			// 绑定隐藏TopPanel委托
-			MobaPlayerState->HideTopPanelDelegate.BindLambda([&]()
-			{
-				SetVisibility(ESlateVisibility::Hidden);
-			});
-		}
-		
-		// 属性更新委托
-		if(AMobaGameState* MobaGameState = GetMobaGameState())
-		{
-			MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(CharacterInfo, &UUI_CharacterInfo::ResponseUpdateSlots);
-		}
-
-		
-	});
 }
 
-void UUI_CharacterInfo_TopPanel::InitSlotLayout(const TArray<int32>& SlotIDs)
+void UUI_CharacterInfo_TopPanel::BindDelegate()
 {
-	if(SlotIDs.IsEmpty()) return;
+	Super::BindDelegate();
 	
-	TArray<int32> Tmp = SlotIDs;
-	CallAllSlot<UUI_Slot>([&](UUI_Slot* InSlot)
+	AMobaGameState* MobaGameState = GetMobaGameState();
+	AMobaPlayerState* MobaPlayerState = GetMobaPlayerState();
+	
+	if(MobaGameState && MobaPlayerState)
 	{
-		if(!Tmp.IsEmpty())
+		MobaPlayerState->LookPlayerInfoDelegate.BindLambda([&](const FLookPlayerInfoNetPackage& InLookPlayerInfoNetPackage)
 		{
-			InSlot->SetSlotID(Tmp.Pop());
-			InSlot->UpdateSlot();
-		}
-		return true;
-	});
+			CharacterInfo->SetPlayerID(InLookPlayerInfoNetPackage.PlayerID);
+
+			//清空
+			CallAllSlot<UUI_SimpleInventorySlot>([&](UUI_SimpleInventorySlot* InSlot)
+			{
+				InSlot->ResetSlot();
+				return true;
+			});
+		
+			//更新Slot
+			if(!InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotIDs.IsEmpty() && !InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotDatas.IsEmpty())
+			{
+				int32 i = 0;
+				CallAllSlot<UUI_SimpleInventorySlot>([&](UUI_SimpleInventorySlot* InSlot)
+				{
+					InSlot->SetSlotID(InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotIDs[i]);
+					InSlot->UpdateSlot(InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotDatas[i]);
+					i++;
+					return true;
+				});
+			}
+
+			SetVisibility(ESlateVisibility::HitTestInvisible);
+		});
+
+		// 绑定隐藏TopPanel委托
+		MobaPlayerState->HideTopPanelDelegate.BindLambda([&]()
+		{
+			SetVisibility(ESlateVisibility::Hidden);
+		});
+
+		// 属性更新委托
+		MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(CharacterInfo, &UUI_CharacterInfo::ResponseUpdateSlots);
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			BindDelegate();
+		});
+	}
 }
 
 UPanelWidget* UUI_CharacterInfo_TopPanel::GetSlotLayoutPanel()

@@ -21,6 +21,7 @@ public:
 	
 	void UpdateSlot(const FKillNetPackgae& KillNetPackgae, const FText& KillType);
 
+	virtual void BindDelegate() override;
 private:
 	
 	UPROPERTY(meta = (BindWidget))

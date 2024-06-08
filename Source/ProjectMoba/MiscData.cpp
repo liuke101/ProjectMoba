@@ -42,3 +42,7 @@ FPlayerKDANetPackage::FPlayerKDANetPackage()
 FPlayerInfoNetPackage::FPlayerInfoNetPackage(): PlayerID(INDEX_NONE), CharacterLevel(0)
 {
 }
+
+FLookPlayerInfoNetPackage::FLookPlayerInfoNetPackage(): PlayerID(INDEX_NONE)
+{
+}

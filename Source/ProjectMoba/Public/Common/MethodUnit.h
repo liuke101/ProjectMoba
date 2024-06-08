@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "Character/MobaPawn.h"
 #include "Game/MobaPlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 
 class AMobaPlayerState;
@@ -45,9 +46,11 @@ namespace MethodUnit
 	template<class T>
 	void ServerCallAllPlayer(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
 	
-
 	template<class T>
-	void ServerCallAllHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
+	void ServerCallAllMobaCharacter(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
+	
+	template<class T>
+	void ServerCallAllMobaHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
 
 }
 
@@ -113,7 +116,24 @@ void MethodUnit::ServerCallAllPlayer(UWorld* InWorld, TFunction<EServerCallType(
 }
 
 template <class T>
-void MethodUnit::ServerCallAllHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+void MethodUnit::ServerCallAllMobaCharacter(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
+{
+	TArray<AActor*> FindActors{};
+	UGameplayStatics::GetAllActorsOfClass(InWorld, T::StaticClass(), FindActors);
+	for(auto Actor : FindActors)
+	{
+		if(T* MobaCharacter = Cast<T>(Actor))
+		{
+			if(InImplement(MobaCharacter) == EServerCallType::ECT_ProgressComplete)
+			{
+				break;
+			}
+		}
+	}
+}
+
+template <class T>
+void MethodUnit::ServerCallAllMobaHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
 {
 	ServerCallAllPlayer<AMobaPawn>(InWorld, [&](const AMobaPawn* MobaPawn)->EServerCallType
 	{

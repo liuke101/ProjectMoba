@@ -118,8 +118,6 @@ void AMobaCharacter::MultiCastStatusBar_Implementation(float HealthPercent, floa
 		{
 			StatusBarUI_Health->SetHealthPercent(HealthPercent);
 		}
-
-		
 	}
 }
 
@@ -197,17 +195,19 @@ void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int
 
 void AMobaCharacter::InitCharacter()
 {
-	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	if(const FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 	{
-		if(const FCharacterAttribute* Attribute = MobaGameState->GetCharacterAttributeFromPlayerID(PlayerID))
-		{
-			GetCharacterMovement()->MaxWalkSpeed = Attribute->WalkSpeed;  //设置移动速度
-			MultiCastStatusBar(Attribute->GetHealthPercent(), Attribute->GetManaPercent()); // 广播状态栏
-		}
+		GetCharacterMovement()->MaxWalkSpeed = CharacterAttribute->WalkSpeed;  //设置移动速度
+		MultiCastStatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent()); // 广播状态栏
 	}
 }
 
-FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() 
+void AMobaCharacter::InitWidgetInfo()
+{
+	MultiCastStatusBar(GetCharacterAttribute()->GetHealthPercent(), GetCharacterAttribute()->GetManaPercent());
+}
+
+FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() const
 {
 	return MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), PlayerID);
 }
@@ -291,7 +291,6 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							MobaGameState->Death(PlayerID);
 						}
 						MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
-						
 					
 						//复活
 						GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::MultiCastReborn);

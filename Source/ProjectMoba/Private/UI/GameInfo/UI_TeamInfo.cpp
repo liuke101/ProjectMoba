@@ -25,33 +25,24 @@ void UUI_TeamInfo::NativeConstruct()
 			EnhancedInputComponent->BindAction(MobaPlayerController->Tab_Action, ETriggerEvent::Started, this, &UUI_TeamInfo::Show);
 		}
 	}
-
-	GThread::GetCoroutines().BindLambda(0.3f, [&]()
-	{
-		if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
-		{
-			// 绑定委托
-			MobaPlayerState->TeamInfoDelegate.BindUObject(this, &UUI_TeamInfo::SpawnPlayerInfo);
-		}
-	});
-	
-	
 }
 
-void UUI_TeamInfo::SpawnPlayerInfo(bool bEnemy, const int64& InPlayerID, const TArray<int32>& InSlotsID) const
+void UUI_TeamInfo::BindDelegate()
 {
-	// if (UVerticalBox* InArray = (bEnemy ? EnemyTeam : FriendlyTeam))
-	// {
-	// 	if (UUI_PlayersInfo* SlotWidget = CreateWidget<UUI_PlayersInfo>(GetWorld(), PlayersInfoClass))
-	// 	{
-	// 		if (UVerticalBoxSlot* InBoxSlot = InArray->AddChildToVerticalBox(SlotWidget))
-	// 		{
-	// 			InBoxSlot->SetPadding(1.0f);
-	// 			SlotWidget->UpdateSlot(InPlayerID,InSlotsID);
-	// 		}
-	// 	}
-	// }
+	if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
+	{
+		// 绑定委托
+		MobaPlayerState->TeamInfoDelegate.BindUObject(this, &UUI_TeamInfo::SpawnPlayerInfo);
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			BindDelegate();
+		});
+	}
 }
+
 
 void UUI_TeamInfo::SpawnPlayerInfo(const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackages) const
 {

@@ -9,6 +9,13 @@
 #include "Game/MobaGameState.h"
 #include "UI/MobaHUD.h"
 
+void UMobaUIBase::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	BindDelegate();
+}
+
 AMobaHUD* UMobaUIBase::GetMobaHUD() const
 {
 	return GetWorld()->GetFirstPlayerController()->GetHUD<AMobaHUD>();
@@ -34,4 +41,8 @@ UWidgetAnimation* UMobaUIBase::GetNameWidgetAnimation(const FString& WidgetAnima
 	}
 
 	return nullptr;
+}
+
+void UMobaUIBase::BindDelegate()
+{
 }

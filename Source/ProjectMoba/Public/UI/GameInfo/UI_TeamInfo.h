@@ -19,8 +19,8 @@ class PROJECTMOBA_API UUI_TeamInfo : public UMobaUIBase
 		
 public:
 	virtual void NativeConstruct() override;
-	void SpawnPlayerInfo(bool bEnemy,const int64 &InPlayerID,const TArray<int32>& InSlotsID) const;
 
+	virtual void BindDelegate() override;
 	void SpawnPlayerInfo(const TArray<FPlayerTeamNetPackage>& PlayerTeamNetPackages) const;
 protected:
 	void Show();

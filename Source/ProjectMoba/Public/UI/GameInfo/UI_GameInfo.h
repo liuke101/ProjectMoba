@@ -21,11 +21,14 @@ public:
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
+	virtual void BindDelegate() override;
+	
 	// 时间显示
 	FString GetCurrentCount(float NewTimeCount);
 
 	void UpdateTeamKillCount(int32 InFriendlyKillCount, int32 InEnemyKillCount) const;
 
+	
 private:
 	//友军击杀数
 	UPROPERTY(meta = (BindWidget))

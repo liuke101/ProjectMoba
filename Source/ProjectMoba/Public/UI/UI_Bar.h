@@ -21,8 +21,7 @@ protected:
 
 public:
 	// 绑定委托
-	void BindSlotDelegate() ;
-
+	virtual void BindDelegate() override;
 	//行
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
 	int32 Layout_Row = 1;

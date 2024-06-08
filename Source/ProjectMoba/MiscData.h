@@ -97,6 +97,7 @@ struct FKillNetPackgae
 	FName KilledName;
 };
 
+/** KDA 补兵数 */
 USTRUCT(BlueprintType)
 struct FPlayerKDANetPackage
 {
@@ -144,6 +145,21 @@ struct FPlayerTeamNetPackage
 
 	UPROPERTY()
 	FPlayerInfoNetPackage PlayerInfoNetPackage;
+
+	UPROPERTY()
+	FSlotDataNetPackage SlotDataNetPackage;
+};
+
+/** Toppanel 左键查看玩家信息 */
+USTRUCT()
+struct FLookPlayerInfoNetPackage
+{
+	GENERATED_BODY()
+
+	FLookPlayerInfoNetPackage();
+	
+	UPROPERTY()
+	int64 PlayerID;
 
 	UPROPERTY()
 	FSlotDataNetPackage SlotDataNetPackage;

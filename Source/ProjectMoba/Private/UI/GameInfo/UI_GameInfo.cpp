@@ -11,16 +11,6 @@
 void UUI_GameInfo::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	GThread::GetCoroutines().BindLambda(0.3f, [&]()
-	{
-		if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
-		{
-			// 绑定委托
-			MobaPlayerState->KDAInfoDelegate.BindUObject(KDAInfo, &UUI_KDAInfo::UpdateSlot);
-			MobaPlayerState->TeamKillCountDelegate.BindUObject(this, &UUI_GameInfo::UpdateTeamKillCount);
-		}
-	});
 }
 
 void UUI_GameInfo::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -29,6 +19,23 @@ void UUI_GameInfo::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 	// 更新时间
 	TimeText->SetText(FText::FromString(GetCurrentCount(GetWorld()->GetRealTimeSeconds())));
+}
+
+void UUI_GameInfo::BindDelegate()
+{
+	if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
+	{
+		// 绑定委托
+		MobaPlayerState->KDAInfoDelegate.BindUObject(KDAInfo, &UUI_KDAInfo::UpdateSlot);
+		MobaPlayerState->TeamKillCountDelegate.BindUObject(this, &UUI_GameInfo::UpdateTeamKillCount);
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			BindDelegate();
+		});
+	}
 }
 
 FString UUI_GameInfo::GetCurrentCount(float NewTimeCount)

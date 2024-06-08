@@ -8,26 +8,34 @@
 
 UUI_Panel::UUI_Panel(): PlayerID(INDEX_NONE)
 {
+	
 }
 
 void UUI_Panel::NativeConstruct()
 {
 	Super::NativeConstruct();
+}
+
+void UUI_Panel::BindDelegate()
+{
 	
-	//绑定 属性更新委托
-	GThread::GetCoroutines().BindLambda(0.3f, [&]()
+	if(AMobaGameState* MobaGameState = GetMobaGameState())
 	{
-		if(AMobaGameState* MobaGameState = GetMobaGameState())
+		MobaGameState->OnUpdateAttributeDelegate.AddUObject(this, &UUI_Panel::ResponseUpdateSlot);
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
 		{
-			MobaGameState->OnUpdateAttributeDelegate.AddUObject(this, &UUI_Panel::ResponseUpdateSlot);
-		}
-	});
+			BindDelegate();
+		});
+	}
 }
 
 void UUI_Panel::RequestUpdateSlot(const ECharacterAttributeType CharacterAttributeType)
 {
 	if(PlayerID == INDEX_NONE) return;
-
+	
 	//客户端通过操作UI请求更新->服务器执行更新并广播委托->UI监听委托并更新UI
 	if(AMobaGameState* MobaGameState = GetMobaGameState())
 	{
@@ -37,6 +45,7 @@ void UUI_Panel::RequestUpdateSlot(const ECharacterAttributeType CharacterAttribu
 
 void UUI_Panel::ResponseUpdateSlot(int64 InPlayerID, const ECharacterAttributeType CharacterAttributeType)
 {
+	
 }
 
 void UUI_Panel::ResponseUpdateSlots(int64 InPlayerID)

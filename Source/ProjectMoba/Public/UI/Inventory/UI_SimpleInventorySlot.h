@@ -19,7 +19,7 @@ protected:
 	virtual void NativeConstruct() override;
 public:
 	void UpdateSlot(const FSlotData& SlotData) const;
-
+	virtual void ResetSlot() override;
 private:
 	//数量
 	UPROPERTY(meta = (BindWidget))

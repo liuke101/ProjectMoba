@@ -18,6 +18,7 @@ public:
 	UUI_Panel();
 	
 	virtual void NativeConstruct() override;
+	virtual void BindDelegate() override;
 
 	FORCEINLINE int64 GetPlayerID() const {return PlayerID;}
 	FORCEINLINE void SetPlayerID(const int64& InPlayerID) { PlayerID = InPlayerID; }

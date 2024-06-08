@@ -1,5 +1,6 @@
 ﻿#include "Character/Hero/MobaHeroCharacter.h"
 
+#include "ThreadManage.h"
 #include "Character/MobaPawn.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
@@ -19,7 +20,18 @@ AMobaHeroCharacter::AMobaHeroCharacter()
 void AMobaHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		GThread::GetCoroutines().BindLambda(0.5f, [&]()
+		{
+			MethodUnit::ServerCallAllMobaCharacter<AMobaCharacter>(GetWorld(), [&](AMobaCharacter* MobaCharacter)
+			{
+				MobaCharacter->InitWidgetInfo();
+				return MethodUnit::EServerCallType::ECT_InProgress;
+			});
+		});
+	}
 }
 
 void AMobaHeroCharacter::Tick(float DeltaTime)

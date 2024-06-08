@@ -31,18 +31,18 @@ void AMobaGameMode::Tick(float DeltaSeconds)
 
 void AMobaGameMode::BeginPlay()
 {
+
 	Super::BeginPlay();
 
 	/** GameMode仅存在于服务器, 不需要进行LocalRole判断 */
-
-	// 延迟在服务器上生成小兵
-	GThread::GetCoroutines().BindUObject(2.0f, this, &AMobaGameMode::SpawnMinionsOnServer);
+	//在服务器上生成小兵
+	SpawnMinionsOnServer();
 }
 
 
-void AMobaGameMode::SpawnMinionsOnServer()
+void AMobaGameMode::SpawnMinionsOnServer() const
 {
-	//在服务器上生成小兵
+	
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
 		TArray<AActor*> SpawnPoints;
@@ -89,10 +89,7 @@ void AMobaGameMode::SpawnMinionsOnServer()
 					}
 				}
 			}
-			
 		}
-		
-		
 	}
 }
 

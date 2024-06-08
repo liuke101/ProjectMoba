@@ -3,6 +3,8 @@
 
 #include "System/MobaAssistSystem.h"
 
+#include "BehaviorTree/BehaviorTreeTypes.h"
+
 
 FMobaAssitSystem::FMobaAssitSystem()
 {
@@ -25,7 +27,7 @@ void FMobaAssitSystem::Tick(float DeltaSeconds)
 		
 	for(auto& Tmp : RemoveAssistPlayers)
 	{
-		RemoveAssistPlayers.Remove(Tmp);
+		AssistPlayers.Remove(Tmp);
 	}
 }
 
@@ -70,17 +72,10 @@ const FAssistPlayer* FMobaAssitSystem::GetLastAssistPlayer()
 	return LastAssitPlayer;
 }
 
-void FMobaAssitSystem::Death(const int64& KilledPlayerID)
+void FMobaAssitSystem::Death()
 {
-	//如果被击杀的玩家在助攻列表中，移除
-	for(auto& Tmp : AssistPlayers)
-	{
-		if(Tmp.PlayerID == KilledPlayerID)
-		{	
-			AssistPlayers.Remove(Tmp);
-			break;
-		}
-	}
+	/** 清空助攻列表 */
+	AssistPlayers.Empty();
 }
 
 

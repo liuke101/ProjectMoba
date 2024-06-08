@@ -29,18 +29,6 @@ void AMobaGameState::BeginPlay()
 		TeamKillCount.Add(ETeamType::ETT_Red, 0);
 		TeamKillCount.Add(ETeamType::ETT_Blue, 0);
 		
-		// 延迟执行，等待客户端生成
-		GThread::GetCoroutines().BindLambda(4.0f,[&]()
-		{
-			//调用玩家的PlayerState，请求更新属性
-			MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(),[&](AMobaPlayerState* MobaPlayerState)
-			{
-				RequestUpdateCharacterAttribute(MobaPlayerState->GetPlayerID(),MobaPlayerState->GetPlayerID(), ECharacterAttributeType::ECAT_All);
-				
-				return MethodUnit::EServerCallType::ECT_InProgress;
-			});
-		});
-		
 		//绑定击杀系统函数
 		BindKillFuntion();
 	}
@@ -396,10 +384,13 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		//助攻结算
 		for(const auto& Assit : KilledPlayerState->GetAssistPlayers())
 		{
-			if(AMobaPlayerState* AssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
+			if(Assit.PlayerID != KillerPlayerID)
 			{
-				AssitPlayerState->GetPlayerDataComponent()->AssistNum++;
-				AssitPlayerState->UpdateKDAInfo();
+				if(AMobaPlayerState* AssitPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Assit.PlayerID))
+				{
+					AssitPlayerState->GetPlayerDataComponent()->AssistNum++;
+					AssitPlayerState->UpdateKDAInfo();
+				}
 			}
 		}
 	}
@@ -548,6 +539,12 @@ bool AMobaGameState::IsPlayer(int64 PlayerID) const
 void AMobaGameState::Death(int64 PlayerID)
 {
 	MobaKillSystem.Death(PlayerID);
+	
+	//清空助攻列表
+	if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+	{
+		MobaPlayState->GetMobaAssistSystem()->Death();
+	}
 }
 
 void AMobaGameState::BindKillFuntion()
@@ -631,7 +628,7 @@ void AMobaGameState::BindKillFuntion()
 		
 		if(AMobaPlayerState* KillPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(),KillerPlayerID))
 		{
-			MethodUnit::ServerCallAllHero<AMobaHeroCharacter>(GetWorld(), [&](AMobaHeroCharacter* MobaCharacter)
+			MethodUnit::ServerCallAllMobaHero<AMobaHeroCharacter>(GetWorld(), [&](AMobaHeroCharacter* MobaCharacter)
 			{
 				//有一个活的，就不算团灭
 				if(!MobaCharacter->IsDead())

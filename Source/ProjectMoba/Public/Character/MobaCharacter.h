@@ -48,11 +48,14 @@ public:
 
 	UFUNCTION()
 	virtual void InitCharacter();
+
+	/** 广播UI信息 */
+	void InitWidgetInfo();
 	
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
 
-	FCharacterAttribute* GetCharacterAttribute();
+	FCharacterAttribute* GetCharacterAttribute() const;
 	
 	bool IsDead();
 	

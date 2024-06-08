@@ -21,7 +21,7 @@ class UPlayerDataComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeyDelegate, int32);
 DECLARE_MULTICAST_DELEGATE_OneParam(FSimpleOneKeysDelegate, const TArray<int32>&);
-DECLARE_DELEGATE_OneParam(FPlayerIDDelegate, int64);
+DECLARE_DELEGATE_OneParam(FLookPlayerInfoDelegate, const FLookPlayerInfoNetPackage&);
 DECLARE_DELEGATE_OneParam(FPlayerKillMessageDelegate, const FKillNetPackgae&);
 DECLARE_DELEGATE_OneParam(FTeamInfoDelegate,const TArray<FPlayerTeamNetPackage>& )
 DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
@@ -45,7 +45,7 @@ public:
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
 	
-	FPlayerIDDelegate PlayerIDDelegate; //绑定PlayerID
+	FLookPlayerInfoDelegate LookPlayerInfoDelegate; //查看玩家信息
 	
 	FSimpleDelegate HideTopPanelDelegate; //隐藏角色信息TopPanel
 	
@@ -201,7 +201,7 @@ public:
 	void Client_ResponseUpdateAllCharacterAttributes(int64 InPlayerID, const FCharacterAttribute& CharacterAttribute);
 	
 	UFUNCTION(Client, Reliable)
-	void Client_UpdatePlayerID(const int64 InPlayerID);
+	void Client_UpdateCharacterInfoTopPanel(const FLookPlayerInfoNetPackage& LookPlayerInfoNetPackage);
 
 	UFUNCTION(Client, Reliable)
 	void Client_HideCharacterInfoTopPanel();

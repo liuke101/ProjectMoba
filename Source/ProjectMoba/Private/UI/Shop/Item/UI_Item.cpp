@@ -3,6 +3,7 @@
 
 #include "UI/Shop/Item/UI_Item.h"
 
+#include "ThreadManage.h"
 #include "Components/TextBlock.h"
 #include "Table/SlotAsset.h"
 

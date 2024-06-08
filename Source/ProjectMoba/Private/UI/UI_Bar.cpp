@@ -10,13 +10,12 @@
 void UUI_Bar::NativeConstruct()
 {
 	Super::NativeConstruct();
-	
-	//延迟绑定SlotDelegate, 因为PlayerState在NativeConstruct时还未初始化
-	GThread::GetCoroutines().BindUObject(0.5f, this, &UUI_Bar::BindSlotDelegate);
 }
 
-void UUI_Bar::BindSlotDelegate()
+void UUI_Bar::BindDelegate()
 {
+	Super::BindDelegate();
+	
 	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
 		// 绑定初始化Slot分布
@@ -65,6 +64,13 @@ void UUI_Bar::BindSlotDelegate()
 				}
 				return true;
 			});
+		});
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			BindDelegate();
 		});
 	}
 }

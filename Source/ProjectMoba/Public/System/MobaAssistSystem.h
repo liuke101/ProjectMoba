@@ -25,8 +25,8 @@ public:
 	
 	/** 获取最后一个助攻玩家 */
 	const FAssistPlayer* GetLastAssistPlayer();
-
-	void Death(const int64& KilledPlayerID);
+	
+	void Death();
 	
 private:
 	/** 助攻列表（攻击我的敌方英雄） */

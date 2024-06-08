@@ -16,15 +16,23 @@
 void UUI_CharacterInfo_BottomPanel::NativeConstruct()
 {
 	Super::NativeConstruct();
+}
+
+void UUI_CharacterInfo_BottomPanel::BindDelegate()
+{
+	Super::BindDelegate();
 	
-	//绑定 属性更新委托
-	GThread::GetCoroutines().BindLambda(0.3f, [&]()
+	if(AMobaGameState* MobaGameState = GetMobaGameState())
 	{
-		if(AMobaGameState* MobaGameState = GetMobaGameState())
+		MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
 		{
-			MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
-		}
-	});
+			BindDelegate();
+		});
+	}
 }
 
 void UUI_CharacterInfo_BottomPanel::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

@@ -137,15 +137,17 @@ void AMobaPlayerState::BeginPlay()
 			GetInventorySlotNetPackage(NetInventoryPackage);
 			Client_InitInventorySlots(NetInventoryPackage);
 
-			//测试Inventory(正式功能为点击购买)
-			// AddSlotToInventory(99990);
-			// AddSlotToInventory(99991);
-
 			FSlotDataNetPackage NetSkillPackage;
 			GetSkillSlotNetPackage(NetSkillPackage);
 			Client_InitSkillSlots(NetSkillPackage);
-			//测试Skill
+			//初始化技能栏
 			InitSkillSlot();
+
+			//初始化属性(整包更新)
+			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+			{
+				MobaGameState->RequestUpdateCharacterAttribute(GetPlayerID(), GetPlayerID(), ECharacterAttributeType::ECAT_All);
+			}
 		});
 	}
 }
@@ -554,22 +556,22 @@ const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer()
 
 void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 {
-	//更新ID
-	Client_UpdatePlayerID(InPlayerID);
-
-	//更新Inventory
+	//更新TopPanel 背包信息
+	FLookPlayerInfoNetPackage LookPlayerInfoNetPackage;
+	LookPlayerInfoNetPackage.PlayerID = InPlayerID;
+	
 	MethodUnit::ServerCallAllPlayerState<AMobaPlayerState>(GetWorld(), [&](AMobaPlayerState* MobaPlayerState)
 	{
 		if(MobaPlayerState->GetPlayerID() == InPlayerID)
 		{
-			FSlotDataNetPackage NetInventoryPackage;
-			MobaPlayerState->GetInventorySlotNetPackage(NetInventoryPackage); //获取整包
-			Client_InitInventorySlots(NetInventoryPackage); //发送整包到本机
+			MobaPlayerState->GetInventorySlotNetPackage(LookPlayerInfoNetPackage.SlotDataNetPackage); 
 			
 			return MethodUnit::EServerCallType::ECT_ProgressComplete;
 		}
 		return MethodUnit::EServerCallType::ECT_InProgress;
 	});
+	
+	Client_UpdateCharacterInfoTopPanel(LookPlayerInfoNetPackage);
 
 	//更新属性(通过发送整包）
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
@@ -618,7 +620,13 @@ void AMobaPlayerState::Client_UpdateTeamKillCount_Implementation(const int32& Fr
 {
 	if(!TeamKillCountDelegate.ExecuteIfBound(FriendlyKillCount, EnemyKillCount))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindTeamKillCountDelegate委托"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定TeamKillCountDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_UpdateTeamKillCount(FriendlyKillCount, EnemyKillCount);
+		});
 	}
 }
 
@@ -626,7 +634,14 @@ void AMobaPlayerState::Client_UpdateKDAInfo_Implementation(const FPlayerKDANetPa
 {
 	if(!KDAInfoDelegate.ExecuteIfBound(PlayerKDANetPackage))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindKDAInfoDelegate委托"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定KDAInfoDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_UpdateKDAInfo(PlayerKDANetPackage);
+		});
+		
 	}
 }
 
@@ -679,7 +694,13 @@ void AMobaPlayerState::Client_ResponseAllPlayerTeamInfos_Implementation(
 {
 	if(!TeamInfoDelegate.ExecuteIfBound(PlayerTeamNetPackage))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerTeamDelegate委托"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定TeamInfoDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_ResponseAllPlayerTeamInfos(PlayerTeamNetPackage);
+		});
 	}
 }
 
@@ -687,7 +708,13 @@ void AMobaPlayerState::Client_UpdateKillMessage_Implementation(const FKillNetPac
 {
 	if(!KillMessageDelegate.ExecuteIfBound(KillNetPackgae))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerKillMessageDelegate委托"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定KillMessageDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_UpdateKillMessage(KillNetPackgae);
+		});
 	}
 }
 
@@ -709,12 +736,20 @@ void AMobaPlayerState::Client_ResponseUpdateAllCharacterAttributes_Implementatio
 	}
 }
 
-void AMobaPlayerState::Client_UpdatePlayerID_Implementation(const int64 InPlayerID)
+void AMobaPlayerState::Client_UpdateCharacterInfoTopPanel_Implementation(const FLookPlayerInfoNetPackage& LookPlayerInfoNetPackage)
 {
-	if(!PlayerIDDelegate.ExecuteIfBound(InPlayerID))
+	if(!LookPlayerInfoDelegate.ExecuteIfBound(LookPlayerInfoNetPackage))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定BindPlayerIDDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_UpdateCharacterInfoTopPanel(LookPlayerInfoNetPackage);
+		});
 	}
+
+	
 }
 
 void AMobaPlayerState::Client_HideCharacterInfoTopPanel_Implementation()
@@ -722,6 +757,12 @@ void AMobaPlayerState::Client_HideCharacterInfoTopPanel_Implementation()
 	if(!HideTopPanelDelegate.ExecuteIfBound())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定HideTopPanelDelegate委托"));
+
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_HideCharacterInfoTopPanel();
+		});
 	}
 }
 

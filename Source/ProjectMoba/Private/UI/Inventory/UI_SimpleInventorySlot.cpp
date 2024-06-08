@@ -15,3 +15,10 @@ void UUI_SimpleInventorySlot::UpdateSlot(const FSlotData& SlotData) const
 	UpdateIcon(SlotData.SlotIcon);
 	SetTextNumber(SlotNumber, SlotData.Number);
 }
+
+void UUI_SimpleInventorySlot::ResetSlot()
+{
+	Super::ResetSlot();
+	SetTextNumber(SlotNumber, INDEX_NONE);
+	SetSlotID(INDEX_NONE);
+}

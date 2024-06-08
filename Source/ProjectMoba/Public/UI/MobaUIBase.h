@@ -16,8 +16,9 @@ UCLASS()
 class PROJECTMOBA_API UMobaUIBase : public UUserWidget
 {
 	GENERATED_BODY()
-
 public:
+	virtual void NativeConstruct() override;
+
 	AMobaHUD* GetMobaHUD() const;
 
 	AMobaPlayerState* GetMobaPlayerState() const;
@@ -25,4 +26,6 @@ public:
 	AMobaGameState* GetMobaGameState() const;
 
 	UWidgetAnimation* GetNameWidgetAnimation(const FString& WidgetAnimationName) const;
+
+	virtual void BindDelegate();
 };

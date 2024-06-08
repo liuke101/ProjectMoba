@@ -64,10 +64,7 @@ void UUI_Shop::NativeConstruct()
 	// 默认隐藏商城
 	SetVisibility(ESlateVisibility::Hidden);
 
-	GThread::Get()->GetCoroutines().BindLambda(0.3f, [&]()
-	{
-		UpdateItem(ESlotType::EST_All);
-	});
+	UpdateItem(ESlotType::EST_All);
 }
 
 
@@ -82,50 +79,60 @@ void UUI_Shop::UpdateItem(ESlotType SlotType)
 	ItemGrid->ClearChildren();
 	
 	// 生成Item
-	if(const TArray<FSlotAsset*>* SlotAssets = GetMobaPlayerState()->GetSlotAssets())
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
 	{
-		// 收集类型为SlotType的SlotAsset
-		TArray<FSlotAsset*> ValidSlotAssets;
-		for(auto& SlotAsset : *SlotAssets)
+		if(const TArray<FSlotAsset*>* SlotAssets = MobaPlayerState->GetSlotAssets())
 		{
-			if(SlotAsset->SlotType.Contains(SlotType))
+			// 收集类型为SlotType的SlotAsset
+			TArray<FSlotAsset*> ValidSlotAssets;
+			for(auto& SlotAsset : *SlotAssets)
 			{
-				ValidSlotAssets.Add(SlotAsset);
-			}
-		}
-
-		//排列Item: 每行两个Item
-		//(0,1) (0,2)
-		//(1,1) (1,2)
-		//...
-		for(int32 i = 0; i < ValidSlotAssets.Num(); ++i)
-		{
-			if(UUI_Item* Item = CreateWidget<UUI_Item>(GetWorld(), ItemClass))
-			{
-				if(UUniformGridSlot* GridSlot = ItemGrid->AddChildToUniformGrid(Item))
+				if(SlotAsset->SlotType.Contains(SlotType))
 				{
-					GridSlot->SetRow(i / 2);
-					
-					if(i % 2 == 0) //偶数在左列
-					{
-						GridSlot->SetColumn(0);
-					}
-					else //奇数在右列
-					{
-						GridSlot->SetColumn(1);
-					}
-					
-					GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-					GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+					ValidSlotAssets.Add(SlotAsset);
+				}
+			}
 
-					//更新Item
-					Item->UpdateSlot(ValidSlotAssets[i]);
+			//排列Item: 每行两个Item
+			//(0,1) (0,2)
+			//(1,1) (1,2)
+			//...
+			for(int32 i = 0; i < ValidSlotAssets.Num(); ++i)
+			{
+				if(UUI_Item* Item = CreateWidget<UUI_Item>(GetWorld(), ItemClass))
+				{
+					if(UUniformGridSlot* GridSlot = ItemGrid->AddChildToUniformGrid(Item))
+					{
+						GridSlot->SetRow(i / 2);
+					
+						if(i % 2 == 0) //偶数在左列
+						{
+							GridSlot->SetColumn(0);
+						}
+						else //奇数在右列
+						{
+							GridSlot->SetColumn(1);
+						}
+					
+						GridSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+						GridSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 
-					//Item合成
-					Item->CallItemSynthesisDelegate.BindUObject(this, &UUI_Shop::OnCallUpdateItemSynthesis);
+						//更新Item
+						Item->UpdateSlot(ValidSlotAssets[i]);
+
+						//Item合成
+						Item->CallItemSynthesisDelegate.BindUObject(this, &UUI_Shop::OnCallUpdateItemSynthesis);
+					}
 				}
 			}
 		}
+	}
+	else
+	{
+		GThread::Get()->GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			UpdateItem(ESlotType::EST_All);
+		});
 	}
 	
 }

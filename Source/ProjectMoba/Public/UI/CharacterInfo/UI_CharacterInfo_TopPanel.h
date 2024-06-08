@@ -18,8 +18,8 @@ class PROJECTMOBA_API UUI_CharacterInfo_TopPanel : public UUI_Info
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void BindDelegate() override;
 
-	virtual void InitSlotLayout(const TArray<int32>& SlotIDs) override;
 
 	virtual UPanelWidget* GetSlotLayoutPanel() override;
 
