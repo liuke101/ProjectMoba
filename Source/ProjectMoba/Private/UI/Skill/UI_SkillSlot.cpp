@@ -80,7 +80,10 @@ void UUI_SkillSlot::OnClickedWidget()
 
 void UUI_SkillSlot::OnReleasedWidget()
 {
-	Super::OnReleasedWidget();
+	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	{
+		MobaPlayerState->Server_ReleaseSkillKey();
+	}
 }
 
 bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,

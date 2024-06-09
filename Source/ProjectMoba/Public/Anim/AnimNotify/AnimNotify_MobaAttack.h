@@ -1,4 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -18,7 +19,7 @@ class PROJECTMOBA_API UAnimNotify_MobaAttack : public UAnimNotify
 
 public:
 	UAnimNotify_MobaAttack();
-
+	
 	virtual FString GetNotifyName_Implementation() const override;
 
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;

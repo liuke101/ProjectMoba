@@ -4,6 +4,7 @@
 #include "Game/MobaPlayerState.h"
 
 #include "ThreadManage.h"
+#include "Character/Hero/MobaHeroCharacter.h"
 #include "Character/Tool/CharacterSpawnPoint.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
@@ -615,8 +616,19 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	}
 }
 
+void AMobaPlayerState::Server_ReleaseSkillKey_Implementation()
+{
+	if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
+	{
+		if(AMobaHeroCharacter* MobaHeroCharacter = Cast<AMobaHeroCharacter>(MobaPawn->GetControlledMobaHero()))
+		{
+			MobaHeroCharacter->PressSkillKey = false;
+		}
+	}
+}
+
 void AMobaPlayerState::Client_UpdateTeamKillCount_Implementation(const int32& FriendlyKillCount,
-	const int32& EnemyKillCount)
+                                                                 const int32& EnemyKillCount)
 {
 	if(!TeamKillCountDelegate.ExecuteIfBound(FriendlyKillCount, EnemyKillCount))
 	{
@@ -873,6 +885,11 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 			{
 				if(AMobaPawn* MobaPawn = GetPawn<AMobaPawn>())
 				{
+					if(AMobaHeroCharacter* MobaHeroCharacter = Cast<AMobaHeroCharacter>(MobaPawn->GetControlledMobaHero()))
+					{
+						MobaHeroCharacter->PressSkillKey = true; //按下技能键
+					}
+					
 					MobaPawn->SkillAttack(SkillDataID);
 				}
 			}

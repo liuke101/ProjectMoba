@@ -9,7 +9,7 @@ public class ProjectMoba : ModuleRules
 		
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","HeadMountedDisplay", "NavigationSystem", "AIModule", "Niagara","EnhancedInput", "GameplayTasks", "UMG", "Landscape", "SlateCore"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","HeadMountedDisplay", "NavigationSystem", "AIModule", "Niagara","EnhancedInput", "GameplayTasks", "UMG", "Landscape", "SlateCore","AnimGraphRuntime"});
 		
 		PrivateDependencyModuleNames.AddRange(new string[] { "SimpleScreenMove","SimpleThread", "SimpleDrawText" });
 		

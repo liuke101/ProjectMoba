@@ -181,6 +181,10 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_InitSkillSlots(const FSlotDataNetPackage& SlotDataNetPackage);
 
+	//松开技能按键
+	UFUNCTION(Server, Reliable)
+	void Server_ReleaseSkillKey();
+
 	//------------------通用-------------------//
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateSlot(int32 SlotID, const FSlotData& NetSlotData);

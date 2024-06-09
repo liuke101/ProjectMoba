@@ -33,5 +33,7 @@ public:
 	void SkillAttack(int32 SkillDataID);
 	
 	UAnimMontage* GetSkillMontageFromDataID(int32 SkillDataID) const;
+	
+	bool PressSkillKey = false; //技能键是否被按下
 
 };
