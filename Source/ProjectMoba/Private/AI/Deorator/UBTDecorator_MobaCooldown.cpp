@@ -12,8 +12,11 @@ bool UUBTDecorator_MobaCooldown::CalculateRawConditionValue(UBehaviorTreeCompone
 	{
 		if(AMobaCharacter* MobaCharacter = OwnerAIController->GetPawn<AMobaCharacter>())
 		{
-			float* CDTptr = const_cast<float*>(&CoolDownTime); //去const（const函数不能直接修改成员变量）
-			*CDTptr = 1 / MobaCharacter->GetCharacterAttribute()->AttackSpeed; // 攻速和时间的关系：Time = 1 / AttackSpeed
+			if(FCharacterAttribute* CharacterAttribute = MobaCharacter->GetCharacterAttribute())
+			{
+				float* CDTptr = const_cast<float*>(&CoolDownTime); //去const（const函数不能直接修改成员变量）
+				*CDTptr = 1 / CharacterAttribute->AttackSpeed; // 攻速和时间的关系：Time = 1 / AttackSpeed
+			}
 		}
 	}
 	return Super::CalculateRawConditionValue(OwnerComp, NodeMemory);;

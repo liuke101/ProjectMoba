@@ -43,12 +43,14 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(OtherActor))
 		{
-			//排除自己和友军
-			if(InstigatorCharacter == TargetCharacter && MethodUnit::IsFriendly(InstigatorCharacter, TargetCharacter)) return;
-			
 			//服务器端
 			if(GetWorld()->IsNetMode(NM_DedicatedServer))
 			{
+				//排除死亡角色
+				if(TargetCharacter->IsDead()) return;
+				//排除自己和友军
+				if(InstigatorCharacter == TargetCharacter && MethodUnit::IsFriendly(InstigatorCharacter, TargetCharacter)) return;
+				
 				//单体目标检测
 				if(bSingleCheck)
 				{
@@ -60,18 +62,18 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 						}
 					}
 				}
-			}
-			
-			//造成伤害
-			UGameplayStatics::ApplyDamage(
-				TargetCharacter,
-				CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
-				InstigatorCharacter->GetController(),
-				InstigatorCharacter,
-				UDamageType::StaticClass());
+				
+				//造成伤害
+				UGameplayStatics::ApplyDamage(
+					TargetCharacter,
+					CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
+					InstigatorCharacter->GetController(),
+					InstigatorCharacter,
+					UDamageType::StaticClass());
 
-			//销毁
-			Destroy();
+				//销毁
+				Destroy();
+			}
 		}
 	}
 }

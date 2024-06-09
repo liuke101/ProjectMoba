@@ -270,9 +270,12 @@ FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() const
 
 bool AMobaCharacter::IsDead()
 {
-	if(GetCharacterAttribute()->CurrentHealth <= 0.0f)
+	if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 	{
-		return true;
+		if(CharacterAttribute->CurrentHealth <= 0.0f)
+		{
+			return true;
+		}
 	}
 	return false;
 }

@@ -1,6 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "AI/Service/BTService_MobaMinion.h"
+
 #include "AI/Service/BTService_MobaCharacter.h"
 
 #include "AI/MobaAIController.h"
@@ -14,7 +16,7 @@
 #include "Character/MobaCharacter.h"
 #include "Table/CharacterAttribute.h"
 
-void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void UBTService_MobaMinion::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 	
@@ -127,7 +129,7 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
    }
 }
 
-void UBTService_MobaCharacter::InitializeFromAsset(UBehaviorTree& Asset)
+void UBTService_MobaMinion::InitializeFromAsset(UBehaviorTree& Asset)
 {
 	Super::InitializeFromAsset(Asset);
 

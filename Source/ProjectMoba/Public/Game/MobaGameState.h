@@ -124,5 +124,6 @@ private:
 
 	/** 小兵系统 */
 	//TObjectPtr<UMobaMinionSystem> MobaMinionSystem;
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
 	TObjectPtr<UMobaMinionSystemComponent> MobaMinionSystemComponent;
 };
