@@ -357,7 +357,12 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
 			
 							//复活
-							GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
+							//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
+							//死亡2s后销毁
+							GThread::GetCoroutines().BindLambda(2.0f, [&]()
+							{
+								Destroy();
+							});
 						} 
 						else //受伤
 						{

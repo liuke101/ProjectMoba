@@ -9,6 +9,8 @@
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+class UMobaMinionSystemComponent;
+class UMobaMinionSystem;
 struct FMobaAssitSystem;
 struct FAssistPlayer;
 struct FKillNetPackgae;
@@ -119,4 +121,8 @@ private:
 	
 	/** 团队杀敌数 */
 	TMap<ETeamType, int32> TeamKillCount;
+
+	/** 小兵系统 */
+	//TObjectPtr<UMobaMinionSystem> MobaMinionSystem;
+	TObjectPtr<UMobaMinionSystemComponent> MobaMinionSystemComponent;
 };

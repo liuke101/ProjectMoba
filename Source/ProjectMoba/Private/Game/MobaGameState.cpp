@@ -6,8 +6,10 @@
 #include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/Hero/MobaHeroCharacter.h"
+#include "Character/Tool/CharacterSpawnPoint.h"
 #include "Character/Turret/MobaTurretCharacter.h"
 #include "Common/MethodUnit.h"
+#include "Component/MobaMinionSystemComponent.h"
 #include "Component/PlayerDataComponent.h"
 #include "Engine/DataTable.h"
 #include "Net/UnrealNetwork.h"
@@ -17,6 +19,8 @@
 
 AMobaGameState::AMobaGameState()
 {
+	//MobaMinionSystem = NewObject<UMobaMinionSystem>(this);
+	MobaMinionSystemComponent = CreateDefaultSubobject<UMobaMinionSystemComponent>(TEXT("MobaMinionSystemComponent"));
 	
 }
 
@@ -31,6 +35,21 @@ void AMobaGameState::BeginPlay()
 		
 		//绑定击杀系统函数
 		BindKillFuntion();
+
+		//初始化小兵生成器
+		// TArray<AActor*> SpawnPoints;
+		// UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACharacterSpawnPoint::StaticClass(),SpawnPoints);
+		// TArray<ACharacterSpawnPoint*> CharacterSpawnPoints;
+		// for(auto& SpawnPoint : SpawnPoints)
+		// {
+		// 	if(ACharacterSpawnPoint* CharacterSpawnPoint = Cast<ACharacterSpawnPoint>(SpawnPoint))
+		// 	{
+		// 		CharacterSpawnPoints.Add(CharacterSpawnPoint);
+		// 	}
+		// }
+		// MobaMinionSystemComponent->Init(CharacterSpawnPoints);
+
+		//初始化野怪生成器
 	}
 }
 

@@ -61,7 +61,7 @@ void AMobaGameMode::SpawnMinionsOnServer() const
 				}
 				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WarriorMinion)
 				{
-					CharacterID = 11110;  
+					continue;
 				}
 				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WildMonster)
 				{

@@ -45,7 +45,7 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 			float MonsterMinDistance = INT_MAX;
 		};
 		
-		// 搜索攻击范围内各类别最近目标
+		// 搜索范围内各类别最近目标
 		FAITarget AITarget;
 		
 		for(auto& Actor : FoundActors)
@@ -57,9 +57,8 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 					if(TargetCharacter->IsDead() || MethodUnit::IsFriendly(OwnerCharacter, TargetCharacter)) continue;
 				
 					float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
-					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
 					
-					if(Distance <= AttackRange)
+					if(Distance <= 2000.0f)
 					{
 						/** 目标优先级 */
 						//优先级一：小兵
@@ -123,6 +122,7 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 			TargetCharacter = AITarget.Monster;
 		}
 
+		//如果没有找到目标，就返回任务目标
 		if(TargetCharacter)
 		{
 			return TargetCharacter;
