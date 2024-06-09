@@ -3,6 +3,7 @@
 #include "Character/Hero/MobaHeroCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Kismet/GameplayStatics.h"
+#include "Table/CharacterAttribute.h"
 
 
 AMobaMinionAIController::AMobaMinionAIController()
@@ -25,6 +26,9 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(),AMobaCharacter::StaticClass(), FoundActors);
 
+	//收集任务目标
+	FindTaskTarget(FoundActors);
+	
 	if(AMobaCharacter* OwnerCharacter = Cast<AMobaCharacter>(GetPawn()))
 	{
 		// 目标结构体
@@ -41,19 +45,21 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 			float MonsterMinDistance = INT_MAX;
 		};
 		
-		// 搜索2000范围内各类别最近目标
+		// 搜索攻击范围内各类别最近目标
 		FAITarget AITarget;
+		
 		for(auto& Actor : FoundActors)
 		{
 			if(Actor != OwnerCharacter) //排除自己
 			{
 				if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(Actor))
 				{
-					//友军检测
-					if(MethodUnit::IsFriendly(OwnerCharacter, TargetCharacter)) continue;
+					if(TargetCharacter->IsDead() || MethodUnit::IsFriendly(OwnerCharacter, TargetCharacter)) continue;
 				
 					float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
-					if(Distance <= 2000.0f)
+					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
+					
+					if(Distance <= AttackRange)
 					{
 						/** 目标优先级 */
 						//优先级一：小兵
@@ -97,24 +103,73 @@ AMobaCharacter* AMobaMinionAIController::FindTarget()
 			}
 		}
 
+		
 		// 按照优先级返回最近目标
+		AMobaCharacter* TargetCharacter = nullptr;
 		if(AITarget.Minion)
 		{
-			return AITarget.Minion;
+			TargetCharacter = AITarget.Minion;
 		}
 		if(AITarget.Tower)
 		{
-			return AITarget.Tower;
+			TargetCharacter = AITarget.Tower;
 		}
 		if(AITarget.Player)
 		{
-			return AITarget.Player;
+			TargetCharacter = AITarget.Player;
 		}
 		if(AITarget.Monster)
 		{
-			return AITarget.Monster;
+			TargetCharacter = AITarget.Monster;
+		}
+
+		if(TargetCharacter)
+		{
+			return TargetCharacter;
+		}
+		else
+		{
+			return GetTaskTarget();
 		}
 	}
 	return nullptr;
+}
+
+AMobaCharacter* AMobaMinionAIController::GetTaskTarget()
+{
+	return TaskTarget;
+}
+
+void AMobaMinionAIController::FindTaskTarget(const TArray<AActor*>& OutActors)
+{
+
+	if(!TaskTarget || TaskTarget->IsDead())
+	{
+		if(AMobaCharacter* OwnerCharacter = Cast<AMobaCharacter>(GetPawn()))
+		{
+			float MinDistance = INT_MAX;
+			for(auto& Actor : OutActors)
+			{
+				if(Actor != OwnerCharacter) //排除自己
+				{
+					if(AMobaCharacter* TargetCharacter = Cast<AMobaCharacter>(Actor))
+					{
+						if(TargetCharacter->IsDead() || MethodUnit::IsFriendly(OwnerCharacter, TargetCharacter)) continue;
+
+						//寻找最近炮塔
+						if(TargetCharacter->GetCharacterType() >= ECharacterType::ECT_1st_Tower && TargetCharacter->GetCharacterType() <= ECharacterType::ECT_Base_Tower)
+						{
+							float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
+							if(Distance < MinDistance)
+							{
+								MinDistance = Distance;
+								TaskTarget = TargetCharacter;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 

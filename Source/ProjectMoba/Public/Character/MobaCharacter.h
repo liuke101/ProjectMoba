@@ -28,6 +28,7 @@ public:
 	/** 普通攻击 */
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 
+#pragma region RPC
 	/** 动画广播 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
@@ -49,6 +50,7 @@ public:
 	/** 显示伤害字体 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_SpwanDrawText(float Value, float Percent, const FLinearColor& Color, const FVector& Location);
+#pragma endregion
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
 	UFUNCTION()

@@ -115,7 +115,7 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 			float MonsterMinDistance = INT_MAX;
 		};
 		
-		// 搜索2000范围内各类别最近目标
+		// 搜索攻击范围内各类别最近目标
 		FAITarget AITarget;
 		for(auto& Actor : FoundActors)
 		{
@@ -128,6 +128,7 @@ AMobaCharacter* AMobaTurretAIController::FindTarget()
 					
 					float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
 					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
+					
 					if(Distance <= AttackRange)
 					{
 						/** 目标优先级 */

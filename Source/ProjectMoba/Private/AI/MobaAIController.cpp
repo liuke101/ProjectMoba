@@ -54,6 +54,11 @@ AMobaCharacter* AMobaAIController::GetTarget() const
 	return nullptr;
 }
 
+AMobaCharacter* AMobaAIController::GetTaskTarget()
+{
+	return nullptr;
+}
+
 AMobaCharacter* AMobaAIController::FindTarget()
 {
 	return nullptr;

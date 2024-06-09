@@ -20,4 +20,10 @@ public:
 	virtual void InitMobaAIController() override;
 	
 	virtual AMobaCharacter* FindTarget() override;
+	virtual AMobaCharacter* GetTaskTarget() override;
+	
+	void FindTaskTarget(const TArray<AActor*>& OutActors);
+private:
+	UPROPERTY()
+	TObjectPtr<AMobaCharacter> TaskTarget;;
 };

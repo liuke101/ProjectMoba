@@ -33,54 +33,87 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
 					if (OwnerCharacter->IsDead()) return;
 					
+					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
+					
 					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
 					
-					if(!Target || Target->IsDead())//如果目标为空或者目标死亡，就重新寻找目标
+
+					//判断是否是任务目标
+					auto IsTaskTarget = [&]()->bool
+					{
+						if(AMobaCharacter* TaskTarget = OwnerAIController->GetTaskTarget())
+						{
+							return TaskTarget == Target;
+						}
+						return false;	
+					};
+
+					if(IsTaskTarget())
 					{
 						Target = OwnerAIController->FindTarget();
 						if(Target)
 						{
-							Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
+							if(!IsTaskTarget())
+							{
+								float Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
+								if(Distance > AttackRange)
+								{
+									Target = OwnerAIController->GetTaskTarget();
+								}
+							}
+						}
+						Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
+					}
+					else
+					{
+						if(!Target || Target->IsDead())//如果目标为空或者目标死亡，就重新寻找目标
+						{
+							Target = OwnerAIController->FindTarget();
+							if(Target)
+							{
+								Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
+							}
 						}
 					}
+					
 		
 					float Distance =  999999.0f;
+
+					auto CheckRangeAttack = [&]()
+					{
+						//如果距离大于攻击范围，就继续向目标移动
+						if(Distance > AttackRange) 
+						{
+							Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName,  Target->GetActorLocation());
+						}
+						else//如果距离小于等于攻击范围，就停止移动，只将角色面向转向目标
+						{
+							FVector Dir = Target->GetActorLocation() - OwnerCharacter->GetActorLocation();
+							Dir.Normalize();
+							FVector FacePos = OwnerCharacter->GetActorLocation() + Dir * 20.0f; //往前略微偏移，保证进入攻击范围
+							Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, FacePos);
+						}
+					};
+					
 					if(Target)
 					{
 						Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
-						
-						//如果目标角色死亡，就将目标置空
-						if(Distance>2000.0f || Target->IsDead())
-						{
-							OwnerAIController->SetTarget(nullptr);
-							Distance = 999999.0f;
 
-							//TOOD:一旦失去目标 我们要重新设定目标
-							
-							if(Target->IsDead())
+						if(IsTaskTarget())
+						{
+							CheckRangeAttack();
+						}
+						else
+						{
+							//如果目标角色死亡，就将目标置空
+							if(Distance > AttackRange)
 							{
-								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, OwnerCharacter->GetActorLocation());
+								OwnerAIController->SetTarget(nullptr);
+								Distance = 999999.0f;
 							}
 							else
 							{
-								//我们要重新设定目标
-								//MyBlackBoard->SetValueAsVector(BlackBoardKey_Location.SelectedKeyName, InTarget->GetActorLocation());
-							}
-						}
-						else //如果角色没有死亡，追踪并攻击目标
-						{
-							float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
-							//如果距离大于攻击范围，就继续向目标移动
-							if(Distance > AttackRange) 
-							{
-								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName,  Target->GetActorLocation());
-							}
-							else//如果距离小于等于攻击范围，就停止移动，只将角色面向转向目标
-							{
-								FVector Dir = Target->GetActorLocation() - OwnerCharacter->GetActorLocation();
-								Dir.Normalize();
-								FVector FacePos = OwnerCharacter->GetActorLocation() + Dir * 20.0f; //往前略微偏移，保证进入攻击范围
-								Blackboard->SetValueAsVector(Blackboard_Location.SelectedKeyName, FacePos);
+								CheckRangeAttack();
 							}
 						}
 					}
