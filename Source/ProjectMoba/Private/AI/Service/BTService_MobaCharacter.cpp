@@ -29,12 +29,14 @@ void UBTService_MobaCharacter::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 			{
 				if(UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent())
 				{
+					//检测死亡
 					Blackboard->SetValueAsBool(Blackboard_Death.SelectedKeyName, OwnerCharacter->IsDead());
-
 					if (OwnerCharacter->IsDead()) return;
-					
+
+					// 获取攻击范围
 					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
-					
+
+					// 获取目标
 					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
 					
 

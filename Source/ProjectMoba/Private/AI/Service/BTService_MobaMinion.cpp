@@ -4,8 +4,7 @@
 #include "AI/Service/BTService_MobaMinion.h"
 
 #include "AI/Service/BTService_MobaCharacter.h"
-
-#include "AI/MobaAIController.h"
+#include "AI/MobaMinionAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BTFunctionLibrary.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType.h"
@@ -18,28 +17,26 @@
 
 void UBTService_MobaMinion::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
+	ScheduleNextTick(OwnerComp, NodeMemory);
 	
 	if(Blackboard_Target.SelectedKeyType == UBlackboardKeyType_Object::StaticClass() &&
 		Blackboard_Distance.SelectedKeyType == UBlackboardKeyType_Float::StaticClass() &&
 		Blackboard_Location.SelectedKeyType == UBlackboardKeyType_Vector::StaticClass() &&
 		Blackboard_Death.SelectedKeyType == UBlackboardKeyType_Bool::StaticClass())
 	{
-		if(AMobaAIController* OwnerAIController = OwnerComp.GetOwner<AMobaAIController>())
+		if(AMobaMinionAIController* OwnerAIController = OwnerComp.GetOwner<AMobaMinionAIController>())
 		{
 			if(AMobaCharacter* OwnerCharacter = OwnerAIController->GetPawn<AMobaCharacter>())
 			{
 				if(UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent())
 				{
+					// 检测死亡
 					Blackboard->SetValueAsBool(Blackboard_Death.SelectedKeyName, OwnerCharacter->IsDead());
-
 					if (OwnerCharacter->IsDead()) return;
-					
-					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
-					
+
+					// 获取目标
 					AMobaCharacter* Target = Cast<AMobaCharacter>(Blackboard->GetValueAsObject(Blackboard_Target.SelectedKeyName));
 					
-
 					//判断是否是任务目标
 					auto IsTaskTarget = [&]()->bool
 					{
@@ -50,38 +47,47 @@ void UBTService_MobaMinion::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 						return false;	
 					};
 
-					if(IsTaskTarget())
+					//如果目标为空或者目标死亡，就重新寻找目标
+					if(!Target || Target->IsDead())
 					{
 						Target = OwnerAIController->FindTarget();
-						if(Target)
+					}
+					else //如果目标不为空，就判断是否在检查范围内
+					{
+						if(OwnerAIController->CheckRange())
 						{
-							if(!IsTaskTarget())
+							//如果是任务目标，就重新寻找目标
+							if(IsTaskTarget())
 							{
-								float Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
-								if(Distance > AttackRange)
-								{
-									Target = OwnerAIController->GetTaskTarget();
-								}
+								Target = OwnerAIController->FindTarget();
 							}
 						}
-						Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
 					}
-					else
+
+					//判断目标是否离开检测范围（跑了）
+					if(Target)
 					{
-						if(!Target || Target->IsDead())//如果目标为空或者目标死亡，就重新寻找目标
+						if(!IsTaskTarget())
 						{
-							Target = OwnerAIController->FindTarget();
-							if(Target)
+							float Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
+							//如果超过检测范围，就重新寻找目标
+							if(Distance > 1000.0f)
 							{
-								Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
+								Target = OwnerAIController->FindTarget();
 							}
 						}
 					}
 					
-		
+					Blackboard->SetValueAsObject(Blackboard_Target.SelectedKeyName, Target);
+
+
+					// 获取攻击范围
+					float AttackRange = OwnerCharacter->GetCharacterAttribute()->AttackRange;
+					
 					float Distance =  999999.0f;
 
-					auto CheckRangeAttack = [&]()
+					//lambda 定位目标
+					auto LocateTarget = [&]()
 					{
 						//如果距离大于攻击距离，就继续向目标移动
 						if(Distance > AttackRange) 
@@ -101,25 +107,8 @@ void UBTService_MobaMinion::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 					{
 						Distance = FVector::Distance(OwnerCharacter->GetActorLocation(), Target->GetActorLocation());
 
-						if(IsTaskTarget())
-						{
-							CheckRangeAttack();
-						}
-						else
-						{
-							//如果目标角色死亡，就将目标置空
-							if(Distance > 2000.0f)
-							{
-								OwnerAIController->SetTarget(nullptr);
-								Distance = 999999.0f;
-							}
-							else
-							{
-								CheckRangeAttack();
-							}
-						}
+						LocateTarget();
 					}
-					
 			
 					/** 设置目标距离 */
 					Blackboard->SetValueAsFloat(Blackboard_Distance.SelectedKeyName, Distance);
@@ -132,12 +121,4 @@ void UBTService_MobaMinion::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* N
 void UBTService_MobaMinion::InitializeFromAsset(UBehaviorTree& Asset)
 {
 	Super::InitializeFromAsset(Asset);
-
-	if(UBlackboardData* BBAsset = GetBlackboardAsset())
-	{
-		Blackboard_Target.ResolveSelectedKey(*BBAsset);
-		Blackboard_Distance.ResolveSelectedKey(*BBAsset);
-		Blackboard_Location.ResolveSelectedKey(*BBAsset);
-		Blackboard_Death.ResolveSelectedKey(*BBAsset);
-	}
 }
