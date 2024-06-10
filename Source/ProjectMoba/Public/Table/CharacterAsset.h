@@ -21,10 +21,10 @@ struct FCharacterSkill
 	TObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
-	ESkillType SkillType = ESkillType::EST_Burst;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
 	TObjectPtr<UAnimMontage> SkillMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
+	FText SkillDescription;
 };
 
 USTRUCT(BlueprintType)

@@ -3,7 +3,14 @@
 
 #include "Table/SlotAttribute.h"
 
+FSlotAttributeValue::FSlotAttributeValue()
+	: GainType(ESlotAttributeGainType::ESAGT_Add)
+	, ValueType(ESlotAttributeValueType::ESAVT_Value)
+	, Value(0)
+{
+}
+
 FSlotAttribute::FSlotAttribute()
-	: CD(0)
+	: AttributeType(ESlotAttributeType::ESAT_Burst)
 {
 }

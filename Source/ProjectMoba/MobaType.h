@@ -72,14 +72,6 @@ enum class ESlotType : uint8
 	EST_Shoes UMETA(DisplayName="Shoes"), //鞋
 };
 
-/** 技能类型 */
-UENUM()
-enum class ESkillType : uint8
-{
-	EST_Burst UMETA(DisplayName="Burst"), // 爆发
-	EST_Continuous UMETA(DisplayName="Continuous"), //持续
-};
-
 /** 角色属性协议 */
 UENUM(Blueprintable)
 enum class ECharacterAttributeType : uint8
