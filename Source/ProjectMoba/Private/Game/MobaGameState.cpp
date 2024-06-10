@@ -9,6 +9,7 @@
 #include "Character/Turret/MobaTurretCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Component/MobaAssistSystemComponent.h"
+#include "Component/MobaKillSystemComponent.h"
 #include "Component/MobaMinionSystemComponent.h"
 #include "Component/PlayerDataComponent.h"
 #include "Engine/DataTable.h"
@@ -18,9 +19,9 @@
 
 AMobaGameState::AMobaGameState()
 {
-	//MobaMinionSystem = NewObject<UMobaMinionSystem>(this);
-	MobaMinionSystemComponent = CreateDefaultSubobject<UMobaMinionSystemComponent>(TEXT("MobaMinionSystemComponent"));
+	MobaKillSystemComponent = CreateDefaultSubobject<UMobaKillSystemComponent>(TEXT("MobaKillSystemComponent"));
 	
+	MobaMinionSystemComponent = CreateDefaultSubobject<UMobaMinionSystemComponent>(TEXT("MobaMinionSystemComponent"));
 }
 
 void AMobaGameState::BeginPlay()
@@ -34,21 +35,6 @@ void AMobaGameState::BeginPlay()
 		
 		//绑定击杀系统函数
 		BindKillFuntion();
-
-		//初始化小兵生成器
-		// TArray<AActor*> SpawnPoints;
-		// UGameplayStatics::GetAllActorsOfClass(GetWorld(),ACharacterSpawnPoint::StaticClass(),SpawnPoints);
-		// TArray<ACharacterSpawnPoint*> CharacterSpawnPoints;
-		// for(auto& SpawnPoint : SpawnPoints)
-		// {
-		// 	if(ACharacterSpawnPoint* CharacterSpawnPoint = Cast<ACharacterSpawnPoint>(SpawnPoint))
-		// 	{
-		// 		CharacterSpawnPoints.Add(CharacterSpawnPoint);
-		// 	}
-		// }
-		// MobaMinionSystemComponent->Init(CharacterSpawnPoints);
-
-		//初始化野怪生成器
 	}
 }
 
@@ -396,7 +382,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		AddTeamKillCount(KillerPlayerState->GetPlayerDataComponent()->TeamType, 1);
 		
 		//击杀提示
-		MobaKillSystem.KillPrompt(KillerPlayerID, KilledPlayerID);
+		MobaKillSystemComponent->KillPrompt(KillerPlayerID, KilledPlayerID);
 		
 		//击杀结算
 		KillerPlayerState->GetPlayerDataComponent()->KillNum++;
@@ -478,7 +464,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 				AddTeamKillCount(LastAssitPlayerState->GetPlayerDataComponent()->TeamType, 1);
 
 				//击杀提示
-				MobaKillSystem.KillPrompt(LastAssist->PlayerID, KilledPlayerID);
+				MobaKillSystemComponent->KillPrompt(LastAssist->PlayerID, KilledPlayerID);
 
 				//击杀者结算
 				LastAssitPlayerState->GetPlayerDataComponent()->KillNum++;
@@ -563,7 +549,7 @@ bool AMobaGameState::IsPlayer(int64 PlayerID) const
 
 void AMobaGameState::Death(int64 PlayerID)
 {
-	MobaKillSystem.Death(PlayerID);
+	MobaKillSystemComponent->Death(PlayerID);
 	
 	//清空助攻列表
 	if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
@@ -575,77 +561,78 @@ void AMobaGameState::Death(int64 PlayerID)
 void AMobaGameState::BindKillFuntion()
 {
 	//TODO: 可以对三种击杀方式做了区分，这里暂时不区分，统一调用MulticastKillMessage
-	MobaKillSystem.NormalKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	
+	MobaKillSystemComponent->NormalKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_NormalKill, KillerPlayerID, KilledPlayerID);
 	};
 	
-	MobaKillSystem.FirstBloodFuntion = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->FirstBloodFuntion = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_FirstBlood, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.DoubleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->DoubleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_DoubleKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.TripleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->TripleKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_TripleKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.QuadraKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->QuadraKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_QuadraKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.PentaKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->PentaKillFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_PentaKill, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.DaShaTeShaFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->DaShaTeShaFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_DaShaTeSha, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.SuoXiangPiMiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->SuoXiangPiMiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_SuoXiangPiMi, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.HunShenShiDanFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->HunShenShiDanFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_HunShenShiDan, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.YongGuanSanJunFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->YongGuanSanJunFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_YongGuanSanJun, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.YiJiDangQianFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->YiJiDangQianFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_YiJiDangQian, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.WanFuMoDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->WanFuMoDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_WanFuMoDi, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.JuShiWuShuangFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->JuShiWuShuangFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_JuShiWuShuang, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.TianXiaWuDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->TianXiaWuDiFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		MulticastKillMessage(EKillType::EKT_TianXiaWuDi, KillerPlayerID, KilledPlayerID);
 	};
 
-	MobaKillSystem.TeamDeathFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
+	MobaKillSystemComponent->TeamDeathFunction = [&](const int64& KillerPlayerID, const int64& KilledPlayerID)
 	{
 		bool bTeamDie = true;
 

@@ -2,11 +2,10 @@
 
 
 #include "Game/MobaGameMode.h"
-
-#include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/Tool/CharacterSpawnPoint.h"
 #include "Common/MethodUnit.h"
+#include "Component/MobaKillSystemComponent.h"
 #include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Table/CharacterAsset.h"
@@ -21,12 +20,6 @@ AMobaGameMode::AMobaGameMode()
 void AMobaGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// 运行击杀系统
-	if(AMobaGameState* MobaGameState = GetGameState<AMobaGameState>())
-	{
-		MobaGameState->MobaKillSystem.Tick(DeltaSeconds);
-	}
 }
 
 void AMobaGameMode::BeginPlay()
@@ -110,7 +103,7 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 				//TODO:断线重连
 
 				
-				MobaGameState->MobaKillSystem.AddKiller(PlayerDataComponent->PlayerID);
+				MobaGameState->MobaKillSystemComponent->AddKiller(PlayerDataComponent->PlayerID);
 			
 			}
 		}

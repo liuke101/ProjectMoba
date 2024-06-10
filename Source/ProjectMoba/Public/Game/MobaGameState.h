@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "ProjectMoba/MobaType.h"
-#include "System/MobaKillSystem.h"
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+class UMobaKillSystemComponent;
 class UMobaMinionSystemComponent;
 class UMobaMinionSystem;
 struct FMobaAssitSystem;
@@ -118,7 +118,9 @@ private:
 	TArray<FPlayerLocation> PlayerLocations;
 
 	/** 击杀系统 */
-	FMobaKillSystem MobaKillSystem;
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
+	TObjectPtr<UMobaKillSystemComponent> MobaKillSystemComponent;
+	//FMobaKillSystem MobaKillSystem;
 	
 	/** 团队杀敌数 */
 	TMap<ETeamType, int32> TeamKillCount;
