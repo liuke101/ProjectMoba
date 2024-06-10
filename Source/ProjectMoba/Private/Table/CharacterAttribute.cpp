@@ -3,6 +3,8 @@
 
 #include "Table/CharacterAttribute.h"
 
+#include "Component/PlayerDataComponent.h"
+
 FCharacterAttribute::FCharacterAttribute()
 	: Level(1)
 	, MaxHealth(1000.0f)
@@ -44,4 +46,15 @@ float FCharacterAttribute::GetManaPercent() const
 float FCharacterAttribute::GetExpPercent() const
 {
 	return FMath::Clamp(CurrentExp / MaxExp, 0.0f, 1.0f);
+}
+
+float FCharacterAttribute::GetMaxHealth() const
+{
+	CALCULATE_ATTRIBUTE_VALUE(MaxHealth);
+}
+
+
+float FCharacterAttribute::GetPhysicalAttack() const
+{
+	CALCULATE_ATTRIBUTE_VALUE(PhysicalAttack);
 }

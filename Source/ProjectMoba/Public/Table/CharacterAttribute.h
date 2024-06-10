@@ -6,6 +6,28 @@
 #include "MobaTableBase.h"
 #include "CharacterAttribute.generated.h"
 
+struct FSlotAttributes;
+struct FSlotAttributeValue;
+
+/** 积累所有SlotAttribute中的某个属性，并和基础属性相加 */
+#define CALCULATE_ATTRIBUTE_VALUE(ATTRIBUTE) \
+float NewValue = 0; \
+if(WeakPtr_SlotAttributes.IsValid()) \
+{ \
+	for(auto& Tmp : WeakPtr_SlotAttributes.Pin()->AttributeElements) \
+	{ \
+		if(Tmp.Value.ATTRIBUTE.GainType == ESlotAttributeGainType::ESAGT_Add) \
+		{ \
+			NewValue += Tmp.Value.ATTRIBUTE.Value; \
+		} \
+		else if(Tmp.Value.ATTRIBUTE.GainType == ESlotAttributeGainType::ESAGT_Substract) \
+		{ \
+			NewValue -= Tmp.Value.ATTRIBUTE.Value; \
+		} \
+	} \
+} \
+return NewValue + ATTRIBUTE;
+
 USTRUCT(BlueprintType)
 struct FCharacterAttribute : public FMobaTableBase
 {
@@ -70,4 +92,12 @@ struct FCharacterAttribute : public FMobaTableBase
 	float GetHealthPercent() const;
 	float GetManaPercent() const;
 	float GetExpPercent() const;
+
+	
+	float GetMaxHealth() const;
+	float GetPhysicalAttack() const;
+
+private:
+	//我们不修改CharacterAttribute类中的原始属性，而是通过若指针去获取装备属性，并在Getter函数中计算得出增加/减少后的属性值
+	TWeakPtr<FSlotAttributes> WeakPtr_SlotAttributes;
 };

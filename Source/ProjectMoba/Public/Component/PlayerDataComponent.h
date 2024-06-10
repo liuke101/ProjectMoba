@@ -9,7 +9,38 @@
 #include "Table/SlotAttribute.h"
 #include "PlayerDataComponent.generated.h"
 
+//模拟Map
+struct FSlotAttribute_Element
+{
+	FSlotAttribute_Element() : Key(INDEX_NONE) {}
+		
+	//Key: SlotID 表示格子的ID | Value: FSlotAttribute
+	FSlotAttribute_Element(int32 InKey, const FSlotAttribute& InValue)
+		: Key(InKey), Value(InValue) {}
 
+	int32 Key; 	//SlotID
+	FSlotAttribute Value; //FSlotAttribute
+
+	bool IsValid() const { return Key != INDEX_NONE; }
+		
+	bool operator==(const FSlotAttribute_Element& InElement) const;
+};
+
+/** 存储所有的Slot属性 */
+struct FSlotAttributes : public TSharedFromThis<FSlotAttributes>
+{
+	bool Contains(int32 InKey);
+	void Add(int32 Key, const FSlotAttribute& Value);
+	void Remove(int32 InKey);
+
+	void SetKeyToNewKey(int32 OldKey, int32 NewKey); //移动
+	void SwapKey(int32 KeyA, int32 KeyB); //交换
+
+	FSlotAttribute* operator[](int32 InID);
+
+	/** 存储所有的Slot属性 */
+	TArray<FSlotAttribute_Element> AttributeElements;
+};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECTMOBA_API UPlayerDataComponent : public UActorComponent
@@ -63,58 +94,8 @@ public:
 	TMap<int32, FSlotData> SkillSlots; //SlotID_To_SlotData
 
 private:
-	struct FSlotAttribute_Internal
-	{
-		//模拟Map
-		struct FSlotAttribute_Element
-		{
-			FSlotAttribute_Element()
-				: Key(INDEX_NONE)
-			{
-			}
-			
-			//Key: SlotID 表示格子的ID
-			//Value: FSlotAttribute
-			FSlotAttribute_Element(int32 InKey, const FSlotAttribute& InValue)
-				: Key(InKey), Value(InValue)
-			{
-			}
-			
-			int32 Key;
-			FSlotAttribute Value;
-
-			bool IsValid() const { return Key != INDEX_NONE; }
-			
-			bool operator==(const FSlotAttribute_Element& InElement) const
-			{
-				return Key == InElement.Key;
-			}
-		};
-
-		
-		bool Contains(int32 InKey);
-		void Add(int32 Key, const FSlotAttribute& Value);
-		void Remove(int32 InKey);
-
-		void SetKeyToNewKey(int32 OldKey, int32 NewKey); //移动
-		void SwapKey(int32 KeyA, int32 KeyB); //交换
-
-		FSlotAttribute* operator[](int32 InID)
-		{
-			for(auto& Tmp : AttributeElements)
-			{
-				if(Tmp.Key == InID)
-				{
-					return &Tmp.Value;
-				}
-			}
-			return nullptr;
-		}
-
-
-		TArray<FSlotAttribute_Element> AttributeElements;
-		
-	}SlotAttribute_Internal;
+	// 存储所有的Slot属性 
+	TSharedPtr<FSlotAttributes> SlotAttributes;
 
 	// CD队列，专门计算技能、物品、装备、属性
 	// 推送到队列中，在队列中计算cd，然后再推送到客户端

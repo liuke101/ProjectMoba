@@ -2,7 +2,6 @@
 
 #include "Net/UnrealNetwork.h"
 
-
 UPlayerDataComponent::UPlayerDataComponent()
 	: PlayerName("DefaultName")
 	, TeamType(ETeamType::ETT_Red)
@@ -15,6 +14,9 @@ UPlayerDataComponent::UPlayerDataComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 	SetIsReplicatedByDefault(true);
+
+	//创建实例
+	SlotAttributes = MakeShareable(new FSlotAttributes());
 }
 
 
@@ -51,7 +53,8 @@ void UPlayerDataComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UPlayerDataComponent::FSlotAttribute_Internal::Contains(int32 InKey)
+
+bool FSlotAttributes::Contains(int32 InKey)
 {
 	for(auto& Tmp : AttributeElements)
 	{
@@ -64,12 +67,12 @@ bool UPlayerDataComponent::FSlotAttribute_Internal::Contains(int32 InKey)
 	return false;
 }
 
-void UPlayerDataComponent::FSlotAttribute_Internal::Add(int32 Key, const FSlotAttribute& Value)
+void FSlotAttributes::Add(int32 Key, const FSlotAttribute& Value)
 {
 	AttributeElements.Add(FSlotAttribute_Element(Key,Value));
 }
 
-void UPlayerDataComponent::FSlotAttribute_Internal::Remove(int32 InKey)
+void FSlotAttributes::Remove(int32 InKey)
 {
 	FSlotAttribute_Element Element; //拷贝Tmp而不是引用，否则Remove崩溃
 	
@@ -88,7 +91,7 @@ void UPlayerDataComponent::FSlotAttribute_Internal::Remove(int32 InKey)
 	}
 }
 
-void UPlayerDataComponent::FSlotAttribute_Internal::SetKeyToNewKey(int32 OldKey, int32 NewKey)
+void FSlotAttributes::SetKeyToNewKey(int32 OldKey, int32 NewKey)
 {
 	for(auto& Element : AttributeElements)
 	{
@@ -100,7 +103,7 @@ void UPlayerDataComponent::FSlotAttribute_Internal::SetKeyToNewKey(int32 OldKey,
 	}
 }
 
-void UPlayerDataComponent::FSlotAttribute_Internal::SwapKey(int32 KeyA, int32 KeyB)
+void FSlotAttributes::SwapKey(int32 KeyA, int32 KeyB)
 {
 	FSlotAttribute_Element* ElementA = nullptr;
 	FSlotAttribute_Element* ElementB = nullptr;
@@ -122,7 +125,22 @@ void UPlayerDataComponent::FSlotAttribute_Internal::SwapKey(int32 KeyA, int32 Ke
 			break;
 		}
 	}
+}
 
-	
+FSlotAttribute* FSlotAttributes::operator[](int32 InID)
+{
+	for(auto& Tmp : AttributeElements)
+	{
+		if(Tmp.Key == InID)
+		{
+			return &Tmp.Value;
+		}
+	}
+	return nullptr;
+}
+
+bool FSlotAttribute_Element::operator==(const FSlotAttribute_Element& InElement) const
+{
+	return Key == InElement.Key;
 }
 

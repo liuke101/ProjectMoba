@@ -33,10 +33,20 @@ class PROJECTMOBA_API AMobaPlayerState : public APlayerState
 	GENERATED_BODY()
 public:
 	AMobaPlayerState();
-
-	virtual void Tick(float DeltaSeconds) override;
 protected:
 	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaSeconds) override;
+
+#pragma region Tick
+private:
+	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD
+	void Tick_Server_AddGold(float DeltaSeconds); // 服务器每秒增加金币
+	void Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds); // 服务器检查距离商店的距离
+	void Tick_Server_UpdateBuffCD(float DeltaSeconds); // 服务器Buff
+#pragma endregion
+
 	
 public:
 #pragma region Delegate

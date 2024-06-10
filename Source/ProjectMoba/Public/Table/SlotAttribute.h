@@ -52,6 +52,7 @@ struct FSlotAttributeValue
 };
 
 
+/** Slot的属性 */
 USTRUCT(BlueprintType)
 struct FSlotAttribute : public FMobaTableBase
 {

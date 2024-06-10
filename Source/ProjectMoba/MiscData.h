@@ -22,7 +22,7 @@ struct FPlayerLocation
 	
 };
 
-/** Slot的属性 */
+/** Slot的资产数据（查表获得） */
 USTRUCT(BlueprintType)
 struct FSlotData
 {
