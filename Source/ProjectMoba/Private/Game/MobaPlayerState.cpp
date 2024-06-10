@@ -7,11 +7,11 @@
 #include "Character/Hero/MobaHeroCharacter.h"
 #include "Character/Tool/CharacterSpawnPoint.h"
 #include "Common/MethodUnit.h"
+#include "Component/MobaAssistSystemComponent.h"
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProjectMoba/MiscData.h"
-#include "System/MobaAssistSystem.h"
 #include "Table/CharacterAsset.h"
 #include "Table/SlotAttribute.h"
 #include "Table/SlotAsset.h"
@@ -22,78 +22,82 @@ AMobaPlayerState::AMobaPlayerState()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	
 	PlayerDataComponent = CreateDefaultSubobject<UPlayerDataComponent>(TEXT("PlayerDataComponent"));
+	
+	MobaAssitSystemComponent = CreateDefaultSubobject<UMobaAssistSystemComponent>(TEXT("MobaAssitComponent"));
 }
 
 void AMobaPlayerState::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	
 	if(GetLocalRole() == ROLE_Authority)
 	{
 		/** 服务器更新CD */
-		TArray<int32> RemoveSlots;
-		for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 		{
-			Tmp.Value->CD -= DeltaSeconds;
-			if(Tmp.Value->CD <= 0.f)
+			TArray<int32> RemoveSlots;
+			for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 			{
-				Tmp.Value->CD = 0.f;
-				if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(Tmp.Value->DataID))
+				Tmp.Value->CD -= DeltaSeconds;
+				if(Tmp.Value->CD <= 0.f)
 				{
+					Tmp.Value->CD = 0.f;
+					if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(Tmp.Value->DataID))
+					{
 					
+					}
+
+					if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+					{
+						//检测数量
+						CheckInventory(Tmp.Key);
+
+						//客户端矫正CD
+						Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
+					}
+
+					//计算完毕，添加到移除数组
+					RemoveSlots.Add(Tmp.Key);
 				}
+			}
 
-				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
-				{
-					//检测数量
-					CheckInventory(Tmp.Key);
-
-					//客户端矫正CD
-					Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
-				}
-
-				//计算完毕，添加到移除数组
-				RemoveSlots.Add(Tmp.Key);
+			//已完成CD计算的Slot从CD队列中移除。
+			for(auto& RemoveSlot : RemoveSlots)
+			{
+				PlayerDataComponent->SlotCDQueue.Remove(RemoveSlot);
 			}
 		}
 
-		//已完成CD计算的Slot从CD队列中移除。
-		for(auto& RemoveSlot : RemoveSlots)
-		{
-			PlayerDataComponent->SlotCDQueue.Remove(RemoveSlot);
-		}
-
-		/** 助攻系统Tick */
-		MobaAssistSystem.Tick(DeltaSeconds);
-		
 		/** 服务器每秒增加2金币 */
-		GoldTime+=DeltaSeconds;
-		if(GoldTime >= 1.f)
 		{
-			GoldTime = 0.f;
-			PlayerDataComponent->Gold += 2;
+			GoldTime+=DeltaSeconds;
+			if(GoldTime >= 1.f)
+			{
+				GoldTime = 0.f;
+				PlayerDataComponent->Gold += 2;
+			}
 		}
 
 		/** 售卖 */
-		float Distance = FVector::Dist(HomeShopLocation, GetPawn()->GetActorLocation());
-		TArray<int32> RemoveSaleSlots;
-		for(auto& Tmp : PlayerDataComponent->SaleSlotDistanceQueue)
 		{
-			//如果角色距离商店大于1000，则无法原价取消，只能打折出售
-			if(Distance >= 1000.0f)
+			float Distance = FVector::Dist(HomeShopLocation, GetPawn()->GetActorLocation());
+			TArray<int32> RemoveSaleSlots;
+			for(auto& Tmp : PlayerDataComponent->SaleSlotDistanceQueue)
 			{
-				Tmp.Value->bCancelBuy = false;
-				Client_UpdateSlot(Tmp.Key, *Tmp.Value);
+				//如果角色距离商店大于1000，则无法原价取消，只能打折出售
+				if(Distance >= 1000.0f)
+				{
+					Tmp.Value->bCancelBuy = false;
+					Client_UpdateSlot(Tmp.Key, *Tmp.Value);
 
-				//计算完毕，添加到移除数组
-				RemoveSaleSlots.Add(Tmp.Key); 
+					//计算完毕，添加到移除数组
+					RemoveSaleSlots.Add(Tmp.Key); 
+				}
 			}
-		}
-		// 从队列中移除已经处理的Slot
-		for(auto& RemoveSaleSlot : RemoveSaleSlots)
-		{
-			PlayerDataComponent->SaleSlotDistanceQueue.Remove(RemoveSaleSlot);
+			// 从队列中移除已经处理的Slot
+			for(auto& RemoveSaleSlot : RemoveSaleSlots)
+			{
+				PlayerDataComponent->SaleSlotDistanceQueue.Remove(RemoveSaleSlot);
+			}
 		}
 	}
 }
@@ -542,17 +546,17 @@ int32 AMobaPlayerState::GetSkillDataIDFromSlotID(int32 SlotID) const
 
 TArray<FAssistPlayer> AMobaPlayerState::GetAssistPlayers() const
 {
-	return MobaAssistSystem.GetAssistPlayers();
+	return MobaAssitSystemComponent->GetAssistPlayers();
 }
 
-void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID)
+void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID) const
 {
-	MobaAssistSystem.AddAssistPlayer(InPlayerID);
+	MobaAssitSystemComponent->AddAssistPlayer(InPlayerID);
 }
 
-const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer()
+const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer() const
 {
-	return MobaAssistSystem.GetLastAssistPlayer();
+	return MobaAssitSystemComponent->GetLastAssistPlayer();
 }
 
 void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)

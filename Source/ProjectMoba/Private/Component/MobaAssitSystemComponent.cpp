@@ -1,21 +1,31 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "System/MobaAssistSystem.h"
-
-#include "BehaviorTree/BehaviorTreeTypes.h"
+#include "Component/MobaAssistSystemComponent.h"
 
 
-FMobaAssitSystem::FMobaAssitSystem()
+UMobaAssistSystemComponent::UMobaAssistSystemComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
+
 }
 
-void FMobaAssitSystem::Tick(float DeltaSeconds)
+
+void UMobaAssistSystemComponent::BeginPlay()
 {
+	Super::BeginPlay();
+}
+
+
+void UMobaAssistSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                        FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
 	TArray<FAssistPlayer> RemoveAssistPlayers;
 	for(auto& Tmp : AssistPlayers)
 	{
-		Tmp.AssistTime -= DeltaSeconds;
+		Tmp.AssistTime -= DeltaTime;
 		//转换为每秒减一
 			
 		if(Tmp.AssistTime <= 0.f)
@@ -31,7 +41,7 @@ void FMobaAssitSystem::Tick(float DeltaSeconds)
 	}
 }
 
-void FMobaAssitSystem::AddAssistPlayer(const int64& InPlayerID)
+void UMobaAssistSystemComponent::AddAssistPlayer(const int64& InPlayerID)
 {
 	if(InPlayerID != INDEX_NONE)
 	{
@@ -54,7 +64,7 @@ void FMobaAssitSystem::AddAssistPlayer(const int64& InPlayerID)
 	}
 }
 
-const FAssistPlayer* FMobaAssitSystem::GetLastAssistPlayer() 
+const FAssistPlayer* UMobaAssistSystemComponent::GetLastAssistPlayer()
 {
 	FAssistPlayer* LastAssitPlayer = nullptr;
 
@@ -72,12 +82,11 @@ const FAssistPlayer* FMobaAssitSystem::GetLastAssistPlayer()
 	return LastAssitPlayer;
 }
 
-void FMobaAssitSystem::Death()
+void UMobaAssistSystemComponent::Death()
 {
 	/** 清空助攻列表 */
 	AssistPlayers.Empty();
 }
-
 
 FAssistPlayer::FAssistPlayer()
 	: PlayerID(INDEX_NONE)

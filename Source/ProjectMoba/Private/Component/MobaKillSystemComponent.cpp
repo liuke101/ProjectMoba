@@ -1,11 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/MobaKillComponent.h"
+#include "Component/MobaKillSystemComponent.h"
 
 
 // Sets default values for this component's properties
-UMobaKillComponent::UMobaKillComponent()
+UMobaKillSystemComponent::UMobaKillSystemComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -16,7 +16,7 @@ UMobaKillComponent::UMobaKillComponent()
 
 
 // Called when the game starts
-void UMobaKillComponent::BeginPlay()
+void UMobaKillSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -26,7 +26,7 @@ void UMobaKillComponent::BeginPlay()
 
 
 // Called every frame
-void UMobaKillComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+void UMobaKillSystemComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                        FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);

@@ -6,15 +6,14 @@
 #include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/Hero/MobaHeroCharacter.h"
-#include "Character/Tool/CharacterSpawnPoint.h"
 #include "Character/Turret/MobaTurretCharacter.h"
 #include "Common/MethodUnit.h"
+#include "Component/MobaAssistSystemComponent.h"
 #include "Component/MobaMinionSystemComponent.h"
 #include "Component/PlayerDataComponent.h"
 #include "Engine/DataTable.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectMoba/MiscData.h"
-#include "System/MobaAssistSystem.h"
 #include "Table/CharacterAsset.h"
 
 AMobaGameState::AMobaGameState()
@@ -569,7 +568,7 @@ void AMobaGameState::Death(int64 PlayerID)
 	//清空助攻列表
 	if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
 	{
-		MobaPlayState->GetMobaAssistSystem()->Death();
+		MobaPlayState->GetMobaAssistSystemComponent()->Death();
 	}
 }
 

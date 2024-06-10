@@ -3,21 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MobaAssistSystem.generated.h"
-
-/** 助攻 */
+#include "Components/ActorComponent.h"
+#include "MobaAssistSystemComponent.generated.h"
 
 struct FAssistPlayer;
 
-USTRUCT(BlueprintType)
-struct FMobaAssitSystem
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class PROJECTMOBA_API UMobaAssistSystemComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	FMobaAssitSystem();
+	UMobaAssistSystemComponent();
 
-	void Tick (float DeltaSeconds);
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 	
 	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const { return AssistPlayers; }
 	
@@ -32,6 +36,7 @@ private:
 	/** 助攻列表（攻击我的敌方英雄） */
 	TArray<FAssistPlayer> AssistPlayers;
 };
+
 
 USTRUCT(BlueprintType)
 struct FAssistPlayer

@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MobaKillComponent.generated.h"
+#include "MobaKillSystemComponent.generated.h"
 
-//TODO:迁移击杀系统到组件
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECTMOBA_API UMobaKillComponent : public UActorComponent
+class PROJECTMOBA_API UMobaKillSystemComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	UMobaKillComponent();
+	UMobaKillSystemComponent();
 
 protected:
 	virtual void BeginPlay() override;

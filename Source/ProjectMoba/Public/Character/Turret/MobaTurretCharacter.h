@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/MobaCharacter.h"
-#include "System/MobaAssistSystem.h"
 #include "MobaTurretCharacter.generated.h"
 
+struct FAssistPlayer;
+class UMobaAssistSystemComponent;
 struct FMobaAssitSystem;
 
 UCLASS()
@@ -23,14 +24,15 @@ public:
 public:
 
 	/** 助攻 */
-	FMobaAssitSystem* GetMobaAssistSystem() { return &MobaAssistSystem; }
+	UMobaAssistSystemComponent* GetMobaAssistSystemComponent() const { return MobaAssistSystemComponent; }
 	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const;
-	void AddAssistPlayer(const int64& InPlayerID);
-	const FAssistPlayer* GetLastAssistPlayer(); //获取最后一个助攻玩家
+	void AddAssistPlayer(const int64& InPlayerID) const;
+	const FAssistPlayer* GetLastAssistPlayer() const; //获取最后一个助攻玩家
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	FVector2D TurretRotator = FVector2D::Zero();  //我们只需要Pitch和Yaw，不需要Roll，为了节省带宽使用FVector2D而不是FRotator
 
 private:
-	FMobaAssitSystem MobaAssistSystem;
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
+	TObjectPtr<UMobaAssistSystemComponent> MobaAssistSystemComponent;
 };

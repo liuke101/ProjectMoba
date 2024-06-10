@@ -4,9 +4,9 @@
 #include "Component/PlayerDataComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "ProjectMoba/MiscData.h"
-#include "System/MobaAssistSystem.h"
 #include "MobaPlayerState.generated.h"
 
+class UMobaAssistSystemComponent;
 struct FMobaAssitSystem;
 struct FAssistPlayer;
 enum class ECharacterAttributeType : uint8;
@@ -128,10 +128,10 @@ public:
 	
 #pragma region 助攻
 	/** 助攻 */
-	FMobaAssitSystem* GetMobaAssistSystem() { return &MobaAssistSystem; }
+	UMobaAssistSystemComponent* GetMobaAssistSystemComponent() const { return MobaAssitSystemComponent; }
 	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const;
-	void AddAssistPlayer(const int64& InPlayerID);
-	const FAssistPlayer* GetLastAssistPlayer(); //获取最后一个助攻玩家
+	void AddAssistPlayer(const int64& InPlayerID) const;
+	const FAssistPlayer* GetLastAssistPlayer() const; //获取最后一个助攻玩家
 #pragma  endregion   
 
 #pragma region 角色属性信息
@@ -254,6 +254,7 @@ private:
 	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
 
 	/** 助攻系统 */
-	FMobaAssitSystem MobaAssistSystem;
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
+	TObjectPtr<UMobaAssistSystemComponent> MobaAssitSystemComponent;
 #pragma endregion 
 };
