@@ -18,9 +18,6 @@ struct FSlotAsset : public FMobaTableBase
 
 	FSlotAsset();
 
-	// UPROPERTY(EditDefaultsOnly, Category = "Slot Asset")
-	// TSubclassOf<ABullet> SlotClass;
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Slot Asset")
 	FName SlotName;
 	

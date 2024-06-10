@@ -10,7 +10,7 @@
 /** TODO:BUFF系统 6.17-6.25 */
 
 /** 属性类型 */
-UENUM()
+UENUM(BlueprintType)
 enum class ESlotAttributeType : uint8
 {
 	ESAT_Burst UMETA(DisplayName = "Burst"), //瞬发
@@ -19,7 +19,7 @@ enum class ESlotAttributeType : uint8
 };
 
 /** 增益类型 */
-UENUM()
+UENUM(BlueprintType)
 enum class ESlotAttributeGainType : uint8
 {
 	ESAGT_Add UMETA(DisplayName = "Add"), //+
@@ -27,14 +27,14 @@ enum class ESlotAttributeGainType : uint8
 };
 
 /** 值类型 */
-UENUM()
+UENUM(BlueprintType)
 enum class ESlotAttributeValueType : uint8
 {
 	ESAVT_Value UMETA(DisplayName = "Value"), //值
 	ESAVT_Percent UMETA(DisplayName = "Percent"), //百分比
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FSlotAttributeValue
 {
 	GENERATED_BODY()
@@ -59,15 +59,50 @@ struct FSlotAttribute : public FMobaTableBase
 
 	FSlotAttribute();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Slot Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	ESlotAttributeType AttributeType;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Slot Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	int32 Level;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	float Time; //持续时间
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue CD; //道具或技能的冷却时间
 
-	UPROPERTY(EditDefaultsOnly, Category = "Slot Attribute")
-	FSlotAttributeValue Health;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Slot Attribute")
-	FSlotAttributeValue CD;
+	/** 角色属性 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue MaxHealth; //最大生命值
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue MaxMana; //最大魔法值
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue PhysicalAttack; //物理攻击
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue Armor; //护甲
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue PhysicalPenetration; //物理穿透
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue MagicAttack; //魔法攻击
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue MagicResistance; //魔抗
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue MagicPenetration; //魔法穿透
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue WalkSpeed; //移动速度
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue AttackSpeed; //攻击速度
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue CriticalRate; //暴击率
 };

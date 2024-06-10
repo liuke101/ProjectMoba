@@ -875,7 +875,7 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 
 		if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
 		{
-			SlotData->CD = SlotAttribute->CD;
+			SlotData->CD = SlotAttribute->CD.Value;
 			PlayerDataComponent->SlotCDQueue.Add(SlotID, SlotData);
 			Client_StartUpdateCD(SlotID, *SlotData);
 

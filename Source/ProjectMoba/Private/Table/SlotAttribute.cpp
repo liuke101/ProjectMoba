@@ -12,5 +12,7 @@ FSlotAttributeValue::FSlotAttributeValue()
 
 FSlotAttribute::FSlotAttribute()
 	: AttributeType(ESlotAttributeType::ESAT_Burst)
+	, Level(0)
+	, Time(0)
 {
 }
