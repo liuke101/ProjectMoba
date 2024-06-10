@@ -62,6 +62,9 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 						}
 					}
 				}
+
+				//
+				//TargetCharacter->Multicast_HitEffect();
 				
 				//造成伤害
 				UGameplayStatics::ApplyDamage(

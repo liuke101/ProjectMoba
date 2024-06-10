@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/MobaPawn.h"
 #include "Character/Hero/MobaHeroCharacter.h"
@@ -56,6 +57,12 @@ void AMobaPlayerController::BeginPlay()
 	}
 }
 
+
+void AMobaPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+}
+
 void AMobaPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -68,6 +75,7 @@ void AMobaPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(RightClick_Action, ETriggerEvent::Completed, this, &AMobaPlayerController::OnRightClickReleased);
 	}
 }
+
 
 void AMobaPlayerController::MoveToMouseCursor()
 {

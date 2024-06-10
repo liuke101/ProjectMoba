@@ -23,6 +23,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override; // To add mapping context
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
 	virtual void SetupInputComponent() override;
 	
 public:

@@ -233,6 +233,15 @@ void AMobaCharacter::Multicast_SpwanDrawText_Implementation(float Value, float P
 	}
 }
 
+void AMobaCharacter::Multicast_SpawnAttackEffect_Implementation(const FVector& Location, const FRotator& Rotation)
+{
+	//只在客户端生成特效
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		
+	}
+}
+
 void AMobaCharacter::RegisterCharacterOnServer(const int64 InPlayerID, const int32 InCharacterID, const ETeamType InTeamType, const ECharacterType InCharacterType)
 {
 	SetPlayerID(InPlayerID);

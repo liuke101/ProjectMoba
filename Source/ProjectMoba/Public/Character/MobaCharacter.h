@@ -50,6 +50,10 @@ public:
 	/** 显示伤害字体 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_SpwanDrawText(float Value, float Percent, const FLinearColor& Color, const FVector& Location);
+
+	/** TODO:瞬时和持续攻击特效 7.12 7.13 */
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_SpawnAttackEffect(const FVector& Location, const FRotator& Rotation/**NiagaraSystem*/);
 #pragma endregion
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/

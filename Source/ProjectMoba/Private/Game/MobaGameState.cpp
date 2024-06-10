@@ -53,6 +53,13 @@ void AMobaGameState::BeginPlay()
 	}
 }
 
+void AMobaGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	
+	GThread::Destroy();  //解决 SimpleTread 在编辑器中的奔溃问题
+}
+
 
 void AMobaGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
