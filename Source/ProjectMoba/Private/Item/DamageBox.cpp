@@ -6,6 +6,8 @@
 #include "Common/MethodUnit.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 ADamageBox::ADamageBox()
@@ -22,6 +24,11 @@ ADamageBox::ADamageBox()
 	DamageBox->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	//设置碰撞属性
 	DamageBox->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
+
+	OpenFirePointVFX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("OpenFirePointVFX"));
+	OpenFirePointVFX->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	OpenFireBullet = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("OpenFireBullet"));
+	OpenFireBullet->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void ADamageBox::BeginPlay()
@@ -36,8 +43,9 @@ void ADamageBox::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+
 void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+							  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(AMobaCharacter* InstigatorCharacter = Cast<AMobaCharacter>(GetInstigator()))
 	{
@@ -63,8 +71,11 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 					}
 				}
 
-				//
-				//TargetCharacter->Multicast_HitEffect();
+				// 生成命中特效
+				if(UParticleSystem* HitVFX = GetHitVFX())
+				{
+					TargetCharacter->Multicast_SpawnHitVFX(TargetCharacter->GetActorLocation(), HitVFX);
+				}
 				
 				//造成伤害
 				UGameplayStatics::ApplyDamage(
@@ -75,9 +86,47 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 					UDamageType::StaticClass());
 
 				//销毁
-				Destroy();
+				if(bSingleTarget)
+				{
+					Destroy();
+				}
 			}
 		}
 	}
 }
+
+UParticleSystem* ADamageBox::GetHitVFX() const
+{
+	if(HitVFXs.Num() > 0)
+	{
+		return HitVFXs[FMath::RandRange(0, HitVFXs.Num() - 1)];
+	}
+	return nullptr;
+
+}
+
+void ADamageBox::SetBoxSize(const FVector& Size)
+{
+	DamageBox->SetBoxExtent(Size);
+}
+
+void ADamageBox::SetRelativePositon(const FVector& Position)
+{
+	DamageBox->SetRelativeLocation(Position);
+}
+
+void ADamageBox::SetOpenFireActive(bool bActive) const
+{
+	OpenFirePointVFX->SetVisibility(bActive);
+	OpenFireBullet->SetVisibility(bActive);
+}
+
+void ADamageBox::Multicast_EndOpenFireVFX_Implementation()
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		SetOpenFireActive(false);
+	}
+}
+
 

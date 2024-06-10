@@ -7,6 +7,7 @@
 #include "ProjectMoba/MobaType.h"
 #include "MobaCharacter.generated.h"
 
+class ABullet;
 class ADrawText;
 class UWidgetComponent;
 struct FCharacterAttribute;
@@ -24,11 +25,30 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+#pragma region "战斗"
 public:
 	/** 普通攻击 */
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
+	
+	bool IsDead();
 
-#pragma region RPC
+	//添加子弹弱引用
+	void AddBulletPtr(ABullet* InBullet);
+
+	//呼叫所有子弹停止射击
+	void CallBulletEndFire();
+
+	// 锁定旋转
+	void LockRotate(bool InbLockRotate);
+	void ResetRotation();
+protected:
+	/** 接收伤害 */
+	UFUNCTION()
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+#pragma endregion
+	
+#pragma region "RPC"
+public:
 	/** 动画广播 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
@@ -51,9 +71,10 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_SpwanDrawText(float Value, float Percent, const FLinearColor& Color, const FVector& Location);
 
-	/** TODO:瞬时和持续攻击特效 7.12 7.13 */
+	/** 命中特效 */
 	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_SpawnAttackEffect(const FVector& Location, const FRotator& Rotation/**NiagaraSystem*/);
+	void Multicast_SpawnHitVFX(const FVector& HitLocation, UParticleSystem* HitVFX);
+
 #pragma endregion
 	
 	/** 将PlayerID和CharacterID注册到Map结构（GameState中即服务器上）*/
@@ -65,13 +86,14 @@ public:
 
 	/** 广播UI信息 */
 	void InitWidgetInfo();
-	
+
+
+#pragma region "Getter/Setter"
+public:
 	FORCEINLINE void SetPlayerID(const int64 InPlayerID) { PlayerID = InPlayerID; } 
 	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
 
 	FCharacterAttribute* GetCharacterAttribute() const;
-	
-	bool IsDead();
 	
 	FORCEINLINE void SetTeamType(ETeamType InTeamType) { TeamType = InTeamType; }
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
@@ -82,6 +104,7 @@ public:
 	FORCEINLINE UArrowComponent* GetFirePointComponent() const { return FirePointComponent; }
 	FVector GetFirePointLocation() const;
 	FRotator GetFirePointRotation() const;
+#pragma endregion
 
 protected:
 	/** 状态栏 */
@@ -91,10 +114,6 @@ protected:
 	/** 远程攻击 开火点 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|UI")
 	TObjectPtr<UArrowComponent> FirePointComponent;
-
-	/** 接收伤害 */
-	UFUNCTION()
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	bool bAttacking;
@@ -111,5 +130,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Character")
 	TSubclassOf<ADrawText> DrawTextClass;
+
+	// 对角色射出的子弹的引用
+	TArray<TWeakObjectPtr<ABullet>> BulletPtrs;
+	
+	bool bLockRotate; //锁定旋转
+	FRotator CurrentRotation; //当前旋转
 };
 

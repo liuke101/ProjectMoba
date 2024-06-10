@@ -66,9 +66,19 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 				{
 					Bullet->SetRangeCheck(false);
 					Bullet->SetLifeSpan(LifeSpan);
-					//Bullet其他设置
-					// 
-					// 	Bullet->SetHomingTarget(AIController->GetTarget());
+					Bullet->SetBoxSize(BoxSize);
+					Bullet->SetRelativePositon(BoxRelativePosition);
+					Bullet->SetSingleTarget(bSingleTarget);
+
+					//将子弹绑定在开火点位置
+					if(AMobaCharacter* MobaCharacter = Cast<AMobaCharacter>(OwnerCharacter))
+					{
+						if(bBind)
+						{
+							Bullet->AttachToComponent(MobaCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
+						}
+						MobaCharacter->AddBulletPtr(Bullet);
+					}
 				}
 				else // 如果生成的是DamageBox
 				{

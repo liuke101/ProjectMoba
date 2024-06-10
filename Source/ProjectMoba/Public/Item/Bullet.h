@@ -26,8 +26,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	//void SetHomingTarget(const AMobaCharacter* Target) const;
-
+	
 	//投射物组件，用于远程攻击
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Bullet")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Bullet")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
+
 };

@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
+#include "Item/Bullet.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectMoba/GlobalVariable.h"
 #include "Table/CharacterAsset.h"
@@ -21,7 +22,8 @@ AMobaCharacter::AMobaCharacter()
 	: bAttacking(false),
 	  AttackCount(0),
 	  PlayerID(INDEX_NONE),
-	  RebornTime(10.0f)
+	  RebornTime(10.0f),
+      bLockRotate(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -50,7 +52,7 @@ AMobaCharacter::AMobaCharacter()
 	FirePointComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("FirePoint"));
 	FirePointComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-	
+	CurrentRotation = GetActorRotation();
 }
 
 void AMobaCharacter::Tick(float DeltaSeconds)
@@ -63,6 +65,12 @@ void AMobaCharacter::Tick(float DeltaSeconds)
 		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 		{
 			MobaGameState->UpdateCharacterLocation(GetPlayerID(), GetActorLocation());
+		}
+
+		//在Tick中锁定旋转
+		if(bLockRotate)
+		{
+			SetActorRotation(CurrentRotation);
 		}
 	}
 }
@@ -112,6 +120,96 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 			}
 		}
 	}
+}
+
+bool AMobaCharacter::IsDead()
+{
+	if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+	{
+		if(CharacterAttribute->CurrentHealth <= 0.0f)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+                                 AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		if(!IsDead())
+		{
+			if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
+			{
+				//友军检测
+				if(MethodUnit::IsFriendly(InDamageCauser, this)) return 0;
+				
+				if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+				{
+					if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+					{
+						CharacterAttribute->CurrentHealth += DamageAmount;
+
+						//限制血量
+						if(CharacterAttribute->CurrentHealth > CharacterAttribute->MaxHealth)
+						{
+							CharacterAttribute->CurrentHealth = CharacterAttribute->MaxHealth;
+						}
+						else if(CharacterAttribute->CurrentHealth <= 0.0f)
+						{
+							CharacterAttribute->CurrentHealth = 0.0f;
+						}
+		
+						//更新UI
+						Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
+						MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
+				
+						//伤害字体
+						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
+				
+						//伤害
+						if(IsDead()) //死亡
+						{
+							//随机播放死亡动画广播到客户端
+							if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+							{
+								Multicast_PlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+							}
+
+							//死亡结算
+							if(MobaGameState->IsPlayer(PlayerID))
+							{
+								MobaGameState->Death(PlayerID);
+							}
+							MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
+			
+							//复活
+							//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
+							//死亡2s后销毁
+							GThread::GetCoroutines().BindLambda(2.0f, [&]()
+							{
+								Destroy();
+							});
+						} 
+						else //受伤
+						{
+							//添加助攻
+							//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
+							if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+							{
+								MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 void AMobaCharacter::Multicast_StatusBar_Implementation(float HealthPercent, float ManaPercent)
@@ -233,12 +331,12 @@ void AMobaCharacter::Multicast_SpwanDrawText_Implementation(float Value, float P
 	}
 }
 
-void AMobaCharacter::Multicast_SpawnAttackEffect_Implementation(const FVector& Location, const FRotator& Rotation)
+void AMobaCharacter::Multicast_SpawnHitVFX_Implementation(const FVector& HitLocation, UParticleSystem* HitVFX)
 {
 	//只在客户端生成特效
 	if(GetLocalRole() != ROLE_Authority)
 	{
-		
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitVFX, HitLocation);
 	}
 }
 
@@ -277,18 +375,6 @@ FCharacterAttribute* AMobaCharacter::GetCharacterAttribute() const
 	return MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), PlayerID);
 }
 
-bool AMobaCharacter::IsDead()
-{
-	if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
-	{
-		if(CharacterAttribute->CurrentHealth <= 0.0f)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 void AMobaCharacter::ResetSpeed(float InSpeed)
 {
 	if(GetLocalRole() == ROLE_Authority)
@@ -315,87 +401,56 @@ FRotator AMobaCharacter::GetFirePointRotation() const
 	return FirePointComponent->GetComponentRotation();
 }
 
-float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-                                 AActor* DamageCauser)
+void AMobaCharacter::AddBulletPtr(ABullet* InBullet)
 {
-	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	
+	if(BulletPtrs.Contains(InBullet))
+	{
+		BulletPtrs.Add(InBullet);
+	}
+}
+
+void AMobaCharacter::CallBulletEndFire()
+{
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		if(!IsDead())
+		if(!BulletPtrs.IsEmpty())
 		{
-			if(AMobaCharacter* InDamageCauser = Cast<AMobaCharacter>(DamageCauser))
-			{
-				//友军检测
-				if(MethodUnit::IsFriendly(InDamageCauser, this)) return 0;
-				
-				if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
-				{
-					if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
-					{
-						CharacterAttribute->CurrentHealth += DamageAmount;
-
-						//限制血量
-						if(CharacterAttribute->CurrentHealth > CharacterAttribute->MaxHealth)
-						{
-							CharacterAttribute->CurrentHealth = CharacterAttribute->MaxHealth;
-						}
-						else if(CharacterAttribute->CurrentHealth <= 0.0f)
-						{
-							CharacterAttribute->CurrentHealth = 0.0f;
-						}
+			TArray<TWeakObjectPtr<ABullet>> RemovedPtrs;
 		
-						//更新UI
-						Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
-						MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-				
-						//伤害字体
-						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
-				
-						//伤害
-						if(IsDead()) //死亡
-						{
-							//随机播放死亡动画广播到客户端
-							if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
-							{
-								Multicast_PlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
-							}
-
-							//死亡结算
-							if(MobaGameState->IsPlayer(PlayerID))
-							{
-								MobaGameState->Death(PlayerID);
-							}
-							MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
-			
-							//复活
-							//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
-							//死亡2s后销毁
-							GThread::GetCoroutines().BindLambda(2.0f, [&]()
-							{
-								Destroy();
-							});
-						} 
-						else //受伤
-						{
-							//添加助攻
-							//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
-							if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
-							{
-								MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
-							}
-						}
-					}
+			for(auto& BulletPtr : BulletPtrs)
+			{
+				if(BulletPtr.IsValid())
+				{
+					BulletPtr->Multicast_EndOpenFireVFX();
 				}
+				else
+				{
+					//收集无效指针
+					RemovedPtrs.Add(BulletPtr);
+				}
+			}
+
+			for(auto& RemovedPtr : RemovedPtrs)
+			{
+				BulletPtrs.Remove(RemovedPtr);
 			}
 		}
 	}
-	return 0;
+}
+
+void AMobaCharacter::LockRotate(bool InbLockRotate)
+{
+	bLockRotate = InbLockRotate;
+}
+
+void AMobaCharacter::ResetRotation()
+{
+	CurrentRotation = GetActorRotation();
 }
 
 
 void AMobaCharacter::Multicast_PlayerAnimMontage_Implementation(UAnimMontage* InAnimMontage, float InPlayRate,
-                                                               FName StartSectionName)
+                                                                FName StartSectionName)
 {
 	if(InAnimMontage)
 	{

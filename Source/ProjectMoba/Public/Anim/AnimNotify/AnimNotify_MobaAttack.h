@@ -35,6 +35,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
 	bool bSingleCheck = false;
 
+	//单体攻击还是范围攻击
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	bool bSingleTarget = true;
+
+	//将子弹绑定在开火点位置
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	bool bBind = true;
+
+	//碰撞体相对位置
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	FVector BoxRelativePosition = FVector::ZeroVector;
+	
+	//碰撞体大小
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	FVector BoxSize = FVector(32.0f);
+
 	//子弹生命周期
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
 	float LifeSpan = 4.0f;

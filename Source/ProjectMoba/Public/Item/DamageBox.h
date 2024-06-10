@@ -22,19 +22,46 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	
-public:
-	FORCEINLINE void SetRangeCheck(bool bCheck) { bSingleCheck = bCheck; }
-	
 protected:
 	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+public:
+	FORCEINLINE void SetRangeCheck(bool bCheck) { bSingleCheck = bCheck; }
 
-	bool bSingleCheck = false; //如果为true则为单体检测，否则为范围检测
+	/** 获取命中特效 */
+	UParticleSystem* GetHitVFX() const;
+
+	void SetBoxSize(const FVector& Size);
+	void SetRelativePositon(const FVector& Position);
+
+	void SetSingleTarget(bool bSingle) { bSingleTarget = bSingle; }
+	void SetSingleCheck(bool bCheck) { bSingleCheck = bCheck; }
+
+	void SetOpenFireActive(bool bActive) const;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_EndOpenFireVFX();
+	
 protected:
 	UPROPERTY()
 	TObjectPtr<USceneComponent> Root;
 	
 	//碰撞盒, 不要将其设置为RootComponent，否则会导致无法调整大小
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DamageBox", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> DamageBox; 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Moba|DamageBox")
+	TObjectPtr<UBoxComponent> DamageBox;
+
+	//开火点特效
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|DamageBox")
+	TObjectPtr<UParticleSystemComponent> OpenFirePointVFX;
+
+	//开火子弹特效
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|DamageBox")
+	TObjectPtr<UParticleSystemComponent> OpenFireBullet;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|DamageBox")
+	TArray<TObjectPtr<UParticleSystem>> HitVFXs;
+
+	bool bSingleCheck = false; //如果为true则为单体检测，否则为范围检测
+	bool bSingleTarget = true; //击中目标就销毁
 };

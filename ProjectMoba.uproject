@@ -46,6 +46,11 @@
 			"Name": "SimpleThread",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/f842694afc354d25b1c3cb3a5397bd9d"
+		},
+		{
+			"Name": "SimpleDrawText",
+			"Enabled": true,
+			"MarketplaceURL": "https://renzhai.net/150.html"
 		}
 	]
 }
