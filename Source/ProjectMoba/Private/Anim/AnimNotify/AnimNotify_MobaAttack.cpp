@@ -5,6 +5,8 @@
 
 #include "AI/MobaAIController.h"
 #include "Character/MobaCharacter.h"
+#include "Common/MethodUnit.h"
+#include "Game/MobaPlayerState.h"
 #include "Item/Bullet.h"
 #include "Item/DamageBox.h"
 
@@ -70,14 +72,39 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 					Bullet->SetRelativePositon(BoxRelativePosition);
 					Bullet->SetSingleTarget(bSingleTarget);
 
-					//将子弹绑定在开火点位置
+					
 					if(AMobaCharacter* MobaCharacter = Cast<AMobaCharacter>(OwnerCharacter))
 					{
+						//将子弹绑定在开火点位置
 						if(bBind)
 						{
 							Bullet->AttachToComponent(MobaCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketName);
 						}
+
+						//收集指针
 						MobaCharacter->AddBulletPtr(Bullet);
+
+						//SetSlotAttribute
+						if(UAnimMontage* AnimMontage = Cast<UAnimMontage>(Animation))
+						{
+							if(AMobaPlayerState* MobaPlayerState = MobaCharacter->GetPlayerState<AMobaPlayerState>())
+							{
+								if(SKillSlotID != INDEX_NONE)
+								{
+									if(const FSlotAttribute* SlotAttribute = MobaPlayerState->GetSlotAttributeFromSlotID(SKillSlotID))
+									{
+										Bullet->SetSlotAttribute(SlotAttribute);
+									}
+								}
+								else
+								{
+									if(const FSlotAttribute* SlotAttribute = MethodUnit::GetSlotAttributeFromAnimMontage(MobaPlayerState, AnimMontage))
+									{
+										Bullet->SetSlotAttribute(SlotAttribute);
+									}
+								}
+							}
+						}
 					}
 				}
 				else // 如果生成的是DamageBox

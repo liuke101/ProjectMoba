@@ -50,7 +50,8 @@ public:
 	const TArray<FCharacterAttribute*>* GetCachedCharacterAttributes();
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const int32 CharacterID);
 	
-
+	int32 GetSkillDataIDFromAnimMontage(const UAnimMontage* AnimMontage);
+	
 	/** CharacterAttribute */
 	FORCEINLINE TMap<int64, FCharacterAttribute>* GetCharacterAttributes() {return &CharacterAttributes;}
 	FCharacterAttribute* GetCharacterAttributeFromPlayerID(const int64 PlayerID);

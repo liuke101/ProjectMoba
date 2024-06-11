@@ -21,6 +21,12 @@ namespace MethodUnit
 		ECT_ProgressComplete
 	};
 	
+	AMobaPawn* GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID); //服务端获取
+	AMobaPawn* GetMobaPawn(UWorld* InWorld); //客户端获取
+	AMobaCharacter* GetMobaCharacterFromPlayerID(UWorld* InWorld, int64 PlayerID);
+	bool IsPlayer(UWorld* InWorld, int64 InPlayerID);
+	bool IsFriendly(const AMobaCharacter* CharacterA, const AMobaCharacter* CharacterB);
+	
 	AMobaGameState* GetMobaGameState(const UWorld* InWorld);
 	AMobaPlayerState* GetMobaPlayerStateFromPlayerID(UWorld* InWorld, int64 PlayerID); //服务端获取
 	AMobaPlayerState* GetMobaPlayerState(UWorld* InWorld); //客户端获取
@@ -31,12 +37,7 @@ namespace MethodUnit
 	const FCharacterAttribute* GetCharacterAttributeFromCharacterID(const UWorld* InWorld, int32 CharacterID);
 	 FCharacterAttribute* GetCharacterAttributeFromPlayerID(const UWorld* InWorld, int64 PlayerID);
 
-	AMobaPawn* GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID); //服务端获取
-	AMobaPawn* GetMobaPawn(UWorld* InWorld); //客户端获取
-	AMobaCharacter* GetMobaCharacterFromPlayerID(UWorld* InWorld, int64 PlayerID);
-	bool IsPlayer(UWorld* InWorld, int64 InPlayerID);
-	
-	bool IsFriendly(const AMobaCharacter* CharacterA, const AMobaCharacter* CharacterB);
+	const FSlotAttribute* GetSlotAttributeFromAnimMontage(AMobaPlayerState* PlayerState, const UAnimMontage* AnimMontage);
 	
 	/** 服务器调用 */
 	template<class T>

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "DamageBox.generated.h"
 
+struct FSlotAttribute;
 class UBoxComponent;
 
 UCLASS()
@@ -35,13 +36,15 @@ public:
 	void SetBoxSize(const FVector& Size);
 	void SetRelativePositon(const FVector& Position);
 
-	void SetSingleTarget(bool bSingle) { bSingleTarget = bSingle; }
-	void SetSingleCheck(bool bCheck) { bSingleCheck = bCheck; }
+	FORCEINLINE void SetSingleTarget(bool bSingle) { bSingleTarget = bSingle; }
+	FORCEINLINE void SetSingleCheck(bool bCheck) { bSingleCheck = bCheck; }
 
 	void SetOpenFireActive(bool bActive) const;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_EndOpenFireVFX();
+
+	FORCEINLINE void SetSlotAttribute(const FSlotAttribute* InSlotAttribute) { SlotAttribute = InSlotAttribute; }
 	
 protected:
 	UPROPERTY()
@@ -64,4 +67,6 @@ protected:
 
 	bool bSingleCheck = false; //如果为true则为单体检测，否则为范围检测
 	bool bSingleTarget = true; //击中目标就销毁
+
+	const FSlotAttribute* SlotAttribute = nullptr;
 };

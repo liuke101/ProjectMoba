@@ -124,6 +124,31 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 	return nullptr;
 }
 
+int32 AMobaGameState::GetSkillDataIDFromAnimMontage(const UAnimMontage* AnimMontage)
+{
+	int32 DataID = INDEX_NONE;
+	for(auto& Asset : *GetCachedCharacterAssets())
+	{
+		if(Asset->W_Skill.SkillMontage == AnimMontage)
+		{
+			DataID = Asset->DataID;
+		}
+		else if(Asset->E_Skill.SkillMontage == AnimMontage)
+		{
+			DataID = Asset->DataID;
+		}
+		else if(Asset->R_Skill.SkillMontage == AnimMontage)
+		{
+			DataID = Asset->DataID;
+		}
+		else if(Asset->F_Skill.SkillMontage == AnimMontage)
+		{
+			DataID = Asset->DataID;
+		}
+	}
+	return DataID;
+}
+
 FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 PlayerID)
 {
 	return CharacterAttributes.Find(PlayerID);

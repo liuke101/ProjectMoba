@@ -31,6 +31,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
 	FName SocketName = TEXT("OpenFire");
 
+	//技能SlotID
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
+	int32 SKillSlotID = INDEX_NONE;
+	
 	//是否为范围检测
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimNotify", meta = (ExposeOnSpawn = true))
 	bool bSingleCheck = false;

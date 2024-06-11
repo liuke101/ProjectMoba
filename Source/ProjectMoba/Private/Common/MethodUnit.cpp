@@ -84,6 +84,30 @@ FCharacterAttribute* MethodUnit::GetCharacterAttributeFromPlayerID(const UWorld*
 	return nullptr;
 }
 
+
+const FSlotAttribute* MethodUnit::GetSlotAttributeFromAnimMontage(AMobaPlayerState* PlayerState,
+                                                            const UAnimMontage* AnimMontage)
+{
+	int32 SkillDataID = INDEX_NONE;
+	
+	if(PlayerState)
+	{
+		//根据AnimMontage获取技能的DataID
+		if(AMobaGameState* MobaGameState = GetMobaGameState(PlayerState->GetWorld()))
+		{
+			SkillDataID = MobaGameState->GetSkillDataIDFromAnimMontage(AnimMontage);
+		}
+
+		//根据DataID获取SlotAttribute
+		if(SkillDataID!=INDEX_NONE)
+		{
+			return PlayerState->GetSlotAttributeFromDataID(SkillDataID);
+		}
+	}
+
+	return nullptr;
+}
+
 AMobaPawn* MethodUnit::GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID)
 {
 	AMobaPawn* MobaPawn = nullptr;
