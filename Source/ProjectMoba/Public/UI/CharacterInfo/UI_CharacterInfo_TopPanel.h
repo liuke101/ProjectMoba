@@ -6,6 +6,7 @@
 #include "UI/UI_Info.h"
 #include "UI_CharacterInfo_TopPanel.generated.h"
 
+class UUI_BuffBar;
 class UUniformGridPanel;
 class UUI_CharacterInfo;
 /**
@@ -30,5 +31,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> SlotArrayInventory;
-
+	
+	UPROPERTY(meta= (BindWidget))
+	TObjectPtr<UUI_BuffBar> BuffBar; // Buff栏
+ 
 };

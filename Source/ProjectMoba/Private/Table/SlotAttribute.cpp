@@ -11,7 +11,8 @@ FSlotAttributeValue::FSlotAttributeValue()
 }
 
 FSlotAttribute::FSlotAttribute()
-	: AttributeType(ESlotAttributeType::ESAT_Burst)
+	: BuffDataID(INDEX_NONE)
+	, AttributeType(ESlotAttributeType::ESAT_Permanent)
 	, Level(1)
 	, Time(1)
 {

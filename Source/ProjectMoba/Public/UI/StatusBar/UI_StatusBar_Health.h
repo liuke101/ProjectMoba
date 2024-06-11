@@ -6,6 +6,7 @@
 #include "UI/MobaUIBase.h"
 #include "UI_StatusBar_Health.generated.h"
 
+class UUI_BuffBar;
 class UProgressBar;
 /**
  * 
@@ -21,10 +22,15 @@ public:
 
 	void SetColor(const FLinearColor& InColor) const;
 
+	virtual void BindDelegate() override;
+
 private:
 
 	UPROPERTY(meta= (BindWidget))
 	TObjectPtr<UProgressBar> HealthBar;
+
+	UPROPERTY(meta= (BindWidget))
+	TObjectPtr<UUI_BuffBar> BuffBar;
 
 	
 };

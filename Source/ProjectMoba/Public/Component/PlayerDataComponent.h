@@ -36,7 +36,7 @@ struct FSlotAttributes : public TSharedFromThis<FSlotAttributes>
 	void SetKeyToNewKey(int32 OldKey, int32 NewKey); //移动
 	void SwapKey(int32 KeyA, int32 KeyB); //交换
 
-	FSlotAttribute* operator[](int32 InID);
+	FSlotAttribute* operator[](int32 InSlotID);
 
 	/** 存储所有的Slot属性 */
 	TArray<FSlotAttribute_Element> AttributeElements;

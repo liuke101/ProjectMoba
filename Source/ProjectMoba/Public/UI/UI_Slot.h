@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UI_CD.h"
 #include "UI_SlotBase.h"
 #include "UI_Slot.generated.h"
 
@@ -15,7 +16,7 @@ class UMaterialInstanceDynamic;
  *  Slot基类
  */
 UCLASS()
-class PROJECTMOBA_API UUI_Slot : public UUI_SlotBase
+class PROJECTMOBA_API UUI_Slot : public UUI_CD
 {
 	GENERATED_BODY()
 
@@ -37,8 +38,7 @@ public:
 #pragma region UI组件
 	// 键位设置
 	void SetKeyName(const FString& NewKeyName) const;
-	// 绘制CD材质
-	void DrawSlotCDMat(float CD) const;
+	
 	// 绘制CD文本
 	void DrawSlotCDText(float CD) const;
 
@@ -53,9 +53,6 @@ public:
 	
 private:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> SlotCD;
-
-	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> SlotCDValue;
 	
 	//键位
@@ -64,19 +61,4 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> ClickButton;
-
-	//CD动态材质
-	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> CDMaterialDynamic;
-
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	TObjectPtr<UMaterialInterface> CDMaterialParent;
-	
-	//CD动态材质 参数名
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	FName SlotMatCDName;
-	
-	//CD动态材质 参数名
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	FName SlotClearValueName;
 };

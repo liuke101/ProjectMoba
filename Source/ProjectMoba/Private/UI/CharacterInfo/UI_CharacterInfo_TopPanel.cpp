@@ -6,6 +6,7 @@
 #include "Components/UniformGridPanel.h"
 #include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
+#include "UI/Buff/UI_BuffBar.h"
 #include "UI/CharacterInfo/UI_CharacterInfo.h"
 #include "UI/Inventory/UI_SimpleInventorySlot.h"
 
@@ -57,6 +58,16 @@ void UUI_CharacterInfo_TopPanel::BindDelegate()
 		MobaPlayerState->HideTopPanelDelegate.BindLambda([&]()
 		{
 			SetVisibility(ESlateVisibility::Hidden);
+			BuffBar-> Clear(); //清空Buff栏
+		});
+
+		// Buff信息委托
+		MobaPlayerState->BuffInfoDelegate.BindLambda([&](const TArray<FBuffNetPackage>& InBuffNetPackages)
+		{
+			for(auto BuffNetPackage : InBuffNetPackages)
+			{
+				BuffBar->UpdateCD(BuffNetPackage.SlotID, BuffNetPackage.MaxCD);
+			}
 		});
 
 		// 属性更新委托

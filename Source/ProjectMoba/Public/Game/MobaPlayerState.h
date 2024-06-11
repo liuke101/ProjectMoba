@@ -26,6 +26,8 @@ DECLARE_DELEGATE_OneParam(FPlayerKillMessageDelegate, const FKillNetPackgae&);
 DECLARE_DELEGATE_OneParam(FTeamInfoDelegate,const TArray<FPlayerTeamNetPackage>& )
 DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
 DECLARE_DELEGATE_TwoParams(FTeamKillCountDelegate, int32/*FriendlyKillCount*/, int32/*EnemyKillCount*/)
+DECLARE_MULTICAST_DELEGATE_TwoParams(FUpdateBuffBarDelegate, int32/*SlotID*/, float/*CD*/)  
+DECLARE_DELEGATE_OneParam(FBuffInfoDelegate,const TArray<FBuffNetPackage>&)
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -44,35 +46,33 @@ private:
 	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD
 	void Tick_Server_AddGold(float DeltaSeconds); // 服务器每秒增加金币
 	void Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds); // 服务器检查距离商店的距离
-	void Tick_Server_UpdateBuffCD(float DeltaSeconds); // 服务器Buff
+	void Tick_Server_UpdateBuff(float DeltaSeconds); // 服务器Buff
 #pragma endregion
-
 	
-public:
 #pragma region Delegate
+public:
 	FSimpleOneKeysDelegate InitSlotDelegate;  //通知客户端
 	FSimpleOneKeyDelegate UpdateSlotDelegate; //更新Slot
 	FSimpleOneKeyDelegate StartUpdateCDSlotDelegate; //开始更新CD
 	FSimpleOneKeyDelegate EndUpdateCDSlotDelegate; //结束更新CD
 	
 	FLookPlayerInfoDelegate LookPlayerInfoDelegate; //查看玩家信息
-	
 	FSimpleDelegate HideTopPanelDelegate; //隐藏角色信息TopPanel
 	
 	FPlayerKillMessageDelegate KillMessageDelegate; //击杀弹出信息
-
 	FTeamInfoDelegate TeamInfoDelegate; //队伍信息
-	
 	FKDAInfoDelegate KDAInfoDelegate; //KDA/补兵信息
-
 	FTeamKillCountDelegate TeamKillCountDelegate; //队伍击杀数
 	
+	FUpdateBuffBarDelegate UpdateBuffBarDelegate; //更新BuffBar
+	FBuffInfoDelegate BuffInfoDelegate; //Buff信息
 #pragma endregion
 
 #pragma region DataTable数据读取 
 public:
 	const TArray<FSlotAsset*>* GetSlotAssets();
 	const FSlotAsset* GetSlotAssetFromDataID(const int32 DataID);
+	const FSlotAsset* GetSlotAssetFromSlotID(const int32 SlotID);
 	
 	const TArray<FSlotAttribute*>* GetSlotAttributes();
 	const FSlotAttribute* GetSlotAttributeFromDataID(const int32 DataID);
@@ -83,7 +83,7 @@ public:
 public:
 	/** Attribute 替换或添加到空Slot */
 	bool AddSlotAttributes(int32 SlotID, int32 DataID);
-	bool AddSlotAttributes(int32 SlotID, const FSlotAttribute* SlotAttribute);
+	bool AddSlotAttributes(int32 SlotID, const FSlotAttribute* SlotAttribute) ;
 	/** 递归添加到空Slot */
 	bool RecursionAddSlotAttributes(int32 SlotID);
 	
@@ -160,6 +160,7 @@ public:
 public:
 	void GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage);
 	void GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage);
+	void GetBuffNetPackages(TArray<FBuffNetPackage>& OutBuffNetPackages);
 private:
 	void GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotDataNetPackage& OutNetPackage);
 
@@ -238,6 +239,14 @@ public:
 	//------------------KDA信息-------------------//
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateKDAInfo(const FPlayerKDANetPackage& PlayerKDANetPackage);
+
+	//------------------Buff------------------//
+	UFUNCTION(NetMulticast, Unreliable)
+	void Client_UpdateBuffBar(int32 SlotID, float CD);
+
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateBuffInfo(const TArray<FBuffNetPackage>& BuffNetPackages);
+	
 	
 #pragma endregion
 
@@ -260,12 +269,15 @@ private:
 	/** 存储DataTable数据 */
 	TArray<FSlotAsset*> CacheSlotAssets; 
 	TArray<FSlotAttribute*> CacheSlotAttributes;
-
-	float GoldTime = 0.0f; //金币时间
-	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
-
+	
 	/** 助攻系统 */
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
 	TObjectPtr<UMobaAssistSystemComponent> MobaAssitSystemComponent;
+	
+	float GoldTime = 0.0f; //金币时间
+	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
+	float BuffTime = 0.0f; //Buff时间
+
+
 #pragma endregion 
 };

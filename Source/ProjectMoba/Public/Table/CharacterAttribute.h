@@ -99,7 +99,9 @@ struct FCharacterAttribute : public FMobaTableBase
 	void SetBuff(const TSharedRef<FSlotAttributes>& InBuff);
 
 #pragma region Getter
+	float GetCurrentHealth() const;
 	float GetMaxHealth() const;
+	float GetCurrentMana() const;
 	float GetMaxMana() const;
 	float GetPhysicalAttack() const;
 	float GetArmor() const;

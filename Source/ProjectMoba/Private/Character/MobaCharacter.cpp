@@ -156,17 +156,20 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 					{
 						if(UMobaDamageType* MobaDamageType = DamageEvent.DamageTypeClass->GetDefaultObject<UMobaDamageType>())
 						{
-							const FSlotAttribute* SlotAttribute = MobaDamageType->SlotAttribute;
-
 							//添加属性到角色
-							if(SlotAttribute)
+							if(const FSlotAttribute* Payload_SlotAttribute = MobaDamageType->SlotAttribute)
 							{
-								if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
+								//如果类型为持续形，我们认为是添加了一个Buff
+								if(Payload_SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous) 
 								{
 									if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(),PlayerID))
 									{
-										int32 SlotID = FMath::RandRange(0, 9999999); //随机
-										MobaPlayState->AddSlotAttributes(SlotID, SlotAttribute);
+										//根据传来的BuffID获取Buff属性
+										if(const FSlotAttribute* BuffSlotAttribute = MobaPlayState->GetSlotAttributeFromDataID(Payload_SlotAttribute->BuffDataID))
+										{
+											int32 SlotID = FMath::RandRange(0, 1000000);
+											MobaPlayState->AddSlotAttributes(SlotID, BuffSlotAttribute);
+										}
 									}
 								}
 							}
@@ -343,10 +346,6 @@ void AMobaCharacter::Multicast_SpwanDrawText_Implementation(float Value, float P
 	if(ADrawText* DrawText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, Location, FRotator::ZeroRotator))
 	{
 		DrawText->SetTextBlock(FString::Printf(TEXT("%d"), static_cast<int>(Value)), Color, Percent);
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("error"));
 	}
 }
 

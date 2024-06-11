@@ -6,6 +6,7 @@
 #include "UI/UI_Panel.h"
 #include "UI_CharacterInfo_BottomPanel.generated.h"
 
+class UUI_BuffBar;
 class UProgressBar;
 class UTextBlock;
 class UUI_CharacterInfo;
@@ -61,5 +62,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> ExpBar; // 经验条
-
+	
+	UPROPERTY(meta= (BindWidget))
+	TObjectPtr<UUI_BuffBar> BuffBar; // Buff栏
 };

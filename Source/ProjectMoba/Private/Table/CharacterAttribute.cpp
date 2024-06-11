@@ -58,6 +58,16 @@ void FCharacterAttribute::SetBuff(const TSharedRef<FSlotAttributes>& InBuff)
 	WeakPtr_SlotAttributes = InBuff;
 }
 
+float FCharacterAttribute::GetCurrentHealth() const
+{
+	CALCULATE_ATTRIBUTE_VALUE(CurrentHealth);
+}
+
+float FCharacterAttribute::GetCurrentMana() const
+{
+	CALCULATE_ATTRIBUTE_VALUE(CurrentMana);
+}
+
 float FCharacterAttribute::GetMaxHealth() const
 {
 	CALCULATE_ATTRIBUTE_VALUE(MaxHealth);

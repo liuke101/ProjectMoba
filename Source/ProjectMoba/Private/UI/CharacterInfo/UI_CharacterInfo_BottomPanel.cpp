@@ -10,6 +10,7 @@
 #include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MobaType.h"
+#include "UI/Buff/UI_BuffBar.h"
 #include "UI/CharacterInfo/UI_CharacterInfo.h"
 
 
@@ -21,10 +22,18 @@ void UUI_CharacterInfo_BottomPanel::NativeConstruct()
 void UUI_CharacterInfo_BottomPanel::BindDelegate()
 {
 	Super::BindDelegate();
+
+	AMobaGameState* MobaGameState = GetMobaGameState();
+	AMobaPlayerState* MobaPlayerState = GetMobaPlayerState();
 	
-	if(AMobaGameState* MobaGameState = GetMobaGameState())
+	if(MobaGameState && MobaPlayerState)
 	{
 		MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
+
+		//绑定BuffBar更新委托
+		MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int32 SlotID, float CD){
+			BuffBar->UpdateCD(SlotID, CD);
+		});
 	}
 	else
 	{

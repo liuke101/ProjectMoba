@@ -127,11 +127,11 @@ void FSlotAttributes::SwapKey(int32 KeyA, int32 KeyB)
 	}
 }
 
-FSlotAttribute* FSlotAttributes::operator[](int32 InID)
+FSlotAttribute* FSlotAttributes::operator[](int32 InSlotID)
 {
 	for(auto& Tmp : AttributeElements)
 	{
-		if(Tmp.Key == InID)
+		if(Tmp.Key == InSlotID)
 		{
 			return &Tmp.Value;
 		}

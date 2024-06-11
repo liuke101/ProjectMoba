@@ -46,3 +46,7 @@ FPlayerInfoNetPackage::FPlayerInfoNetPackage(): PlayerID(INDEX_NONE), CharacterL
 FLookPlayerInfoNetPackage::FLookPlayerInfoNetPackage(): PlayerID(INDEX_NONE)
 {
 }
+
+FBuffNetPackage::FBuffNetPackage(): SlotID(INDEX_NONE), MaxCD(1)
+{
+}

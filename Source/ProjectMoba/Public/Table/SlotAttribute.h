@@ -12,7 +12,7 @@ UENUM(BlueprintType)
 enum class ESlotAttributeType : uint8
 {
 	ESAT_Burst UMETA(DisplayName = "Burst"), //瞬发
-	ESAT_Continuous UMETA(DisplayName = "Continuous"), //持续
+	ESAT_Continuous UMETA(DisplayName = "Continuous"), //持续, 视为BUF
 	ESAT_Permanent UMETA(DisplayName = "Permanent"), //永久, 技能和装备都要选择该类型，否则会被当做消耗品
 };
 
@@ -57,10 +57,13 @@ struct FSlotAttribute : public FMobaTableBase
 	GENERATED_USTRUCT_BODY()
 
 	FSlotAttribute();
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
-	ESlotAttributeType AttributeType;  
-
+	int32 BuffDataID;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	ESlotAttributeType AttributeType;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	int32 Level;
 	
@@ -73,7 +76,13 @@ struct FSlotAttribute : public FMobaTableBase
 
 	/** 角色属性 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue CurrentHealth; //当前生命值
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	FSlotAttributeValue MaxHealth; //最大生命值
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue CurrentMana; //当前魔法值
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	FSlotAttributeValue MaxMana; //最大魔法值

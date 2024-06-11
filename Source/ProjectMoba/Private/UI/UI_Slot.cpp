@@ -13,9 +13,6 @@ void UUI_Slot::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	CDMaterialDynamic = UMaterialInstanceDynamic::Create(CDMaterialParent, this); //创建动态材质实例
-	SlotCD->SetBrushFromMaterial(CDMaterialDynamic); //设置图片为动态材质
-	
 	// 绑定点击事件
 	ClickButton->OnClicked.AddDynamic(this, &UUI_Slot::OnClickedWidget);
 }
@@ -50,7 +47,6 @@ void UUI_Slot::ResetSlot()
 {
 	Super::ResetSlot();
 	
-	SlotCD->SetVisibility(ESlateVisibility::Hidden);
 	SlotCDValue->SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -105,25 +101,6 @@ void UUI_Slot::EndUpdateCD()
 void UUI_Slot::SetKeyName(const FString& NewKeyName) const
 {
 	SlotKey->SetText(FText::FromString(NewKeyName));
-}
-
-void UUI_Slot::DrawSlotCDMat(float CD) const
-{
-	if (CDMaterialDynamic)
-	{
-		if (CD > 0.0f && CD < 1.0f)
-		{
-			CDMaterialDynamic->SetScalarParameterValue(SlotClearValueName, true);
-			SlotCD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-		}
-		else
-		{
-			CDMaterialDynamic->SetScalarParameterValue(SlotClearValueName, false);
-			SlotCD->SetVisibility(ESlateVisibility::Hidden);
-		}
-
-		CDMaterialDynamic->SetScalarParameterValue(SlotMatCDName, CD);
-	}
 }
 
 void UUI_Slot::DrawSlotCDText(float CD) const

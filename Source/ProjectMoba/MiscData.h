@@ -164,3 +164,18 @@ struct FLookPlayerInfoNetPackage
 	UPROPERTY()
 	FSlotDataNetPackage SlotDataNetPackage;
 };
+
+
+USTRUCT()
+struct FBuffNetPackage
+{
+	GENERATED_BODY()
+
+	FBuffNetPackage();
+	
+	UPROPERTY()
+	int32 SlotID;
+
+	UPROPERTY()
+	float MaxCD;
+};
