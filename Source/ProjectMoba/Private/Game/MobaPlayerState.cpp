@@ -58,6 +58,9 @@ void AMobaPlayerState::BeginPlay()
 		{
 			RecursionCreateSkillSlots();
 		}
+
+		
+		
 		
 		// 延迟执行，等待客户端生成
 		GThread::GetCoroutines().BindLambda(2.0f,[&]()
@@ -72,12 +75,21 @@ void AMobaPlayerState::BeginPlay()
 			//初始化技能栏
 			InitSkillSlot();
 
-			//初始化属性(整包更新)
+			
 			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 			{
+				//初始化属性(整包更新)
 				MobaGameState->RequestUpdateCharacterAttribute(GetPlayerID(), GetPlayerID(), ECharacterAttributeType::ECAT_All);
+
+				// 注册BUFF
+				if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+				{
+					CharacterAttribute->SetBuff(PlayerDataComponent->SlotAttributes.ToSharedRef());
+				}
 			}
 		});
+
+		
 	}
 }
 

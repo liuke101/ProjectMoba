@@ -155,9 +155,9 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 						CharacterAttribute->CurrentHealth += DamageAmount;
 
 						//限制血量
-						if(CharacterAttribute->CurrentHealth > CharacterAttribute->MaxHealth)
+						if(CharacterAttribute->CurrentHealth > CharacterAttribute->GetMaxHealth())
 						{
-							CharacterAttribute->CurrentHealth = CharacterAttribute->MaxHealth;
+							CharacterAttribute->CurrentHealth = CharacterAttribute->GetMaxHealth();
 						}
 						else if(CharacterAttribute->CurrentHealth <= 0.0f)
 						{
@@ -169,7 +169,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 						MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 				
 						//伤害字体
-						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->MaxHealth, FColor::White, GetActorLocation());
+						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->GetMaxHealth(), FColor::White, GetActorLocation());
 				
 						//伤害
 						if(IsDead()) //死亡

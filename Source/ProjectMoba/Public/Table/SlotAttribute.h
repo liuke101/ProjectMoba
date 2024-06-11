@@ -7,8 +7,6 @@
 #include "SlotAttribute.generated.h"
 
 
-/** TODO:BUFF系统 6.17-6.25 */
-
 /** 属性类型 */
 UENUM(BlueprintType)
 enum class ESlotAttributeType : uint8
