@@ -3,64 +3,135 @@
 
 #include "Character/MobaCharacter.h"
 #include "Table/CharacterAttribute.h"
+#include "Table/SlotAttribute.h"
 
-float CalculationUnit::GetArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy, const FSlotAttribute* SlotAttribute)
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
 		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
-			return OriginalData->GetArmor() * (1.f - InEnemyData->GetPhysicalPenetration() / 100.f);
+			float PhysicalPenetration = InEnemyData->GetPhysicalPenetration();
+			if (SlotAttribute)
+			{
+				PhysicalPenetration = GetSlotAttributeValue(SlotAttribute->PhysicalPenetration, PhysicalPenetration);
+			}
+
+			return OriginalData->GetArmor() * (1.f - PhysicalPenetration / 100.f);
 		}
 	}
 
 	return 0;
 }
 
-float CalculationUnit::GetMagicResistance(AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetMagicResistance(AMobaCharacter* InTarget,  AMobaCharacter* InEnemy, const FSlotAttribute* SlotAttribute)
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
 		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
 		{
-			return OriginalData->GetMagicResistance() *(1.f - InEnemyData->GetMagicPenetration() / 100.f);
+			float MagicPenetration = InEnemyData->GetMagicPenetration();
+			if (SlotAttribute)
+			{
+				MagicPenetration = GetSlotAttributeValue(SlotAttribute->MagicPenetration, MagicPenetration);
+			}
+
+			return OriginalData->GetMagicResistance() *(1.f - MagicPenetration / 100.f);
 		}
 	}
 
 	return 0;
 }
 
-float CalculationUnit::GetAttack( AMobaCharacter* InOriginal)
+float CalculationUnit::GetAttack( AMobaCharacter* InOriginal, const FSlotAttribute* SlotAttribute)
 {
 	if (FCharacterAttribute* OriginalData = InOriginal->GetCharacterAttribute())
 	{
-		return OriginalData->GetPhysicalAttack()* (1 + OriginalData->GetCriticalRate()) + OriginalData->Level;
+		float PhysicalAttack = OriginalData->GetPhysicalAttack();
+		float CriticalStrike = OriginalData->GetCriticalRate();
+		if (SlotAttribute)
+		{
+			PhysicalAttack = GetSlotAttributeValue(SlotAttribute->PhysicalAttack, PhysicalAttack);
+			CriticalStrike = GetSlotAttributeValue(SlotAttribute->CriticalRate, CriticalStrike);
+		}
+
+		return PhysicalAttack * (1 + CriticalStrike) + OriginalData->Level;
 	}
 
 	return 0;
 }
 
-float CalculationUnit::GetPhysicalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetPhysicalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy, const FSlotAttribute* SlotAttribute)
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		return GetAttack(InEnemy) / ((GetArmor(InTarget, InEnemy) / 100) - InEnemyData->Level * 2);
+		return GetAttack(InEnemy, SlotAttribute) * (100 / (100 + GetArmor(InTarget, InEnemy, SlotAttribute)));
 	}
 
 	return 0;
 }
 
-float CalculationUnit::GetMagicDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetMagicDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy, const FSlotAttribute* SlotAttribute)
 {
 	if (FCharacterAttribute* InEnemyData = InEnemy->GetCharacterAttribute())
 	{
-		return InEnemyData->GetMagicPenetration() / ((GetMagicResistance(InTarget, InEnemy) / 70) - InEnemyData->Level);
+		if (FCharacterAttribute* OriginalData = InTarget->GetCharacterAttribute())
+		{
+			float MagicAttackBaseValue = InEnemyData->GetMagicAttack();
+			if (SlotAttribute)
+			{
+				MagicAttackBaseValue = GetSlotAttributeValue(SlotAttribute->MagicAttack, MagicAttackBaseValue);
+			}
+
+			return MagicAttackBaseValue * (100 / (100 + GetMagicResistance(InTarget, InEnemy, SlotAttribute)));
+		}
 	}
 
 	return 0;
 }
 
-float CalculationUnit::GetTotalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy)
+float CalculationUnit::GetTotalDamage( AMobaCharacter* InTarget,  AMobaCharacter* InEnemy, const FSlotAttribute* SlotAttribute)
 {
-	return GetPhysicalDamage(InTarget, InEnemy) + GetMagicDamage(InTarget, InEnemy);
+	return GetPhysicalDamage(InTarget, InEnemy, SlotAttribute) + GetMagicDamage(InTarget, InEnemy, SlotAttribute);
+}
+
+float CalculationUnit::GetSlotAttributeValue(const FSlotAttributeValue& InSlotAttribute, float BaseAttributeValue)
+{
+
+	if(InSlotAttribute.ValueType == ESlotAttributeValueType::ESAVT_Value)
+	{
+		if(InSlotAttribute.GainType == ESlotAttributeGainType::ESAGT_Add)
+		{
+			BaseAttributeValue += InSlotAttribute.Value;
+		}
+		else if(InSlotAttribute.GainType == ESlotAttributeGainType::ESAGT_Substract)
+		{
+			BaseAttributeValue += -InSlotAttribute.Value;
+		}
+	}
+	else if(InSlotAttribute.ValueType == ESlotAttributeValueType::ESAVT_Percent)
+	{
+		if(InSlotAttribute.GainType == ESlotAttributeGainType::ESAGT_Add)
+		{
+			if(InSlotAttribute.Value >= 0 && InSlotAttribute.Value <= 1)
+			{
+				BaseAttributeValue += InSlotAttribute.Value * BaseAttributeValue;
+			}
+			else if(InSlotAttribute.Value > 1.0f)
+			{
+				BaseAttributeValue*=2.0f;
+			}
+		}
+		else if(InSlotAttribute.GainType == ESlotAttributeGainType::ESAGT_Substract)
+		{
+			BaseAttributeValue += -InSlotAttribute.Value * BaseAttributeValue;
+		}
+	}
+
+	if(BaseAttributeValue < 0.0f)
+	{
+		BaseAttributeValue = 0.0f;
+	}
+	
+	return BaseAttributeValue;
 }

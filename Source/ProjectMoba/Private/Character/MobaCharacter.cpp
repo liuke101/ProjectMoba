@@ -6,9 +6,11 @@
 #include "ThreadManage.h"
 #include "Actor/DrawText.h"
 #include "Common/MethodUnit.h"
+#include "Common/MobaDamageType.h"
 #include "Components/ArrowComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
@@ -152,56 +154,73 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 				{
 					if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 					{
-						CharacterAttribute->CurrentHealth += DamageAmount;
+						if(UMobaDamageType* MobaDamageType = DamageEvent.DamageTypeClass->GetDefaultObject<UMobaDamageType>())
+						{
+							const FSlotAttribute* SlotAttribute = MobaDamageType->SlotAttribute;
 
-						//限制血量
-						if(CharacterAttribute->CurrentHealth > CharacterAttribute->GetMaxHealth())
-						{
-							CharacterAttribute->CurrentHealth = CharacterAttribute->GetMaxHealth();
-						}
-						else if(CharacterAttribute->CurrentHealth <= 0.0f)
-						{
-							CharacterAttribute->CurrentHealth = 0.0f;
-						}
-		
-						//更新UI
-						Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
-						MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
-				
-						//伤害字体
-						Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->GetMaxHealth(), FColor::White, GetActorLocation());
-				
-						//伤害
-						if(IsDead()) //死亡
-						{
-							//随机播放死亡动画广播到客户端
-							if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+							//添加属性到角色
+							if(SlotAttribute)
 							{
-								Multicast_PlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+								if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
+								{
+									if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(),PlayerID))
+									{
+										int32 SlotID = FMath::RandRange(0, 9999999); //随机
+										MobaPlayState->AddSlotAttributes(SlotID, SlotAttribute);
+									}
+								}
 							}
 
-							//死亡结算
-							if(MobaGameState->IsPlayer(PlayerID))
+							//计算血量
+							CharacterAttribute->CurrentHealth += DamageAmount;
+							if(CharacterAttribute->CurrentHealth > CharacterAttribute->GetMaxHealth())
 							{
-								MobaGameState->Death(PlayerID);
+								CharacterAttribute->CurrentHealth = CharacterAttribute->GetMaxHealth();
 							}
-							MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
+							else if(CharacterAttribute->CurrentHealth <= 0.0f)
+							{
+								CharacterAttribute->CurrentHealth = 0.0f;
+							}
+	
+							//更新UI
+							Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
+							MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 			
-							//复活
-							//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
-							//死亡2s后销毁
-							GThread::GetCoroutines().BindLambda(2.0f, [&]()
+							//伤害字体
+							Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->GetMaxHealth(), FColor::White, GetActorLocation());
+			
+							//伤害
+							if(IsDead()) //死亡
 							{
-								Destroy();
-							});
-						} 
-						else //受伤
-						{
-							//添加助攻
-							//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
-							if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+								//随机播放死亡动画广播到客户端
+								if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerID))
+								{
+									Multicast_PlayerAnimMontage(CharacterAsset->DeathMontages[FMath::RandRange(0, CharacterAsset->DeathMontages.Num()-1)]);
+								}
+
+								//死亡结算
+								if(MobaGameState->IsPlayer(PlayerID))
+								{
+									MobaGameState->Death(PlayerID);
+								}
+								MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
+		
+								//复活
+								//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
+								//死亡2s后销毁
+								GThread::GetCoroutines().BindLambda(2.0f, [&]()
+								{
+									Destroy();
+								});
+							} 
+							else //受伤
 							{
-								MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+								//添加助攻
+								//注意这里不能直接用GetPlayerState获取MobaPlayState，因为MobaPlayState绑定的是MobaPawn，而不是MobaCharacter
+								if(AMobaPlayerState* MobaPlayState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), PlayerID))
+								{
+									MobaPlayState->AddAssistPlayer(InDamageCauser->GetPlayerID());
+								}
 							}
 						}
 					}

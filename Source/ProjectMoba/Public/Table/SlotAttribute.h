@@ -13,7 +13,7 @@ enum class ESlotAttributeType : uint8
 {
 	ESAT_Burst UMETA(DisplayName = "Burst"), //瞬发
 	ESAT_Continuous UMETA(DisplayName = "Continuous"), //持续
-	ESAT_Permanent UMETA(DisplayName = "Permanent"), //永久
+	ESAT_Permanent UMETA(DisplayName = "Permanent"), //永久, 技能和装备都要选择该类型，否则会被当做消耗品
 };
 
 /** 增益类型 */
@@ -59,7 +59,7 @@ struct FSlotAttribute : public FMobaTableBase
 	FSlotAttribute();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
-	ESlotAttributeType AttributeType;
+	ESlotAttributeType AttributeType;  
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	int32 Level;

@@ -6,6 +6,7 @@
 #include "GameFramework/DamageType.h"
 #include "MobaDamageType.generated.h"
 
+struct FSlotAttribute;
 /**
  * 
  */
@@ -13,4 +14,12 @@ UCLASS()
 class PROJECTMOBA_API UMobaDamageType : public UDamageType
 {
 	GENERATED_BODY()
+
+public:
+	UMobaDamageType();
+
+#pragma region payload
+	const FSlotAttribute* SlotAttribute = nullptr;
+
+#pragma endregion
 };

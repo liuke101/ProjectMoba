@@ -58,22 +58,19 @@ void AMobaPlayerState::BeginPlay()
 		{
 			RecursionCreateSkillSlots();
 		}
-
 		
-		
-		
-		// 延迟执行，等待客户端生成
 		GThread::GetCoroutines().BindLambda(2.0f,[&]()
 		{
+			// 初始化Slot
 			FSlotDataNetPackage NetInventoryPackage;
 			GetInventorySlotNetPackage(NetInventoryPackage);
-			Client_InitInventorySlots(NetInventoryPackage);
+			Client_InitInventorySlots(NetInventoryPackage); //初始化背包
 
 			FSlotDataNetPackage NetSkillPackage;
 			GetSkillSlotNetPackage(NetSkillPackage);
-			Client_InitSkillSlots(NetSkillPackage);
-			//初始化技能栏
-			InitSkillSlot();
+			Client_InitSkillSlots(NetSkillPackage); //客户端初始化技能栏
+			
+			InitSkillSlot();//服务端初始化技能栏
 
 			
 			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
@@ -284,7 +281,26 @@ void AMobaPlayerState::GetAllSlotIDs(const TMap<int32, FSlotData>& InSlots, TArr
 
 bool AMobaPlayerState::AddSlotAttributes(const int32 SlotID, const int32 DataID)
 {
+	//根据DataID获取SlotAttribute
 	if(const FSlotAttribute* SlotAttribute = GetSlotAttributeFromDataID(DataID))
+	{
+		//如果不为空，直接替换
+		if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
+		{
+			*(*PlayerDataComponent->SlotAttributes.Get())[SlotID] = *SlotAttribute;
+		}
+		else //否则直接添加
+		{
+			PlayerDataComponent->SlotAttributes->Add(SlotID, *SlotAttribute);
+		}
+		return true;
+	}
+	return false;
+}
+
+bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* SlotAttribute)
+{
+	if(SlotAttribute)
 	{
 		//如果不为空，直接替换
 		if(PlayerDataComponent->SlotAttributes->Contains(SlotID))

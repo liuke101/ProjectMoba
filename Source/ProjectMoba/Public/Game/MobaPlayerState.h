@@ -83,6 +83,7 @@ public:
 public:
 	/** Attribute 替换或添加到空Slot */
 	bool AddSlotAttributes(int32 SlotID, int32 DataID);
+	bool AddSlotAttributes(int32 SlotID, const FSlotAttribute* SlotAttribute);
 	/** 递归添加到空Slot */
 	bool RecursionAddSlotAttributes(int32 SlotID);
 	

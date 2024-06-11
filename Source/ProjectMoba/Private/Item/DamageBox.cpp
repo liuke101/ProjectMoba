@@ -4,6 +4,7 @@
 #include "Character/MobaCharacter.h"
 #include "Common/CalculationUnit.h"
 #include "Common/MethodUnit.h"
+#include "Common/MobaDamageType.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
@@ -76,14 +77,23 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 				{
 					TargetCharacter->Multicast_SpawnHitVFX(TargetCharacter->GetActorLocation(), HitVFX);
 				}
+
+
+				if(UClass* MobaDmageTypeClass = UMobaDamageType::StaticClass())
+				{
+					if(UMobaDamageType* MobaDmageType = MobaDmageTypeClass->GetDefaultObject<UMobaDamageType>())
+					{
+						MobaDmageType->SlotAttribute = SlotAttribute;
 				
-				//造成伤害
-				UGameplayStatics::ApplyDamage(
-					TargetCharacter,
-					CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
-					InstigatorCharacter->GetController(),
-					InstigatorCharacter,
-					UDamageType::StaticClass());
+						//造成伤害
+						UGameplayStatics::ApplyDamage(
+							TargetCharacter,
+							CalculationUnit::GetTotalDamage(TargetCharacter, InstigatorCharacter),
+							InstigatorCharacter->GetController(),
+							InstigatorCharacter,
+							MobaDmageTypeClass);
+					}
+				}
 
 				//销毁
 				if(bSingleTarget)

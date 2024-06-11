@@ -87,7 +87,7 @@ void UAnimNotify_MobaAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 						//SetSlotAttribute
 						if(UAnimMontage* AnimMontage = Cast<UAnimMontage>(Animation))
 						{
-							if(AMobaPlayerState* MobaPlayerState = MobaCharacter->GetPlayerState<AMobaPlayerState>())
+							if(AMobaPlayerState* MobaPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(MobaCharacter->GetWorld(), MobaCharacter->GetPlayerID()))
 							{
 								if(SKillSlotID != INDEX_NONE)
 								{

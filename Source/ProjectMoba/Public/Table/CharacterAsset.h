@@ -15,7 +15,7 @@ struct FCharacterSkill
 	FCharacterSkill();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
-	int32 DataID = INDEX_NONE;
+	int32 DataID = INDEX_NONE; //和SlotAttribute中的DataID相等
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character Skill")
 	TObjectPtr<UTexture2D> Icon;

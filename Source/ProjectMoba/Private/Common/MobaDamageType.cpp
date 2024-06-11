@@ -2,3 +2,8 @@
 
 
 #include "Common/MobaDamageType.h"
+
+UMobaDamageType::UMobaDamageType()
+{
+	
+}
