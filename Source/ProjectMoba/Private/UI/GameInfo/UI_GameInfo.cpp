@@ -23,7 +23,7 @@ void UUI_GameInfo::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UUI_GameInfo::BindDelegate()
 {
-	if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
+	if(MobaPlayerState)
 	{
 		// 绑定委托
 		MobaPlayerState->KDAInfoDelegate.BindUObject(KDAInfo, &UUI_KDAInfo::UpdateSlot);

@@ -21,7 +21,7 @@ void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		//客户端更新CD
 		if(FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
@@ -52,7 +52,7 @@ void UUI_Slot::ResetSlot()
 
 void UUI_Slot::UpdateSlot()
 {
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		if(const FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
 		{
@@ -76,7 +76,7 @@ void UUI_Slot::UpdateSlot()
 
 void UUI_Slot::StartUpdateCD()
 {
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		if(const FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
 		{
@@ -87,7 +87,7 @@ void UUI_Slot::StartUpdateCD()
 
 void UUI_Slot::EndUpdateCD()
 {
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		if(FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
 		{

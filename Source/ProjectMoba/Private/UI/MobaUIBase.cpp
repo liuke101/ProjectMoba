@@ -3,6 +3,7 @@
 
 #include "UI/MobaUIBase.h"
 
+#include "ThreadManage.h"
 #include "Animation/WidgetAnimation.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Game/MobaPlayerState.h"
@@ -13,6 +14,9 @@ void UMobaUIBase::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	InitMobaGameState();
+	InitMobaPlayerState();
+	
 	BindDelegate();
 }
 
@@ -21,14 +25,31 @@ AMobaHUD* UMobaUIBase::GetMobaHUD() const
 	return GetWorld()->GetFirstPlayerController()->GetHUD<AMobaHUD>();
 }
 
-AMobaPlayerState* UMobaUIBase::GetMobaPlayerState() const
+void UMobaUIBase::InitMobaPlayerState()
 {
-	return GetWorld()->GetFirstPlayerController()->GetPlayerState<AMobaPlayerState>();
+	MobaPlayerState = GetWorld()->GetFirstPlayerController()->GetPlayerState<AMobaPlayerState>();
+
+	//保证获取
+	if(MobaPlayerState == nullptr)
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			InitMobaPlayerState();
+		});	
+	}
 }
 
-AMobaGameState* UMobaUIBase::GetMobaGameState() const
+void UMobaUIBase::InitMobaGameState() 
 {
-	return GetWorld()->GetGameState<AMobaGameState>();
+	//保证获取
+	MobaGameState = GetWorld()->GetGameState<AMobaGameState>();
+	if(MobaGameState == nullptr)
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			InitMobaGameState();
+		});	
+	}
 }
 
 UWidgetAnimation* UMobaUIBase::GetNameWidgetAnimation(const FString& WidgetAnimationName) const

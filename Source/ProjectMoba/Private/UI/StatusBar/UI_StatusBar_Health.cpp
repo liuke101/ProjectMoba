@@ -25,7 +25,7 @@ void UUI_StatusBar_Health::BindDelegate()
 	Super::BindDelegate();
 
 	//绑定BuffBar更新委托
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int32 SlotID, float CD){
 			BuffBar->UpdateCD(SlotID, CD);

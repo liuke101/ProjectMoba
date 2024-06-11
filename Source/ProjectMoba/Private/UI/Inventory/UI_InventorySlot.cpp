@@ -86,7 +86,7 @@ void UUI_InventorySlot::OnClickedWidget()
 {
 	//左键点击使用物品
 	//如果当前Slot有物品, 且不在CD中
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		if(MobaPlayerState->IsValidInventorySlot(GetSlotID()) && MobaPlayerState->IsCDValid(GetSlotID()))
 		{
@@ -98,9 +98,12 @@ void UUI_InventorySlot::OnClickedWidget()
 
 void UUI_InventorySlot::UpdateNumber() const
 {
-	if(const FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	if(MobaPlayerState)
 	{
-		SetTextNumber(SlotNumber, SlotData->Number);
+		if(const FSlotData* SlotData =MobaPlayerState->GetInventorySlotData(GetSlotID()))
+		{
+			SetTextNumber(SlotNumber, SlotData->Number);
+		}
 	}
 }
 
@@ -134,9 +137,12 @@ void UUI_InventorySlot::ResetSlot()
 
 int32 UUI_InventorySlot::GetSlotNumber() const
 {
-	if(const FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+	if(MobaPlayerState)
 	{
-		return SlotData->Number;
+		if(const FSlotData* SlotData = MobaPlayerState->GetInventorySlotData(GetSlotID()))
+		{
+			return SlotData->Number;
+		}
 	}
 
 	return INDEX_NONE;
@@ -170,7 +176,7 @@ void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const 
 {
 	if (IconDragDrogClass)
 	{
-		if(FSlotData* SlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()))
+		if(FSlotData* SlotData = MobaPlayerState->GetInventorySlotData(GetSlotID()))
 		{
 			// 只有Slot不为空时才能拖拽
 			if(GetSlotID() != INDEX_NONE)
@@ -207,8 +213,8 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 	{
 		if (UUI_InventorySlot* DraggedInventorySlot = Cast<UUI_InventorySlot>(InDragDropOperation->Payload)) //获取正在被拖拽的Slot
 		{
-			const FSlotData* TargetSlotData = GetMobaPlayerState()->GetInventorySlotData(GetSlotID()); // 准备放置的SlotData
-			const FSlotData* DraggedSlotData = GetMobaPlayerState()->GetInventorySlotData(DraggedInventorySlot->GetSlotID()); //正在被拖拽的SlotData
+			const FSlotData* TargetSlotData = MobaPlayerState->GetInventorySlotData(GetSlotID()); // 准备放置的SlotData
+			const FSlotData* DraggedSlotData = MobaPlayerState->GetInventorySlotData(DraggedInventorySlot->GetSlotID()); //正在被拖拽的SlotData
 			if(TargetSlotData && DraggedSlotData)
 			{
 				//如果目标Slot为空位置，直接移动
@@ -223,7 +229,7 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 				}
 
 				//通知服务器更新数据
-				GetMobaPlayerState()->Server_UpdateInventory(DraggedInventorySlot->GetSlotID(), GetSlotID());
+				MobaPlayerState->Server_UpdateInventory(DraggedInventorySlot->GetSlotID(), GetSlotID());
 			}
 			bDrop = true;
 		}	

@@ -79,7 +79,7 @@ void UUI_Shop::UpdateItem(ESlotType SlotType)
 	ItemGrid->ClearChildren();
 	
 	// 生成Item
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		if(const TArray<FSlotAsset*>* SlotAssets = MobaPlayerState->GetSlotAssets())
 		{
@@ -166,9 +166,12 @@ void UUI_Shop::Show()
 
 void UUI_Shop::OnCallUpdateItemSynthesis(int32 SlotID)
 {
-	if(const FSlotAsset* SlotAsset = GetMobaPlayerState()->GetSlotAssetFromDataID(SlotID))
+	if(MobaPlayerState)
 	{
-		ItemSynthesis->UpdateSlot(SlotAsset);
+		if(const FSlotAsset* SlotAsset = MobaPlayerState->GetSlotAssetFromDataID(SlotID))
+		{
+			ItemSynthesis->UpdateSlot(SlotAsset);
+		}
 	}
 }
 

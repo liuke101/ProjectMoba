@@ -68,7 +68,7 @@ void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 void UUI_SkillSlot::OnClickedWidget()
 {
 	//如果当前Slot不在CD中
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		if(MobaPlayerState->IsCDValid(GetSlotID()))
 		{
@@ -80,7 +80,7 @@ void UUI_SkillSlot::OnClickedWidget()
 
 void UUI_SkillSlot::OnReleasedWidget()
 {
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		MobaPlayerState->Server_ReleaseSkillKey();
 	}

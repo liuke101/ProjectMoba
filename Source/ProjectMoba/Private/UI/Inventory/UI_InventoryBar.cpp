@@ -21,7 +21,7 @@ void UUI_InventoryBar::InitSlotLayout(const TArray<int32>& SlotIDs)
 	
 	if (InventorySlotClass)
 	{
-		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+		if(MobaPlayerState)
 		{
 			
 			for (int32 x = 0; x < Layout_Row; x++)

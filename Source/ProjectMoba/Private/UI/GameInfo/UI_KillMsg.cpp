@@ -17,7 +17,7 @@ void UUI_KillMsg::NativeConstruct()
 
 void UUI_KillMsg::BindDelegate()
 {
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		MobaPlayerState->KillMessageDelegate.BindLambda([&](const FKillNetPackgae& KillNetPackgae)
 		{

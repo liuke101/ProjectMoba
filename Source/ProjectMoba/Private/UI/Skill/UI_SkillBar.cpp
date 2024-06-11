@@ -21,7 +21,7 @@ void UUI_SkillBar::InitSlotLayout(const TArray<int32>& SlotIDs)
 	// 防止重复初始化，因为该函数绑定在多播委托
 	if(SkillSlotArray->GetChildrenCount() > 0) return;
 
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		TArray<int32> IDs;
 		MobaPlayerState->GetAllSkillSlotIDs(IDs);

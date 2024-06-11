@@ -18,14 +18,21 @@ class PROJECTMOBA_API UMobaUIBase : public UUserWidget
 	GENERATED_BODY()
 public:
 	virtual void NativeConstruct() override;
+	
 
 	AMobaHUD* GetMobaHUD() const;
 
-	AMobaPlayerState* GetMobaPlayerState() const;
+	void InitMobaPlayerState() ;
 
-	AMobaGameState* GetMobaGameState() const;
+	void InitMobaGameState() ;
 
 	UWidgetAnimation* GetNameWidgetAnimation(const FString& WidgetAnimationName) const;
 
 	virtual void BindDelegate();
+
+	UPROPERTY()
+	TObjectPtr<AMobaPlayerState> MobaPlayerState = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<AMobaGameState> MobaGameState = nullptr;
 };

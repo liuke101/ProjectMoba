@@ -23,7 +23,7 @@ void UUI_ItemBase::SetIcon(UTexture2D* InIcon2D)
 void UUI_ItemBase::OnClickedWidget()
 {
 	// 点击购买
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		MobaPlayerState->Server_Buy(GetItemDataID());
 	}

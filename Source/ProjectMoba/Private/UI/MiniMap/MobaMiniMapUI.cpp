@@ -36,7 +36,7 @@ void UMobaMiniMapUI::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if (AMobaGameState *MobaGameState = GetWorld()->GetGameState<AMobaGameState>())
+	if (MobaGameState)
 	{
 		const TArray<FPlayerLocation> &PlayerLocations = MobaGameState->GetPlayerLocations();
 

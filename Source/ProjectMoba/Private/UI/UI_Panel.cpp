@@ -18,8 +18,7 @@ void UUI_Panel::NativeConstruct()
 
 void UUI_Panel::BindDelegate()
 {
-	
-	if(AMobaGameState* MobaGameState = GetMobaGameState())
+	if(MobaGameState)
 	{
 		MobaGameState->OnUpdateAttributeDelegate.AddUObject(this, &UUI_Panel::ResponseUpdateSlot);
 	}
@@ -37,7 +36,7 @@ void UUI_Panel::RequestUpdateSlot(const ECharacterAttributeType CharacterAttribu
 	if(PlayerID == INDEX_NONE) return;
 	
 	//客户端通过操作UI请求更新->服务器执行更新并广播委托->UI监听委托并更新UI
-	if(AMobaGameState* MobaGameState = GetMobaGameState())
+	if(MobaGameState)
 	{
 		MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID, CharacterAttributeType);
 	}

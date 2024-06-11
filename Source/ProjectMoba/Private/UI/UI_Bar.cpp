@@ -16,7 +16,7 @@ void UUI_Bar::BindDelegate()
 {
 	Super::BindDelegate();
 	
-	if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState())
+	if(MobaPlayerState)
 	{
 		// 绑定初始化Slot分布
 		MobaPlayerState->InitSlotDelegate.AddLambda([&](const TArray<int32>& InSlotIDs)

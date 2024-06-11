@@ -22,9 +22,6 @@ void UUI_CharacterInfo_TopPanel::BindDelegate()
 {
 	Super::BindDelegate();
 	
-	AMobaGameState* MobaGameState = GetMobaGameState();
-	AMobaPlayerState* MobaPlayerState = GetMobaPlayerState();
-	
 	if(MobaGameState && MobaPlayerState)
 	{
 		MobaPlayerState->LookPlayerInfoDelegate.BindLambda([&](const FLookPlayerInfoNetPackage& InLookPlayerInfoNetPackage)

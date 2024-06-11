@@ -128,7 +128,7 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 	//生产物品
 	for(auto &ChildDataID : SlotAsset->ChildrensDataID)
 	{
-		if(const FSlotAsset* InSlotAsset = GetMobaPlayerState()->GetSlotAssetFromDataID(ChildDataID))
+		if(const FSlotAsset* InSlotAsset = MobaPlayerState->GetSlotAssetFromDataID(ChildDataID))
 		{
 			SpawnItem(DrawSlot.ItemPanel, InSlotAsset);
 		}
@@ -256,7 +256,7 @@ int32 UUI_ItemSynthesis::GetLayerDepth(const FSlotAsset* SlotAsset, float InDept
 
 	for(auto& Tmp : SlotAsset->ChildrensDataID)
 	{
-		if(const FSlotAsset* InSlotAsset = GetMobaPlayerState()->GetSlotAssetFromDataID(Tmp))
+		if(const FSlotAsset* InSlotAsset = MobaPlayerState->GetSlotAssetFromDataID(Tmp))
 		{
 			Depths.Add(GetLayerDepth(InSlotAsset, InDepth));
 		}

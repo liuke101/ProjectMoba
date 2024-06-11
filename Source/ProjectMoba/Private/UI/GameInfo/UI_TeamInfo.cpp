@@ -29,7 +29,7 @@ void UUI_TeamInfo::NativeConstruct()
 
 void UUI_TeamInfo::BindDelegate()
 {
-	if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
+	if(MobaPlayerState)
 	{
 		// 绑定委托
 		MobaPlayerState->TeamInfoDelegate.BindUObject(this, &UUI_TeamInfo::SpawnPlayerInfo);
@@ -85,7 +85,7 @@ void UUI_TeamInfo::Show()
 		FriendlyTeam->ClearChildren();
 
 		//请求队伍信息
-		if(AMobaPlayerState* MobaPlayerState = Cast<AMobaPlayerState>(GetOwningPlayerState()))
+		if(MobaPlayerState)
 		{
 			MobaPlayerState->Server_RequestAllPlayerTeamInfos();
 		}
