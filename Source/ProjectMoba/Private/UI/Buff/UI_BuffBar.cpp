@@ -33,6 +33,14 @@ void UUI_BuffBar::UpdateCD(int32 InSlotID, float InMaxCD) const
 	}
 }
 
+void UUI_BuffBar::UpdateCD(int64 InPlayerID, int32 InSlotID, float InMaxCD) const
+{
+	if(InPlayerID == PlayerID)
+	{
+		UpdateCD(InSlotID, InMaxCD);
+	}
+}
+
 void UUI_BuffBar::Clear()
 {
 	if(BuffBox)

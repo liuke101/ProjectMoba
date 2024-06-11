@@ -35,7 +35,6 @@ void AMobaGameMode::BeginPlay()
 
 void AMobaGameMode::SpawnMinionsOnServer() const
 {
-	
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
 		TArray<AActor*> SpawnPoints;
@@ -99,6 +98,8 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 				
 				//TODO:拉取db服务器数据
 				//赋值playerID
+				//MobaPlayerState->GetPlayerDataComponent()->PlayerID = FMath::RandRange(0, 1000000); 
+				MobaPlayerState->Client_UpdatePlayerData(MobaPlayerState->GetPlayerDataComponent()->PlayerID);
 
 				//TODO:断线重连
 

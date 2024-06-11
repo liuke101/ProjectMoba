@@ -24,6 +24,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 #pragma region "战斗"
 public:
@@ -49,6 +50,9 @@ protected:
 	
 #pragma region "RPC"
 public:
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_RegisterCharacter(int64 InPlayerID);
+	
 	/** 动画广播 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_PlayerAnimMontage(UAnimMontage* InAnimMontage, float InPlayRate = 1.0f, FName StartSectionName = NAME_None);
@@ -118,6 +122,7 @@ protected:
 protected:
 	bool bAttacking;
 	uint8 AttackCount; //攻击计数
+
 	int64 PlayerID;
 
 	UPROPERTY(Replicated)

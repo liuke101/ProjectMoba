@@ -26,7 +26,7 @@ DECLARE_DELEGATE_OneParam(FPlayerKillMessageDelegate, const FKillNetPackgae&);
 DECLARE_DELEGATE_OneParam(FTeamInfoDelegate,const TArray<FPlayerTeamNetPackage>& )
 DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
 DECLARE_DELEGATE_TwoParams(FTeamKillCountDelegate, int32/*FriendlyKillCount*/, int32/*EnemyKillCount*/)
-DECLARE_MULTICAST_DELEGATE_TwoParams(FUpdateBuffBarDelegate, int32/*SlotID*/, float/*CD*/)  
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpdateBuffBarDelegate, int64 /*PlayerID*/,int32/*SlotID*/, float/*CD*/)  
 DECLARE_DELEGATE_OneParam(FBuffInfoDelegate,const TArray<FBuffNetPackage>&)
 
 UCLASS()
@@ -158,6 +158,10 @@ public:
 #pragma region RPC
 	//------------------数据-------------------
 public:
+	UFUNCTION(Client, Reliable)
+	void Client_UpdatePlayerData(const int64& InPlayerID);
+
+	
 	void GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage);
 	void GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage);
 	void GetBuffNetPackages(TArray<FBuffNetPackage>& OutBuffNetPackages);
@@ -242,7 +246,7 @@ public:
 
 	//------------------Buff------------------//
 	UFUNCTION(NetMulticast, Unreliable)
-	void Client_UpdateBuffBar(int32 SlotID, float CD);
+	void Client_UpdateBuffBar(int64 InPlayerID, int32 SlotID, float CD);
 
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateBuffInfo(const TArray<FBuffNetPackage>& BuffNetPackages);

@@ -176,7 +176,7 @@ void AMobaGameState::UpdateCharacterLocation(const int64 PlayerID, const FVector
 
 void AMobaGameState::AddCharacterLocation(const int64 PlayerID, const FVector& Location)
 {
-	for(auto PlayerLocation : PlayerLocations)
+	for(auto& PlayerLocation : PlayerLocations)
 	{
 		if(PlayerLocation.PlayerID == PlayerID)
 		{
@@ -185,6 +185,19 @@ void AMobaGameState::AddCharacterLocation(const int64 PlayerID, const FVector& L
 	}
 	// 如果没有找到，就添加
 	PlayerLocations.Add(FPlayerLocation(PlayerID, Location));
+}
+
+void AMobaGameState::RemoveCharacterLocation(const int64 PlayerID)
+{
+	FPlayerLocation Temp;
+	for(auto& PlayerLocation : PlayerLocations)
+	{
+		if(PlayerLocation.PlayerID == PlayerID)
+		{
+			Temp = PlayerLocation;
+		}
+	}
+	PlayerLocations.Remove(Temp);
 }
 
 bool AMobaGameState::GetCharacterLocation(const int64 PlayerID, FVector& OutLocation) const

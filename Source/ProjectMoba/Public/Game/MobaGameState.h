@@ -60,6 +60,7 @@ public:
 	/** ChracterLocation */
 	void UpdateCharacterLocation(const int64 PlayerID, const FVector& Location);
 	void AddCharacterLocation(const int64 PlayerID, const FVector& Location);
+	void RemoveCharacterLocation(const int64 PlayerID);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetCharacterLocation(const int64 PlayerID, FVector& OutLocation) const;

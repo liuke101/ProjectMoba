@@ -22,6 +22,8 @@ struct FPlayerLocation
 	
 };
 
+bool operator==(const FPlayerLocation& LHS, const FPlayerLocation& RHS);
+
 /** Slot的资产数据（查表获得） */
 USTRUCT(BlueprintType)
 struct FSlotData

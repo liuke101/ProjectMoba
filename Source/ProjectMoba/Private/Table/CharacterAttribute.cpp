@@ -18,10 +18,10 @@ void FCharacterAttribute::InitAttribute()
 	CurrentHealth = MaxHealth;
 	MaxMana = GetMaxMana();
 	CurrentMana = MaxMana;
-	PhysicalAttack = 0.0f;
+	PhysicalAttack = 50.0f;
 	Armor = 0.0f;
 	PhysicalPenetration = 0.0f;
-	MagicAttack = 0.0f;
+	MagicAttack = 50.0f;
 	MagicResistance = 0.0f;
 	MagicPenetration = 0.0f;
 	WalkSpeed = 300.0f;

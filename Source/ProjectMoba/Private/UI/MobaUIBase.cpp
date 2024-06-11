@@ -41,8 +41,9 @@ void UMobaUIBase::InitMobaPlayerState()
 
 void UMobaUIBase::InitMobaGameState() 
 {
-	//保证获取
 	MobaGameState = GetWorld()->GetGameState<AMobaGameState>();
+	
+	//保证获取
 	if(MobaGameState == nullptr)
 	{
 		GThread::GetCoroutines().BindLambda(0.3f, [&]()
@@ -65,5 +66,9 @@ UWidgetAnimation* UMobaUIBase::GetNameWidgetAnimation(const FString& WidgetAnima
 }
 
 void UMobaUIBase::BindDelegate()
+{
+}
+
+void UMobaUIBase::RemoveDelegate()
 {
 }

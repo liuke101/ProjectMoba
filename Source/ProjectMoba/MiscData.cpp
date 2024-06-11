@@ -10,6 +10,15 @@ FPlayerLocation::FPlayerLocation(const int64 InplayerID, const FVector& InLocati
 {
 }
 
+bool operator==(const FPlayerLocation& LHS, const FPlayerLocation& RHS)
+{
+	if(LHS.PlayerID == RHS.PlayerID && LHS.Location == RHS.Location)
+	{
+		return true;
+	}
+	return false;
+}
+
 FSlotData::FSlotData()
 	: DataID(INDEX_NONE)
 	, SlotIcon(nullptr)

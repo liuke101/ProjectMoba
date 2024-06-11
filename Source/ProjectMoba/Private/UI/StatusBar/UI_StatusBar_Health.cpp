@@ -27,8 +27,8 @@ void UUI_StatusBar_Health::BindDelegate()
 	//绑定BuffBar更新委托
 	if(MobaPlayerState)
 	{
-		MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int32 SlotID, float CD){
-			BuffBar->UpdateCD(SlotID, CD);
+		UpdateBuffBarDelegateHandle = MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int64 PlayerID, int32 SlotID, float CD){
+			BuffBar->UpdateCD(PlayerID, SlotID, CD);
 		});
 	}
 	else
@@ -37,5 +37,15 @@ void UUI_StatusBar_Health::BindDelegate()
 		{
 			BindDelegate();
 		});
+	}
+}
+
+void UUI_StatusBar_Health::RemoveDelegate()
+{
+	Super::RemoveDelegate();
+
+	if(MobaPlayerState)
+	{
+		MobaPlayerState->UpdateBuffBarDelegate.Remove(UpdateBuffBarDelegateHandle);
 	}
 }

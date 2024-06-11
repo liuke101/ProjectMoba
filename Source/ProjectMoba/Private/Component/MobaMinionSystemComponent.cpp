@@ -113,6 +113,7 @@ void UMobaMinionSystemComponent::SpawnMinion(int32 CharacterID, TArray<FVector>&
 						if(PlayerID!= INDEX_NONE)
 						{
 							MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, TeamType, CharacterAsset->CharacterType);
+							MobaCharacter->Multicast_RegisterCharacter(PlayerID); //广播PlayerID
 						}
 					}
 				}

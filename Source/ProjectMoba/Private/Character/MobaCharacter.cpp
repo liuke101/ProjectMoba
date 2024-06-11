@@ -97,6 +97,20 @@ void AMobaCharacter::BeginPlay()
 	}
 }
 
+void AMobaCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	//移除绑定的多播委托
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		if(UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI_Health->RemoveDelegate();
+		}
+	}
+}
+
 void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 {
 	if(InTarget.IsValid())
@@ -175,7 +189,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							}
 
 							//计算血量
-							CharacterAttribute->CurrentHealth += DamageAmount;
+							CharacterAttribute->CurrentHealth -= DamageAmount;
 							if(CharacterAttribute->CurrentHealth > CharacterAttribute->GetMaxHealth())
 							{
 								CharacterAttribute->CurrentHealth = CharacterAttribute->GetMaxHealth();
@@ -207,7 +221,11 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 									MobaGameState->Death(PlayerID);
 								}
 								MobaGameState->SettleDeath(InDamageCauser->GetPlayerID(), PlayerID);
-		
+
+
+								//移除小地图坐标
+								MobaGameState->RemoveCharacterLocation(PlayerID);
+								
 								//复活
 								//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
 								//死亡2s后销毁
@@ -232,6 +250,19 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		}
 	}
 	return 0;
+}
+
+void AMobaCharacter::Multicast_RegisterCharacter_Implementation(int64 InPlayerID)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		SetPlayerID(InPlayerID);
+		
+		if(UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
+		{
+			StatusBarUI_Health->SetPlayerID(InPlayerID);
+		}
+	}
 }
 
 void AMobaCharacter::Multicast_StatusBar_Implementation(float HealthPercent, float ManaPercent)
@@ -380,6 +411,7 @@ void AMobaCharacter::InitCharacter()
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CharacterAttribute->WalkSpeed;  //设置移动速度
 		Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent()); // 广播状态栏
+		Multicast_RegisterCharacter(PlayerID); //广播PlayerID
 	}
 }
 

@@ -37,7 +37,6 @@ void UUI_SlotBase::UpdateIcon(UTexture2D* IconTexture) const
 	}
 }
 
-
 void UUI_SlotBase::SetTextNumber(UTextBlock* TextNumberBlock, float TextNumber)
 {
 	if (TextNumber <= 0.f)

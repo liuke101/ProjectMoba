@@ -380,7 +380,7 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 		//如果属性类型为持续性，则认为是Buff, 通知客户端更新BuffBar
 		if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
 		{
-			Client_UpdateBuffBar(SlotID, SlotAttribute->CD.Value); 
+			Client_UpdateBuffBar(GetPlayerID(), SlotID, SlotAttribute->CD.Value); 
 		}
 		
 		return true;
@@ -740,6 +740,11 @@ void AMobaPlayerState::UpdateKDAInfo()
 	Client_UpdateKDAInfo(KDANetPackage);
 }
 
+void AMobaPlayerState::Client_UpdatePlayerData_Implementation(const int64& InPlayerID)
+{
+	PlayerDataComponent->PlayerID = InPlayerID; //客户端本机玩家获取PlayerID
+}
+
 void AMobaPlayerState::GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage)
 {
 	GetSlotNetPackage(GetInventorySlots(), OutNetPackage);
@@ -773,9 +778,9 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	}
 }
 
-void AMobaPlayerState::Client_UpdateBuffBar_Implementation(int32 SlotID, float CD)
+void AMobaPlayerState::Client_UpdateBuffBar_Implementation(int64 InPlayerID, int32 SlotID, float CD)
 {
-	UpdateBuffBarDelegate.Broadcast(SlotID, CD);
+	UpdateBuffBarDelegate.Broadcast(InPlayerID, SlotID, CD);
 }
 
 void AMobaPlayerState::Client_UpdateBuffInfo_Implementation(const TArray<FBuffNetPackage>& BuffNetPackages)

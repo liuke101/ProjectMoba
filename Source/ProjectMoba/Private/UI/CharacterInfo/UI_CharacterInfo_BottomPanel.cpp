@@ -27,9 +27,11 @@ void UUI_CharacterInfo_BottomPanel::BindDelegate()
 	{
 		MobaGameState->OnUpdateAllAttributesDelegate.AddUObject(this, &UUI_CharacterInfo_BottomPanel::ResponseUpdateSlots);
 
+		BuffBar->SetPlayerID(MobaPlayerState->GetPlayerID());
+		
 		//绑定BuffBar更新委托
-		MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int32 SlotID, float CD){
-			BuffBar->UpdateCD(SlotID, CD);
+		MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int64 InPlayerID, int32 SlotID, float CD){
+			BuffBar->UpdateCD(InPlayerID, SlotID, CD);
 		});
 	}
 	else

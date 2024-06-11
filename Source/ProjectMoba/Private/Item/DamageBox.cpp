@@ -84,7 +84,7 @@ void ADamageBox::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 					if(UMobaDamageType* MobaDmageType = MobaDmageTypeClass->GetDefaultObject<UMobaDamageType>())
 					{
 						MobaDmageType->SlotAttribute = SlotAttribute;
-				
+						
 						//造成伤害
 						UGameplayStatics::ApplyDamage(
 							TargetCharacter,

@@ -15,18 +15,26 @@ UCLASS()
 class PROJECTMOBA_API UUI_BuffBar : public UMobaUIBase
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UWrapBox> BuffBox;
-
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	TSubclassOf<UUI_BuffSlot> BuffSlotClass;
 public:
 	UUI_BuffBar();
 
 	virtual void NativeConstruct() override;
 
 	void UpdateCD(int32 InSlotID, float InMaxCD) const;
+	void UpdateCD(int64 InPlayerID, int32 InSlotID, float InMaxCD) const;
 
 	void Clear();
+
+	void SetPlayerID(int64 InPlayerID) { PlayerID = InPlayerID; }
+
+private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UWrapBox> BuffBox;
+
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<UUI_BuffSlot> BuffSlotClass;
+
+private:
+	int64 PlayerID = INDEX_NONE;
+
 };

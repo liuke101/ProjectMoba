@@ -23,6 +23,10 @@ public:
 	void SetColor(const FLinearColor& InColor) const;
 
 	virtual void BindDelegate() override;
+	virtual void RemoveDelegate() override;
+
+	FORCEINLINE void SetPlayerID(int64 InPlayerID) {PlayerID = InPlayerID;}
+	FORCEINLINE int64 GetPlayerID() const {return PlayerID;}
 
 private:
 
@@ -32,5 +36,10 @@ private:
 	UPROPERTY(meta= (BindWidget))
 	TObjectPtr<UUI_BuffBar> BuffBar;
 
+protected:
+	int64 PlayerID = INDEX_NONE;
+
+private:
+	FDelegateHandle UpdateBuffBarDelegateHandle;
 	
 };
