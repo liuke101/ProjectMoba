@@ -14,6 +14,9 @@ FCharacterAttribute::FCharacterAttribute()
 void FCharacterAttribute::InitAttribute()
 {
 	Level = 1;
+	MaxExp = 100.0f;
+	CurrentExp = 0.0f;
+	
 	MaxHealth = GetMaxHealth();
 	CurrentHealth = MaxHealth;
 	MaxMana = GetMaxMana();
@@ -28,14 +31,47 @@ void FCharacterAttribute::InitAttribute()
 	AttackSpeed = 0.5f;
 	CriticalRate = 0.0f;
 	AttackRange = 200.0f;
-	MaxExp = 100.0f;
-	CurrentExp = 0.0f;
+
+	ExpReward = 20.0f;
+	GoldReward = 20.0f;
+	Coefficient = 0.1f;
+	AddLevelID = INDEX_NONE;
 }
 
 void FCharacterAttribute::ResetAttribute()
 {
 	CurrentHealth = GetMaxHealth();
 	CurrentMana = GetMaxMana();
+}
+
+void FCharacterAttribute::SetBuff(const TSharedRef<FSlotAttributes>& InBuff)
+{
+	WeakPtr_SlotAttributes = InBuff;
+}
+
+void FCharacterAttribute::UpdateLevel()
+{
+	if (AddLevelAttribute)
+	{
+		Level++;
+		MaxHealth += (Level - 1) * AddLevelAttribute->MaxHealth.Value * Coefficient;
+		MaxMana += (Level - 1) * AddLevelAttribute->MaxMana.Value * Coefficient;
+		
+		PhysicalAttack += (Level - 1) * AddLevelAttribute->PhysicalAttack.Value * Coefficient;
+		Armor += (Level - 1) * AddLevelAttribute->Armor.Value * Coefficient;
+		PhysicalPenetration += (Level - 1) * AddLevelAttribute->PhysicalPenetration.Value * Coefficient;
+		
+		MagicAttack += (Level - 1) * AddLevelAttribute->MagicAttack.Value * Coefficient;
+		MagicResistance += (Level - 1) * AddLevelAttribute->MagicResistance.Value * Coefficient;
+		MagicPenetration += (Level - 1) * AddLevelAttribute->MagicPenetration.Value * Coefficient;
+		
+		WalkSpeed += (Level - 1) * AddLevelAttribute->WalkSpeed.Value * Coefficient;
+		AttackSpeed += (Level - 1) * AddLevelAttribute->AttackSpeed.Value * Coefficient;
+		CriticalRate += (Level - 1) * AddLevelAttribute->CriticalRate.Value * Coefficient;
+		
+		MaxExp += (Level - 1) * AddLevelAttribute->MaxExp.Value * Coefficient;
+		ExpReward += (Level - 1) * AddLevelAttribute->ExpReward.Value * Coefficient;
+	}
 }
 
 float FCharacterAttribute::GetHealthPercent() const
@@ -51,11 +87,6 @@ float FCharacterAttribute::GetManaPercent() const
 float FCharacterAttribute::GetExpPercent() const
 {
 	return FMath::Clamp(CurrentExp / MaxExp, 0.0f, 1.0f);
-}
-
-void FCharacterAttribute::SetBuff(const TSharedRef<FSlotAttributes>& InBuff)
-{
-	WeakPtr_SlotAttributes = InBuff;
 }
 
 float FCharacterAttribute::GetCurrentHealth() const
@@ -116,6 +147,22 @@ float FCharacterAttribute::GetAttackSpeed() const
 float FCharacterAttribute::GetCriticalRate() const
 {
 	CALCULATE_ATTRIBUTE_VALUE(CriticalRate);
+}
+
+float FCharacterAttribute::GetExpReward() const
+{
+	return static_cast<float>(Level) * (ExpReward + 0.5f);
+}
+
+float FCharacterAttribute::GetGoldReward() const
+{
+	//击杀系统 联系到一起
+
+	//连续计算
+
+	//对方是不是死成鬼
+
+	return GoldReward;
 }
 
 float FCharacterAttribute::GetPhysicalAttack() const

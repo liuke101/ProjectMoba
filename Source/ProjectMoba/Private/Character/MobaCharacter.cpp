@@ -15,6 +15,7 @@
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
 #include "Item/Bullet.h"
+#include "Layers/LayersSubsystem.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectMoba/GlobalVariable.h"
 #include "Table/CharacterAsset.h"
@@ -250,6 +251,47 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		}
 	}
 	return 0;
+}
+
+void AMobaCharacter::AddExp(float InExp)
+{
+	if(InExp!=0)
+	{
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		{
+			if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+			{
+				if(AMobaPawn* MobaPawn = MethodUnit::GetMobaPawnFromPlayerID(GetWorld(), GetPlayerID()))
+				{
+					CharacterAttribute->CurrentExp += InExp;
+					if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
+					{
+						CharacterAttribute->CurrentExp -= CharacterAttribute->MaxExp;
+						CharacterAttribute->UpdateLevel();
+						
+						MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_All);
+						
+						Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+
+						//TODO:客户端ui
+						
+						//如果升级后还能升级，则递归调用
+						if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
+						{
+							AddExp(CharacterAttribute->CurrentExp - CharacterAttribute->MaxExp);
+						}
+					}
+					else
+					{
+						MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_CurrentEXP);
+
+						//TODO:经验条增加
+						
+					}
+				}
+			}
+		}
+	}
 }
 
 void AMobaCharacter::Multicast_RegisterCharacter_Implementation(int64 InPlayerID)

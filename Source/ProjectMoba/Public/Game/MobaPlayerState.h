@@ -45,7 +45,7 @@ private:
 	void Tick_Server_AddGold(float DeltaSeconds); // 服务器每秒增加金币
 	void Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds); // 服务器检查距离商店的距离
 	void Tick_Server_UpdateBuff(float DeltaSeconds); // 服务器Buff
-	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD
+	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD 技能、物品、buff
 #pragma endregion
 	
 #pragma region Delegate

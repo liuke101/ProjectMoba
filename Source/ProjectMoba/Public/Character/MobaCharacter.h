@@ -42,10 +42,15 @@ public:
 	// 锁定旋转
 	void LockRotate(bool InbLockRotate);
 	void ResetRotation();
+
+	//升级
+	void AddExp(float InExp);
 protected:
 	/** 接收伤害 */
 	UFUNCTION()
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	
 #pragma endregion
 	
 #pragma region "RPC"

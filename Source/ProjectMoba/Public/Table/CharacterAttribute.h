@@ -28,6 +28,7 @@ return NewValue + ATTRIBUTE;
 
 struct FSlotAttributes;
 struct FSlotAttributeValue;
+struct FSlotAttribute;
 
 USTRUCT(BlueprintType)
 struct FCharacterAttribute : public FMobaTableBase
@@ -36,8 +37,19 @@ struct FCharacterAttribute : public FMobaTableBase
 
 	FCharacterAttribute();
 
+#pragma region 等级
 	UPROPERTY()
 	int32 Level; //等级
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
+	float MaxExp; //最大经验值
+
+	UPROPERTY()
+	float CurrentExp; //当前经验值
+#pragma endregion 
+
+#pragma region 属性
+	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float MaxHealth; //最大生命值
@@ -81,24 +93,38 @@ struct FCharacterAttribute : public FMobaTableBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float AttackRange; //攻击范围
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
-	float MaxExp; //最大经验值
+#pragma endregion 
 
-	UPROPERTY()
-	float CurrentExp; //当前经验值
+#pragma region 击杀奖励
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reward")
+	float ExpReward; //被杀后的奖励经验值
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reward")
+	float GoldReward; //被杀后的金币
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reward")
+	int32 AddLevelID;  //获取升级数据，升级数据将与基础属性叠加
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reward")
+	float Coefficient; //击杀奖励系数
+	
+	const FSlotAttribute* AddLevelAttribute;
+#pragma endregion
 
 	void InitAttribute();
 	/** 重置 */
 	void ResetAttribute();
 
-	float GetHealthPercent() const;
-	float GetManaPercent() const;
-	float GetExpPercent() const;
-
 	//注册Buff，即将WeakPtr_SlotAttributes指向PlayerDataComponent的SlotAttributes实例
 	void SetBuff(const TSharedRef<FSlotAttributes>& InBuff);
 
+	void UpdateLevel();
+
 #pragma region Getter
+	float GetHealthPercent() const;
+	float GetManaPercent() const;
+	float GetExpPercent() const;
+	
 	float GetCurrentHealth() const;
 	float GetMaxHealth() const;
 	float GetCurrentMana() const;
@@ -112,6 +138,9 @@ struct FCharacterAttribute : public FMobaTableBase
 	float GetWalkSpeed() const;
 	float GetAttackSpeed() const;
 	float GetCriticalRate() const;
+
+	float GetExpReward() const;
+	float GetGoldReward() const;
 #pragma endregion 
 
 private:

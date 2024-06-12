@@ -113,4 +113,10 @@ struct FSlotAttribute : public FMobaTableBase
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	FSlotAttributeValue CriticalRate; //暴击率
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue MaxExp; //最大经验值
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	FSlotAttributeValue ExpReward; //被杀后的奖励经验值
 };

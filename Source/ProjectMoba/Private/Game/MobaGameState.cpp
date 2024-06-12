@@ -3,6 +3,7 @@
 
 #include "Game/MobaGameState.h"
 
+#include "EngineUtils.h"
 #include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/Hero/MobaHeroCharacter.h"
@@ -83,6 +84,19 @@ void AMobaGameState::AddCharacterAttribute(const int64 PlayerID, const int32 Cha
 	{
 		CharacterAttributes.Add(PlayerID, *GetCharacterAttributeFromCharacterID(CharacterID));
 		CharacterAttributes[PlayerID].ResetAttribute();
+
+		//升级
+		int32 AddLevelID = CharacterAttributes[PlayerID].AddLevelID;
+		if(AddLevelID != INDEX_NONE)
+		{
+			if(AMobaPlayerState* MobaPlayerState = MethodUnit::GetMobaPlayerState(GetWorld()))
+			{
+				if(const FSlotAttribute* SlotAttribute = MobaPlayerState->GetSlotAttributeFromDataID(AddLevelID))
+				{
+					CharacterAttributes[PlayerID].AddLevelAttribute = SlotAttribute;
+				}
+			}
+		}
 	}
 }
 
@@ -428,6 +442,17 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 
 	const FCharacterAsset* KillerCharacterAsset = GetCharacterAssetFromPlayerID(KillerPlayerID);
 	const FCharacterAsset* KilledCharacterAsset = GetCharacterAssetFromPlayerID(KilledPlayerID);
+
+	//击杀奖励
+	struct FKillReward
+	{
+		ETeamType KillerTeamType = ETeamType::ETT_Neutral;
+		FVector KillerLocation = FVector::ZeroVector;
+		FVector KilledLocation = FVector::ZeroVector;
+		float TotalExpReward = 0.0f;
+		float TotalGoldReward = 0.0f;
+	}KillReward;
+	
 	
 	/** 1 击杀者是玩家, 被击杀者是玩家 */
 	if(KillerPlayerState && KilledPlayerState)
@@ -591,6 +616,37 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 				KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
 				KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
 				UpdateKillMessage(KillNetPackgae);
+			}
+		}
+	}
+
+
+	/** 经验奖励 */
+	TArray<AMobaHeroCharacter> MobaHeros;
+
+	if(KillReward.TotalExpReward > 0.0f)
+	{
+		for(TActorIterator<AMobaHeroCharacter> It(GetWorld()); It; ++It)
+		{
+			if(It->GetPlayerID() == KillerPlayerID)
+			{
+				float Distance = FVector::Dist(KillReward.KillerLocation, KillReward.KilledLocation);
+				if(Distance <= 2500.0f)
+				{
+					if(It->GetTeamType() == KillReward.KillerTeamType)
+					{
+						//MobaHeros.Add(*It);
+					}
+				}
+			}
+		}
+
+		if(!MobaHeros.IsEmpty())
+		{
+			float ExpReward = KillReward.TotalExpReward / MobaHeros.Num();
+			for(auto& MobaHero : MobaHeros)
+			{
+				MobaHero.AddExp(ExpReward);
 			}
 		}
 	}
