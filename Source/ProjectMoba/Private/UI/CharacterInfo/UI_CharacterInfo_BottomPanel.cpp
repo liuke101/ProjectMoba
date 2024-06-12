@@ -30,7 +30,7 @@ void UUI_CharacterInfo_BottomPanel::BindDelegate()
 		BuffBar->SetPlayerID(MobaPlayerState->GetPlayerID());
 		
 		//绑定BuffBar更新委托
-		MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int64 InPlayerID, int32 SlotID, float CD){
+		MobaGameState->UpdateBuffDelegate.AddLambda([&](int64 InPlayerID, int32 SlotID, float CD){
 			BuffBar->UpdateCD(InPlayerID, SlotID, CD);
 		});
 	}

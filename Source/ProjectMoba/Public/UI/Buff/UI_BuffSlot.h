@@ -22,6 +22,8 @@ public:
 	void UpdateCD(int32 InSlotID,float InMaxCD);
 	//Tick
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+ 
+	FORCEINLINE void SetCurrentBuffCD(float InCurrentBuffCD) { CurrentBuffCD = InCurrentBuffCD; }
 
 private:
 	float CurrentBuffCD;

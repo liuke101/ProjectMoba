@@ -56,6 +56,6 @@ FLookPlayerInfoNetPackage::FLookPlayerInfoNetPackage(): PlayerID(INDEX_NONE)
 {
 }
 
-FBuffNetPackage::FBuffNetPackage(): SlotID(INDEX_NONE), MaxCD(1)
+FBuffNetPackage::FBuffNetPackage(): DataID(INDEX_NONE), MaxCD(1)
 {
 }

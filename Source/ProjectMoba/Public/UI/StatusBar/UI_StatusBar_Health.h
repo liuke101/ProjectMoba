@@ -25,9 +25,7 @@ public:
 	virtual void BindDelegate() override;
 	virtual void RemoveDelegate() override;
 
-	FORCEINLINE void SetPlayerID(int64 InPlayerID) {PlayerID = InPlayerID;}
-	FORCEINLINE int64 GetPlayerID() const {return PlayerID;}
-
+	virtual void SetPlayerID(int64 InPlayerID) override;
 private:
 
 	UPROPERTY(meta= (BindWidget))
@@ -36,10 +34,8 @@ private:
 	UPROPERTY(meta= (BindWidget))
 	TObjectPtr<UUI_BuffBar> BuffBar;
 
-protected:
-	int64 PlayerID = INDEX_NONE;
-
 private:
 	FDelegateHandle UpdateBuffBarDelegateHandle;
+	FDelegateHandle EndBuffDelegateHandle;
 	
 };

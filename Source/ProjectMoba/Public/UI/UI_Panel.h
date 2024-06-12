@@ -20,9 +20,6 @@ public:
 	virtual void NativeConstruct() override;
 	virtual void BindDelegate() override;
 
-	FORCEINLINE int64 GetPlayerID() const {return PlayerID;}
-	FORCEINLINE void SetPlayerID(const int64& InPlayerID) { PlayerID = InPlayerID; }
-	
 	/** 请求更新属性 */
 	virtual void RequestUpdateSlot(const ECharacterAttributeType CharacterAttributeType);
 	
@@ -33,5 +30,4 @@ public:
 	/** 响应整包更新 */
 	UFUNCTION()
 	virtual void ResponseUpdateSlots(int64 InPlayerID);
-	int64 PlayerID;
 };

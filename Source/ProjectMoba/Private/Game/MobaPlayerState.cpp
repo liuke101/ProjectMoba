@@ -95,41 +95,14 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		Tick_Server_UpdateSlotCD(DeltaSeconds);
 		Tick_Server_AddGold(DeltaSeconds);
 		Tick_Server_CheckDistanceFromHomeShop(DeltaSeconds);
 		Tick_Server_UpdateBuff(DeltaSeconds);
+		
+		Tick_Server_UpdateSlotCD(DeltaSeconds);
 	}
 }
 
-void AMobaPlayerState::Tick_Server_UpdateSlotCD(float DeltaSeconds)
-{
-	TArray<int32> RemoveSlotIDs;
-	for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
-	{
-		Tmp.Value->CD -= DeltaSeconds;
-		if(Tmp.Value->CD <= 0.f)
-		{
-			Tmp.Value->CD = 0.f;
-			// if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(Tmp.Value->DataID))
-			// if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
-			//检测数量
-			CheckInventory(Tmp.Key);
-
-			//客户端矫正CD
-			Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
-
-			//计算完毕，添加到移除数组
-			RemoveSlotIDs.Add(Tmp.Key);
-		}
-	}
-
-	//已完成CD计算的Slot从CD队列中移除。
-	for(auto& RemoveSlotID : RemoveSlotIDs)
-	{
-		PlayerDataComponent->SlotCDQueue.Remove(RemoveSlotID);
-	}
-}
 
 void AMobaPlayerState::Tick_Server_AddGold(float DeltaSeconds)
 {
@@ -196,36 +169,39 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 						};
 
 						//根据属性变化量 更新UI
-						for(auto& Tmp : PlayerDataComponent->SlotAttributes->AttributeElements)
+						for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 						{
-							//只计算持续性Buff
-							if(Tmp.Value.AttributeType == ESlotAttributeType::ESAT_Continuous)
+							if(FSlotAttribute* BuffSlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
 							{
-								//广播增益数值
-								float HealthChange = GetAttributeChangeValue(Tmp.Value.CurrentHealth, CharacterAttribute->CurrentHealth, ECharacterAttributeType::ECAT_CurrentHealth);
-								if(HealthChange > 0)
+								//只计算持续性Buff
+								if(BuffSlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
 								{
-									MobaHero->Multicast_SpwanDrawText(HealthChange,0.1f, FColor::Green, MobaHero->GetActorLocation());
-								}
-								else if(HealthChange < 0)
-								{
-									MobaHero->Multicast_SpwanDrawText(HealthChange,0.1f, FColor::Red, MobaHero->GetActorLocation());
-								}
+									//广播增益数值
+									float HealthChange = GetAttributeChangeValue(BuffSlotAttribute->CurrentHealth, CharacterAttribute->CurrentHealth, ECharacterAttributeType::ECAT_CurrentHealth);
+									if(HealthChange > 0)
+									{
+										MobaHero->Multicast_SpwanDrawText(HealthChange,0.1f, FColor::Green, MobaHero->GetActorLocation());
+									}
+									else if(HealthChange < 0)
+									{
+										MobaHero->Multicast_SpwanDrawText(HealthChange,0.1f, FColor::Red, MobaHero->GetActorLocation());
+									}
 
-								float ManaChange = GetAttributeChangeValue(Tmp.Value.CurrentMana, CharacterAttribute->CurrentMana, ECharacterAttributeType::ECAT_CurrentMana);
-								if(ManaChange > 0)
-								{
-									MobaHero->Multicast_SpwanDrawText(ManaChange,0.1f, FColor::Blue, MobaHero->GetActorLocation());
-								}
-								else if(ManaChange < 0)
-								{
-									MobaHero->Multicast_SpwanDrawText(ManaChange,0.1f, FColor::Purple, MobaHero->GetActorLocation());
-								}
+									float ManaChange = GetAttributeChangeValue(BuffSlotAttribute->CurrentMana, CharacterAttribute->CurrentMana, ECharacterAttributeType::ECAT_CurrentMana);
+									if(ManaChange > 0)
+									{
+										MobaHero->Multicast_SpwanDrawText(ManaChange,0.1f, FColor::Blue, MobaHero->GetActorLocation());
+									}
+									else if(ManaChange < 0)
+									{
+										MobaHero->Multicast_SpwanDrawText(ManaChange,0.1f, FColor::Purple, MobaHero->GetActorLocation());
+									}
 
-								//更新状态栏
-								if(HealthChange != 0 || ManaChange != 0)
-								{
-									MobaHero->Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+									//更新状态栏
+									if(HealthChange != 0 || ManaChange != 0)
+									{
+										MobaHero->Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+									}
 								}
 							}
 						}
@@ -234,25 +210,49 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 			}
 		}
 	}
+}
 
-	/** Buff生命周期管理 */
-	TArray<int32> RemoveSlotIDs;
-	for(auto& Tmp : PlayerDataComponent->SlotAttributes->AttributeElements)
+void AMobaPlayerState::Tick_Server_UpdateSlotCD(float DeltaSeconds)
+{
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
-		//只计算持续性Buff
-		if(Tmp.Value.AttributeType == ESlotAttributeType::ESAT_Continuous)
+		TArray<int32> RemoveSlotIDs;
+	
+		for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 		{
-			Tmp.Value.CD.Value -= DeltaSeconds;
-			if(Tmp.Value.CD.Value <= 0)
+			Tmp.Value->CD -= DeltaSeconds;
+			if(Tmp.Value->CD <= 0.f)
 			{
+				Tmp.Value->CD = 0.f;
+				if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(Tmp.Value->DataID))
+				{
+				
+				}
+				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+				{
+					//持续型物品buff
+					if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
+					{
+						//只结束物品buff
+						MobaGameState->Multicast_EndBuff(GetPlayerID(), SlotAttribute->DataID); 
+					}
+				
+					//检测数量
+					CheckInventory(Tmp.Key);
+
+					//客户端矫正CD
+					Client_EndUpdateCD(Tmp.Key, *Tmp.Value);
+				}
+				//计算完毕，添加到移除数组
 				RemoveSlotIDs.Add(Tmp.Key);
 			}
 		}
-	}
 
-	for(auto& RemoveSlotID : RemoveSlotIDs)
-	{
-		PlayerDataComponent->SlotAttributes->Remove(RemoveSlotID);
+		//已完成CD计算的Slot从CD队列中移除。
+		for(auto& RemoveSlotID : RemoveSlotIDs)
+		{
+			PlayerDataComponent->SlotCDQueue.Remove(RemoveSlotID);
+		}
 	}
 }
 
@@ -281,9 +281,9 @@ const FSlotAsset* AMobaPlayerState::GetSlotAssetFromDataID(const int32 DataID)
 
 const FSlotAsset* AMobaPlayerState::GetSlotAssetFromSlotID(const int32 SlotID) 
 {
-	if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
+	if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
 	{
-		return GetSlotAssetFromDataID(GetSlotAttributeFromSlotID(SlotID)->DataID);
+		return GetSlotAssetFromDataID(SlotAttribute->DataID);
 	}
 	return nullptr;
 }
@@ -328,6 +328,15 @@ bool AMobaPlayerState::IsCDValid(int32 SlotID) const
 		return SlotData->CD <= 0.f;
 	}
 	
+	return false;
+}
+
+bool AMobaPlayerState::IsContinualSlotAttribute(int32 DataID)
+{
+	if(const FSlotAttribute* SlotAttribute = GetSlotAttributeFromDataID(DataID))
+	{
+		return SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous;
+	}
 	return false;
 }
 
@@ -380,7 +389,10 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 		//如果属性类型为持续性，则认为是Buff, 通知客户端更新BuffBar
 		if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
 		{
-			Client_UpdateBuffBar(GetPlayerID(), SlotID, SlotAttribute->CD.Value); 
+			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+			{
+				MobaGameState->Multicast_UpdateBuff(GetPlayerID(), SlotAttribute->DataID, SlotAttribute->CD.Value); 
+			}
 		}
 		
 		return true;
@@ -490,10 +502,19 @@ bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
 		}
 		
 		
-		if(SlotID != INDEX_NONE && AddSlotAttributes(SlotID, DataID)) //添加到Inventory
+		if(SlotID != INDEX_NONE) //添加到Inventory
 		{
-			//通知本机客户端，更新Slot
-			Client_UpdateSlot(SlotID, PlayerDataComponent->InventorySlots[SlotID]);
+			bool bAttribute = true;
+			if(!IsContinualSlotAttribute(DataID))
+			{
+				bAttribute = AddSlotAttributes(SlotID, DataID);
+			}
+			
+			if(bAttribute)
+			{
+				//通知本机客户端，更新Slot
+				Client_UpdateSlot(SlotID, PlayerDataComponent->InventorySlots[SlotID]);
+			}
 		}
 		return true;
 	}
@@ -757,14 +778,20 @@ void AMobaPlayerState::GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage
 
 void AMobaPlayerState::GetBuffNetPackages(TArray<FBuffNetPackage>& OutBuffNetPackages)
 {
-	for(auto& Tmp : PlayerDataComponent->SlotAttributes->AttributeElements)
+	if(PlayerDataComponent)
 	{
-		if(Tmp.Value.AttributeType == ESlotAttributeType::ESAT_Continuous)
+		for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 		{
-			FBuffNetPackage BuffNetPackage;
-			BuffNetPackage.SlotID = Tmp.Key; 
-			BuffNetPackage.MaxCD = Tmp.Value.CD.Value;
-			OutBuffNetPackages.Add(BuffNetPackage);
+			if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+			{
+				if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
+				{
+					FBuffNetPackage BuffNetPackage;
+					BuffNetPackage.DataID = SlotAttribute->DataID;
+					BuffNetPackage.MaxCD = SlotAttribute->CD.Value;
+					OutBuffNetPackages.Add(BuffNetPackage);
+				}
+			}
 		}
 	}
 }
@@ -776,11 +803,6 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
 	}
-}
-
-void AMobaPlayerState::Client_UpdateBuffBar_Implementation(int64 InPlayerID, int32 SlotID, float CD)
-{
-	UpdateBuffBarDelegate.Broadcast(InPlayerID, SlotID, CD);
 }
 
 void AMobaPlayerState::Client_UpdateBuffInfo_Implementation(const TArray<FBuffNetPackage>& BuffNetPackages)
@@ -1052,6 +1074,11 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 				CheckInventory(SlotID); 
 				Client_UpdateSlot(SlotID, *SlotData);
 			}
+		}
+
+		if(IsContinualSlotAttribute(SlotData->DataID))
+		{
+			AddSlotAttributes(SlotID, SlotData->DataID);
 		}
 
 		if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))

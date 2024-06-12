@@ -30,7 +30,15 @@ public:
 	UPROPERTY()
 	TObjectPtr<AMobaGameState> MobaGameState = nullptr;
 
+	FORCEINLINE int64 GetPlayerID() const { return PlayerID; }
+	virtual void SetPlayerID(int64 InPlayerID) { PlayerID = InPlayerID; }
+
+protected:
+	UPROPERTY()
+	int64 PlayerID = INDEX_NONE;
 private:
 	void InitMobaPlayerState() ;
 	void InitMobaGameState() ;
+
+	
 };

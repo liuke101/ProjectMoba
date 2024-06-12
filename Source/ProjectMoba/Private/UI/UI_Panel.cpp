@@ -6,7 +6,7 @@
 #include "ThreadManage.h"
 #include "Game/MobaGameState.h"
 
-UUI_Panel::UUI_Panel(): PlayerID(INDEX_NONE)
+UUI_Panel::UUI_Panel()
 {
 	
 }

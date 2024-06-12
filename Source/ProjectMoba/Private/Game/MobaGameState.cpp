@@ -400,6 +400,22 @@ void AMobaGameState::UpdateKillMessage(const FKillNetPackgae& KillNetPackgae) co
 	});
 }
 
+void AMobaGameState::Multicast_UpdateBuff_Implementation(int64 InPlayerID, int32 DataID, float CD)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		UpdateBuffDelegate.Broadcast(InPlayerID, DataID, CD);
+	}
+}
+
+void AMobaGameState::Multicast_EndBuff_Implementation(int64 InPlayerID, int32 DataID)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		EndBuffDelegate.Broadcast(InPlayerID, DataID);
+	}
+}
+
 void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 {
 	//TODO:金币奖励和金币UI

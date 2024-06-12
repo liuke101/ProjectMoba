@@ -21,6 +21,8 @@ struct FCharacterAsset;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FUpdateAllAttributesDelegate, int64 /*PlayerID*/);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FUpdateAttributeDelegate, int64/*PlayerID*/, const ECharacterAttributeType);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpdateBuffBarDelegate, int64 /*PlayerID*/,int32/*DataID*/, float/*CD*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FEndBuffBarDelegate, int64 /*PlayerID*/,int32/*DataID*/);
 
 UCLASS()
 class PROJECTMOBA_API AMobaGameState : public AGameStateBase
@@ -32,6 +34,8 @@ class PROJECTMOBA_API AMobaGameState : public AGameStateBase
 public:
 	FUpdateAllAttributesDelegate OnUpdateAllAttributesDelegate; //更新整包属性
 	FUpdateAttributeDelegate OnUpdateAttributeDelegate; //更新协议指定属性
+	FUpdateBuffBarDelegate UpdateBuffDelegate; //更新Buff
+	FEndBuffBarDelegate EndBuffDelegate; //结束Buff
 public:
 	AMobaGameState();
 
@@ -85,6 +89,13 @@ public:
 	/** 更新击杀信息 */
 	void UpdateKillMessage(const FKillNetPackgae& KillNetPackgae) const;
 
+	/** 客户端更新buff */
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_UpdateBuff(int64 InPlayerID, int32 DataID, float CD);
+
+	/** 客户端结束buff */
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_EndBuff(int64 InPlayerID, int32 DataID);
 #pragma endregion
 	
 	

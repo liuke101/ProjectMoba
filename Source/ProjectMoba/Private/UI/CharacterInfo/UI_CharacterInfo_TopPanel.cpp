@@ -63,7 +63,7 @@ void UUI_CharacterInfo_TopPanel::BindDelegate()
 		{
 			for(auto BuffNetPackage : InBuffNetPackages)
 			{
-				BuffBar->UpdateCD(BuffNetPackage.SlotID, BuffNetPackage.MaxCD);
+				BuffBar->UpdateCD(BuffNetPackage.DataID, BuffNetPackage.MaxCD);
 			}
 		});
 

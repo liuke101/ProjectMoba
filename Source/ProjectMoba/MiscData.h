@@ -176,7 +176,7 @@ struct FBuffNetPackage
 	FBuffNetPackage();
 	
 	UPROPERTY()
-	int32 SlotID;
+	int32 DataID;
 
 	UPROPERTY()
 	float MaxCD;

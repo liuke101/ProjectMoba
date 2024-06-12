@@ -2,6 +2,7 @@
 
 #include "ThreadManage.h"
 #include "Components/ProgressBar.h"
+#include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
 #include "UI/Buff/UI_BuffBar.h"
 
@@ -25,10 +26,15 @@ void UUI_StatusBar_Health::BindDelegate()
 	Super::BindDelegate();
 
 	//绑定BuffBar更新委托
-	if(MobaPlayerState)
+	if(MobaGameState)
 	{
-		UpdateBuffBarDelegateHandle = MobaPlayerState->UpdateBuffBarDelegate.AddLambda([&](int64 PlayerID, int32 SlotID, float CD){
-			BuffBar->UpdateCD(PlayerID, SlotID, CD);
+		UpdateBuffBarDelegateHandle = MobaGameState->UpdateBuffDelegate.AddLambda([&](int64 InPlayerID, int32 DataID, float CD){
+			BuffBar->UpdateCD(InPlayerID, DataID, CD);
+		});
+
+		//ue只会渲染同屏，当屏幕外玩家buff结束时，buff会被移除。当该玩家进入屏幕时，会发现buff仍显示cd，所以需要用一个委托强制移除
+		EndBuffDelegateHandle = MobaGameState->EndBuffDelegate.AddLambda([&](int64 InPlayerID, int32 DataID){
+			BuffBar->RemoveCD(InPlayerID, DataID);
 		});
 	}
 	else
@@ -44,8 +50,17 @@ void UUI_StatusBar_Health::RemoveDelegate()
 {
 	Super::RemoveDelegate();
 
-	if(MobaPlayerState)
+	if(MobaGameState)
 	{
-		MobaPlayerState->UpdateBuffBarDelegate.Remove(UpdateBuffBarDelegateHandle);
+		MobaGameState->UpdateBuffDelegate.Remove(UpdateBuffBarDelegateHandle);
+		MobaGameState->EndBuffDelegate.Remove(EndBuffDelegateHandle);
 	}
 }
+
+void UUI_StatusBar_Health::SetPlayerID(int64 InPlayerID)
+{
+	Super::SetPlayerID(InPlayerID);
+
+	BuffBar->SetPlayerID(InPlayerID);
+}
+

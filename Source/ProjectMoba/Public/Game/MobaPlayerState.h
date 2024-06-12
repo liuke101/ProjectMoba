@@ -26,7 +26,6 @@ DECLARE_DELEGATE_OneParam(FPlayerKillMessageDelegate, const FKillNetPackgae&);
 DECLARE_DELEGATE_OneParam(FTeamInfoDelegate,const TArray<FPlayerTeamNetPackage>& )
 DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
 DECLARE_DELEGATE_TwoParams(FTeamKillCountDelegate, int32/*FriendlyKillCount*/, int32/*EnemyKillCount*/)
-DECLARE_MULTICAST_DELEGATE_ThreeParams(FUpdateBuffBarDelegate, int64 /*PlayerID*/,int32/*SlotID*/, float/*CD*/)  
 DECLARE_DELEGATE_OneParam(FBuffInfoDelegate,const TArray<FBuffNetPackage>&)
 
 UCLASS()
@@ -43,10 +42,10 @@ public:
 
 #pragma region Tick
 private:
-	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD
 	void Tick_Server_AddGold(float DeltaSeconds); // 服务器每秒增加金币
 	void Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds); // 服务器检查距离商店的距离
 	void Tick_Server_UpdateBuff(float DeltaSeconds); // 服务器Buff
+	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD
 #pragma endregion
 	
 #pragma region Delegate
@@ -64,7 +63,6 @@ public:
 	FKDAInfoDelegate KDAInfoDelegate; //KDA/补兵信息
 	FTeamKillCountDelegate TeamKillCountDelegate; //队伍击杀数
 	
-	FUpdateBuffBarDelegate UpdateBuffBarDelegate; //更新BuffBar
 	FBuffInfoDelegate BuffInfoDelegate; //Buff信息
 #pragma endregion
 
@@ -90,6 +88,9 @@ public:
 	FSlotData* GetSlotData(int32 SlotID) const;
 	
 	bool IsCDValid(int32 SlotID) const;
+
+	//检测属性是不是持续型，即buff
+	bool IsContinualSlotAttribute(int32 DataID);
 
 protected:
 	/// 递归创建Slot
@@ -245,8 +246,6 @@ public:
 	void Client_UpdateKDAInfo(const FPlayerKDANetPackage& PlayerKDANetPackage);
 
 	//------------------Buff------------------//
-	UFUNCTION(NetMulticast, Unreliable)
-	void Client_UpdateBuffBar(int64 InPlayerID, int32 SlotID, float CD);
 
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateBuffInfo(const TArray<FBuffNetPackage>& BuffNetPackages);

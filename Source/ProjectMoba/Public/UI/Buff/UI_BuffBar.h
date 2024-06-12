@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/MobaUIBase.h"
+#include "UI/UI_Info.h"
 #include "UI_BuffBar.generated.h"
 
 class UUI_BuffSlot;
@@ -12,7 +13,7 @@ class UWrapBox;
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_BuffBar : public UMobaUIBase
+class PROJECTMOBA_API UUI_BuffBar : public UUI_Info
 {
 	GENERATED_BODY()
 public:
@@ -20,12 +21,15 @@ public:
 
 	virtual void NativeConstruct() override;
 
-	void UpdateCD(int32 InSlotID, float InMaxCD) const;
-	void UpdateCD(int64 InPlayerID, int32 InSlotID, float InMaxCD) const;
+	void UpdateCD(int32 InSlotID, float InMaxCD);
+	void UpdateCD(int64 InPlayerID, int32 InSlotID, float InMaxCD) ;
+	void RemoveCD(int64 InPlayerID, int32 InSlotID);
 
-	void Clear();
+	void Clear() const;
 
-	void SetPlayerID(int64 InPlayerID) { PlayerID = InPlayerID; }
+	virtual void InitSlotLayout(const TArray<int32>& SlotIDs) override;
+	
+	virtual UPanelWidget* GetSlotLayoutPanel() override;
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -33,8 +37,5 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<UUI_BuffSlot> BuffSlotClass;
-
-private:
-	int64 PlayerID = INDEX_NONE;
 
 };
