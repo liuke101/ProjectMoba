@@ -6,7 +6,7 @@
 FSlotAttributeValue::FSlotAttributeValue()
 	: GainType(ESlotAttributeGainType::ESAGT_Add)
 	, ValueType(ESlotAttributeValueType::ESAVT_Value)
-	, Value(3)
+	, Value(0)
 {
 }
 
