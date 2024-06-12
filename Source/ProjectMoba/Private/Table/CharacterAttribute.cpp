@@ -53,7 +53,7 @@ void FCharacterAttribute::UpdateLevel()
 {
 	if (AddLevelAttribute)
 	{
-		Level++;
+		Level += LevelUpCount;
 		MaxHealth += (Level - 1) * AddLevelAttribute->MaxHealth.Value * Coefficient;
 		MaxMana += (Level - 1) * AddLevelAttribute->MaxMana.Value * Coefficient;
 		

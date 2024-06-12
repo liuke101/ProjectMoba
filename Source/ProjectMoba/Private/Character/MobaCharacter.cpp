@@ -261,34 +261,30 @@ void AMobaCharacter::AddExp(float InExp)
 		{
 			if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 			{
-				if(AMobaPawn* MobaPawn = MethodUnit::GetMobaPawnFromPlayerID(GetWorld(), GetPlayerID()))
+				CharacterAttribute->CurrentExp += InExp;
+
+				//如果升级
+				if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
 				{
-					CharacterAttribute->CurrentExp += InExp;
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("升级"));
+					
+					CharacterAttribute->CurrentExp -= CharacterAttribute->MaxExp;
+					
+					CharacterAttribute->UpdateLevel();
+					
+					MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_All);
+					
+					Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+
+					//如果升级后还能升级，则递归调用
 					if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
 					{
-						CharacterAttribute->CurrentExp -= CharacterAttribute->MaxExp;
-						CharacterAttribute->UpdateLevel();
-						
-						MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_All);
-						
-						Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
-
-						//TODO:客户端ui
-						
-						
-						//如果升级后还能升级，则递归调用
-						if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
-						{
-							AddExp(CharacterAttribute->CurrentExp - CharacterAttribute->MaxExp);
-						}
+						AddExp(CharacterAttribute->CurrentExp - CharacterAttribute->MaxExp);
 					}
-					else
-					{
-						MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_CurrentEXP);
-
-						//TODO:经验条增加
-						
-					}
+				}
+				else
+				{
+					MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_CurrentEXP);
 				}
 			}
 		}

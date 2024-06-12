@@ -455,6 +455,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 
 	//lambda 获取范围内所有友方英雄(包括自己)
 	TArray<AMobaHeroCharacter*> FriendlyMobaHeros;
+	
 	auto GetAllFriendlyHeroInScope = [&] (float Scope)
 	{
 		for(TActorIterator<AMobaHeroCharacter> It(GetWorld()); It; ++It)
@@ -699,7 +700,9 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	{
 		GetAllFriendlyHeroInScope( 2500.0f);
 	}
-	else
+
+
+	if(!FriendlyMobaHeros.IsEmpty())
 	{
 		float ExpReward = KillReward.TotalExpReward / FriendlyMobaHeros.Num();
 		for(auto& MobaHero : FriendlyMobaHeros)
