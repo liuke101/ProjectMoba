@@ -35,5 +35,7 @@ public:
 	UAnimMontage* GetSkillMontageFromDataID(int32 SkillDataID) const;
 	
 	bool PressSkillKey = false; //技能键是否被按下
-
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_SpwanDrawGoldText(int32 Value, float Percent, const FLinearColor& Color, const FVector& Location);
 };

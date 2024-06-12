@@ -103,7 +103,7 @@ struct FCharacterAttribute : public FMobaTableBase
 	float GoldReward; //被杀后的金币
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reward")
-	int32 AddLevelID;  //获取升级数据，升级数据将与基础属性叠加
+	int32 AddLevelID;  //使用此ID查询SlotAttribute表，获取升级数据，升级数据将与基础属性叠加
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reward")
 	float Coefficient; //击杀奖励系数

@@ -1,6 +1,7 @@
 ﻿#include "Character/Hero/MobaHeroCharacter.h"
 
 #include "ThreadManage.h"
+#include "Actor/DrawText.h"
 #include "Character/MobaPawn.h"
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
@@ -120,4 +121,16 @@ UAnimMontage* AMobaHeroCharacter::GetSkillMontageFromDataID(int32 SkillDataID) c
 		}
 	}
 	return nullptr;
+}
+
+void AMobaHeroCharacter::Multicast_SpwanDrawGoldText_Implementation(int32 Value, float Percent,
+	const FLinearColor& Color, const FVector& Location)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		if(ADrawText* DrawText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, Location, FRotator::ZeroRotator))
+		{
+			DrawText->SetTextBlock(FString::Printf(TEXT("+%d"), Value), Color, Percent,EInfoAnimType::TYPE_SMALLER,0); //ID0 对应SimpleDrawTextStyle中的表格数据
+		}
+	}
 }

@@ -8,6 +8,7 @@
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+class AMobaPlayerState;
 class UMobaKillSystemComponent;
 class UMobaMinionSystemComponent;
 class UMobaMinionSystem;
@@ -96,6 +97,7 @@ public:
 	/** 客户端结束buff */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_EndBuff(int64 InPlayerID, int32 DataID);
+	
 #pragma endregion
 	
 	
@@ -110,6 +112,7 @@ public:
 
 	/** 团队击杀数 */
 	void AddTeamKillCount(const ETeamType TeamType, const int32 KillCount);
+
 #pragma endregion 
 	
 protected:

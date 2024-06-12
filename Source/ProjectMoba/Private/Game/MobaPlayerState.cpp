@@ -95,7 +95,7 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		Tick_Server_AddGold(DeltaSeconds);
+		Tick_Server_AddGoldPerSecond(DeltaSeconds);
 		Tick_Server_CheckDistanceFromHomeShop(DeltaSeconds);
 		Tick_Server_UpdateBuff(DeltaSeconds);
 		
@@ -104,7 +104,7 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 }
 
 
-void AMobaPlayerState::Tick_Server_AddGold(float DeltaSeconds)
+void AMobaPlayerState::Tick_Server_AddGoldPerSecond(float DeltaSeconds)
 {
 	GoldTime+=DeltaSeconds;
 	if(GoldTime >= 1.f)
@@ -180,21 +180,21 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 									float HealthChange = GetAttributeChangeValue(BuffSlotAttribute->CurrentHealth, CharacterAttribute->CurrentHealth, ECharacterAttributeType::ECAT_CurrentHealth);
 									if(HealthChange > 0)
 									{
-										MobaHero->Multicast_SpwanDrawText(HealthChange,0.1f, FColor::Green, MobaHero->GetActorLocation());
+										MobaHero->Multicast_SpwanDrawDamageText(HealthChange,0.1f, FColor::Green, MobaHero->GetActorLocation());
 									}
 									else if(HealthChange < 0)
 									{
-										MobaHero->Multicast_SpwanDrawText(HealthChange,0.1f, FColor::Red, MobaHero->GetActorLocation());
+										MobaHero->Multicast_SpwanDrawDamageText(HealthChange,0.1f, FColor::Red, MobaHero->GetActorLocation());
 									}
 
 									float ManaChange = GetAttributeChangeValue(BuffSlotAttribute->CurrentMana, CharacterAttribute->CurrentMana, ECharacterAttributeType::ECAT_CurrentMana);
 									if(ManaChange > 0)
 									{
-										MobaHero->Multicast_SpwanDrawText(ManaChange,0.1f, FColor::Blue, MobaHero->GetActorLocation());
+										MobaHero->Multicast_SpwanDrawDamageText(ManaChange,0.1f, FColor::Blue, MobaHero->GetActorLocation());
 									}
 									else if(ManaChange < 0)
 									{
-										MobaHero->Multicast_SpwanDrawText(ManaChange,0.1f, FColor::Purple, MobaHero->GetActorLocation());
+										MobaHero->Multicast_SpwanDrawDamageText(ManaChange,0.1f, FColor::Purple, MobaHero->GetActorLocation());
 									}
 
 									//更新状态栏
@@ -761,6 +761,15 @@ void AMobaPlayerState::UpdateKDAInfo()
 	Client_UpdateKDAInfo(KDANetPackage);
 }
 
+void AMobaPlayerState::AddGold(int32 Gold)
+{
+	PlayerDataComponent->Gold += Gold;
+	if(AMobaHeroCharacter* MobaHeroCharacter = GetPawn<AMobaPawn>()->GetControlledMobaHero())
+	{
+		MobaHeroCharacter->Multicast_SpwanDrawGoldText(Gold, 0.01f, FLinearColor::Yellow, MobaHeroCharacter->GetActorLocation());
+	}
+}
+
 void AMobaPlayerState::Client_UpdatePlayerData_Implementation(const int64& InPlayerID)
 {
 	PlayerDataComponent->PlayerID = InPlayerID; //客户端本机玩家获取PlayerID
@@ -803,6 +812,11 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
 	}
+}
+
+void AMobaPlayerState::Client_AddGold_Implementation(int32 InGold)
+{
+	
 }
 
 void AMobaPlayerState::Client_UpdateBuffInfo_Implementation(const TArray<FBuffNetPackage>& BuffNetPackages)

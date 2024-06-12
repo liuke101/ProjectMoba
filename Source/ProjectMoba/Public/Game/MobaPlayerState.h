@@ -42,7 +42,7 @@ public:
 
 #pragma region Tick
 private:
-	void Tick_Server_AddGold(float DeltaSeconds); // 服务器每秒增加金币
+	void Tick_Server_AddGoldPerSecond(float DeltaSeconds); // 服务器每秒增加金币
 	void Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds); // 服务器检查距离商店的距离
 	void Tick_Server_UpdateBuff(float DeltaSeconds); // 服务器Buff
 	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD 技能、物品、buff
@@ -155,6 +155,10 @@ public:
 	/** 更新KDA信息栏 */
 	void UpdateKDAInfo();
 #pragma endregion
+
+#pragma region 击杀奖励
+	void  AddGold(int32 Gold);
+#pragma endregion	
 	
 #pragma region RPC
 	//------------------数据-------------------
@@ -249,7 +253,10 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateBuffInfo(const TArray<FBuffNetPackage>& BuffNetPackages);
-	
+
+	//----------------击杀奖励----------------//
+	UFUNCTION(Client, Reliable)
+	void Client_AddGold(int32 InGold);
 	
 #pragma endregion
 

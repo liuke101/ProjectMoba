@@ -59,7 +59,7 @@ struct FSlotAttribute : public FMobaTableBase
 	FSlotAttribute();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
-	int32 BuffDataID;
+	int32 BuffDataID; //TODO: 使用此ID查询什么？
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	ESlotAttributeType AttributeType;

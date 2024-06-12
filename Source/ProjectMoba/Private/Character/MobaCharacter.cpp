@@ -205,7 +205,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 			
 							//伤害字体
-							Multicast_SpwanDrawText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->GetMaxHealth(), FColor::White, GetActorLocation());
+							Multicast_SpwanDrawDamageText(DamageAmount, FMath::Abs(DamageAmount)/CharacterAttribute->GetMaxHealth(), FColor::White, GetActorLocation());
 			
 							//伤害
 							if(IsDead()) //死亡
@@ -274,6 +274,7 @@ void AMobaCharacter::AddExp(float InExp)
 						Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
 
 						//TODO:客户端ui
+						
 						
 						//如果升级后还能升级，则递归调用
 						if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
@@ -413,12 +414,15 @@ void AMobaCharacter::Multicast_Reborn_Implementation()
 	StopAnimMontage(); //停止死亡动画
 }
 
-void AMobaCharacter::Multicast_SpwanDrawText_Implementation(float Value, float Percent, const FLinearColor& Color,
+void AMobaCharacter::Multicast_SpwanDrawDamageText_Implementation(float Value, float Percent, const FLinearColor& Color,
 	const FVector& Location)
 {
-	if(ADrawText* DrawText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, Location, FRotator::ZeroRotator))
+	if(GetLocalRole() != ROLE_Authority)
 	{
-		DrawText->SetTextBlock(FString::Printf(TEXT("%d"), static_cast<int>(Value)), Color, Percent);
+		if(ADrawText* DrawText = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, Location, FRotator::ZeroRotator))
+		{
+			DrawText->SetTextBlock(FString::Printf(TEXT("%d"), static_cast<int>(Value)), Color, Percent);
+		}
 	}
 }
 

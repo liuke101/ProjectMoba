@@ -43,7 +43,7 @@ public:
 	void LockRotate(bool InbLockRotate);
 	void ResetRotation();
 
-	//升级
+	// 增加经验值
 	void AddExp(float InExp);
 protected:
 	/** 接收伤害 */
@@ -78,7 +78,7 @@ public:
 
 	/** 显示伤害字体 */
 	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_SpwanDrawText(float Value, float Percent, const FLinearColor& Color, const FVector& Location);
+	void Multicast_SpwanDrawDamageText(float Value, float Percent, const FLinearColor& Color, const FVector& Location);
 
 	/** 命中特效 */
 	UFUNCTION(NetMulticast, Unreliable)

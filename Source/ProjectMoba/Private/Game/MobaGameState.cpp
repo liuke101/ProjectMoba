@@ -7,7 +7,6 @@
 #include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
 #include "Character/Hero/MobaHeroCharacter.h"
-#include "Character/Turret/MobaTurretCharacter.h"
 #include "Common/MethodUnit.h"
 #include "Component/MobaAssistSystemComponent.h"
 #include "Component/MobaKillSystemComponent.h"
@@ -432,13 +431,14 @@ void AMobaGameState::Multicast_EndBuff_Implementation(int64 InPlayerID, int32 Da
 
 void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 {
-	//TODO:金币奖励和金币UI
-	
 	if(KillerPlayerID == KilledPlayerID) return;
 
 	//击杀者和被击杀者的PlayerState，如果为nullptr则代表是AI
 	AMobaPlayerState* KillerPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KillerPlayerID);
 	AMobaPlayerState* KilledPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), KilledPlayerID);
+
+	const FCharacterAttribute* KillerCharacterAttribute = GetCharacterAttributeFromPlayerID(KillerPlayerID);
+	const FCharacterAttribute* KilledCharacterAttribute = GetCharacterAttributeFromPlayerID(KilledPlayerID);
 
 	const FCharacterAsset* KillerCharacterAsset = GetCharacterAssetFromPlayerID(KillerPlayerID);
 	const FCharacterAsset* KilledCharacterAsset = GetCharacterAssetFromPlayerID(KilledPlayerID);
@@ -452,11 +452,47 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		float TotalExpReward = 0.0f;
 		float TotalGoldReward = 0.0f;
 	}KillReward;
-	
+
+	//lambda 获取范围内所有友方英雄(包括自己)
+	TArray<AMobaHeroCharacter*> FriendlyMobaHeros;
+	auto GetAllFriendlyHeroInScope = [&] (float Scope)
+	{
+		for(TActorIterator<AMobaHeroCharacter> It(GetWorld()); It; ++It)
+		{
+			float Distance = FVector::Dist(KillReward.KillerLocation, KillReward.KilledLocation);
+			if(Distance <= Scope)
+			{
+				if(It->GetTeamType() == KillReward.KillerTeamType)
+				{
+					FriendlyMobaHeros.Add(*It);
+				}
+			}
+		}
+	};
+
+	//收集击杀奖励信息
+	if(KillerCharacterAttribute && KilledCharacterAttribute)
+	{
+		KillReward.TotalExpReward = KilledCharacterAttribute->GetExpReward();
+		KillReward.TotalGoldReward = KilledCharacterAttribute->GetGoldReward();
+	}
 	
 	/** 1 击杀者是玩家, 被击杀者是玩家 */
 	if(KillerPlayerState && KilledPlayerState)
 	{
+		//收集击杀奖励信息
+		KillReward.KillerTeamType = KillerPlayerState->GetPlayerDataComponent()->TeamType;
+		if(AMobaCharacter* KillerCharacter = MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KillerPlayerID))
+		{
+			KillReward.KillerLocation = KillerCharacter->GetActorLocation();
+		}
+		if(AMobaCharacter* KilledCharacter = MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KilledPlayerID))
+		{
+			
+			KillReward.KilledLocation = KilledCharacter->GetActorLocation();
+		}
+		
+		
 		//团队击杀
 		AddTeamKillCount(KillerPlayerState->GetPlayerDataComponent()->TeamType, 1);
 		
@@ -466,6 +502,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 		//击杀结算
 		KillerPlayerState->GetPlayerDataComponent()->KillNum++;
 		KillerPlayerState->UpdateKDAInfo();
+		KillerPlayerState->AddGold(KillReward.TotalGoldReward);
 
 		//被击杀结算
 		KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
@@ -480,6 +517,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 				{
 					AssitPlayerState->GetPlayerDataComponent()->AssistNum++;
 					AssitPlayerState->UpdateKDAInfo();
+					AssitPlayerState->AddGold(KillReward.TotalGoldReward * 0.16f);
 				}
 			}
 		}
@@ -487,52 +525,74 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	/** 2 击杀者是玩家, 被击杀者是AI */
 	else if(KillerPlayerState && !KilledPlayerState)
 	{
-		//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
-		//找到最近助攻的玩家记录击杀数（记为玩家击杀AI）
-		if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
+		//收集击杀奖励信息
+		KillReward.KillerTeamType = KillerPlayerState->GetPlayerDataComponent()->TeamType;
+		if(AMobaHeroCharacter* KillerCharacter = KillerPlayerState->GetPawn<AMobaPawn>()->GetControlledMobaHero())
 		{
-			if(AMobaTurretCharacter* Turret = Cast<AMobaTurretCharacter>(MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KilledPlayerID)))
+			KillReward.KillerLocation = KillerCharacter->GetActorLocation();
+		}
+		
+		if(AMobaCharacter* KilledCharacter = MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KilledPlayerID))
+		{
+			KillReward.KilledLocation = KilledCharacter->GetActorLocation();
+
+			//如果被击杀者是炮塔，则奖励击杀塔的玩家，范围内的队友也获得奖励
+			if(KilledCharacterAsset->CharacterType >= ECharacterType::ECT_1st_Tower && KilledCharacterAsset->CharacterType <= ECharacterType::ECT_Base_Tower)
 			{
 				//炮塔击杀者
-				if(const FAssistPlayer* LastAssistPlayer = Turret->GetLastAssistPlayer())
+				KillerPlayerState->AddGold(KillReward.TotalGoldReward);
+
+				//范围内队友
+				if(FriendlyMobaHeros.IsEmpty())
 				{
-					
-					//炮塔助攻者
-					for(const auto& OtherAssitPlayer : Turret->GetAssistPlayers())
+					GetAllFriendlyHeroInScope( 1000.0f);
+				}
+
+				for(auto& Tmp : FriendlyMobaHeros)
+				{
+					if(AMobaPlayerState* OtherHeroPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), Tmp->GetPlayerID()))
 					{
-						if(OtherAssitPlayer != *LastAssistPlayer)
-						{
-							//找到助攻玩家记录击杀数（记为玩家助攻AI）
-							if(AMobaPlayerState* AssistPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), OtherAssitPlayer.PlayerID))
-							{
-							
-							}
-						}
+						OtherHeroPlayerState->AddGold(KillReward.TotalGoldReward * 0.5f);
 					}
 				}
+				
+				
+				if(KillerCharacterAsset && KilledCharacterAsset)
+				{
+					//收集和更新击杀信息
+					FKillNetPackgae KillNetPackgae;
+					KillNetPackgae.KillerName = KillerPlayerState->GetPlayerDataComponent()->PlayerName;
+					KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
+					KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
+					KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
+					UpdateKillMessage(KillNetPackgae);
+				}
 			}
-			if(KillerCharacterAsset && KilledCharacterAsset)
+			//如果击杀小兵和野怪
+			else 
 			{
-				//收集和更新击杀信息
-				FKillNetPackgae KillNetPackgae;
-				KillNetPackgae.KillerName = KillerPlayerState->GetPlayerDataComponent()->PlayerName;
-				KillNetPackgae.KillerIcon = KillerCharacterAsset->CharacterIcon;
-				KillNetPackgae.KilledName = KilledCharacterAsset->CharacterName;
-				KillNetPackgae.KilledIcon = KilledCharacterAsset->CharacterIcon;
-				UpdateKillMessage(KillNetPackgae);
+				//击杀结算
+				KillerPlayerState->GetPlayerDataComponent()->MinionKillNum++;
+				KillerPlayerState->UpdateKDAInfo();
+				KillerPlayerState->AddGold(KillReward.TotalGoldReward);
 			}
-		}
-		//如果击杀小兵和野怪
-		else 
-		{
-			//击杀结算
-			KillerPlayerState->GetPlayerDataComponent()->MinionKillNum++;
-			KillerPlayerState->UpdateKDAInfo();
 		}
 	}
 	/** 3 击杀者是AI, 被击杀者是玩家 */
 	else if(!KillerPlayerState && KilledPlayerState)
 	{
+		//收集击杀奖励信息
+		if(AMobaCharacter* KillerCharacter = MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KillerPlayerID))
+		{
+			KillReward.KillerTeamType = KillerCharacter->GetTeamType();
+			KillReward.KillerLocation = KillerCharacter->GetActorLocation();
+		}
+		if(AMobaHeroCharacter* KilledCharacter = KilledPlayerState->GetPawn<AMobaPawn>()->GetControlledMobaHero())
+		{
+			KillReward.KilledLocation = KilledCharacter->GetActorLocation();
+		}
+		
+		
 		//在一定时间有玩家助攻
 		if(const FAssistPlayer* LastAssist = KilledPlayerState->GetLastAssistPlayer())
 		{
@@ -548,7 +608,8 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 				//击杀者结算
 				LastAssitPlayerState->GetPlayerDataComponent()->KillNum++;
 				LastAssitPlayerState->UpdateKDAInfo();
-			
+				LastAssitPlayerState->AddGold(KillReward.TotalGoldReward);
+				
 				//被击杀者结算
 				KilledPlayerState->GetPlayerDataComponent()->DeathNum++;
 				KilledPlayerState->UpdateKDAInfo();
@@ -562,6 +623,7 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 						{
 							OtherAssitPlayerState->GetPlayerDataComponent()->AssistNum++;
 							OtherAssitPlayerState->UpdateKDAInfo();
+							OtherAssitPlayerState->AddGold(KillReward.TotalGoldReward * 0.16f);
 						}
 					}
 				}
@@ -599,6 +661,17 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 	/** 4 击杀者是AI, 被击杀者是AI */
 	else if(!KillerPlayerState && !KilledPlayerState)
 	{
+		//收集击杀奖励信息
+		if(AMobaCharacter* KillerCharacter = MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KillerPlayerID))
+		{
+			KillReward.KillerTeamType = KillerCharacter->GetTeamType();
+			KillReward.KillerLocation = KillerCharacter->GetActorLocation();
+		}
+		if(AMobaCharacter* KilledCharacter = MethodUnit::GetMobaCharacterFromPlayerID(GetWorld(),KilledPlayerID))
+		{
+			KillReward.KilledLocation = KilledCharacter->GetActorLocation();
+		}
+		
 		if(KillerCharacterAsset && KilledCharacterAsset)
 		{
 			//如果AI击杀炮塔，则判断在一定时间内是否有玩家助攻
@@ -622,32 +695,16 @@ void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 
 
 	/** 经验奖励 */
-	TArray<AMobaHeroCharacter> MobaHeros;
-
-	if(KillReward.TotalExpReward > 0.0f)
+	if(FriendlyMobaHeros.IsEmpty())
 	{
-		for(TActorIterator<AMobaHeroCharacter> It(GetWorld()); It; ++It)
+		GetAllFriendlyHeroInScope( 2500.0f);
+	}
+	else
+	{
+		float ExpReward = KillReward.TotalExpReward / FriendlyMobaHeros.Num();
+		for(auto& MobaHero : FriendlyMobaHeros)
 		{
-			if(It->GetPlayerID() == KillerPlayerID)
-			{
-				float Distance = FVector::Dist(KillReward.KillerLocation, KillReward.KilledLocation);
-				if(Distance <= 2500.0f)
-				{
-					if(It->GetTeamType() == KillReward.KillerTeamType)
-					{
-						//MobaHeros.Add(*It);
-					}
-				}
-			}
-		}
-
-		if(!MobaHeros.IsEmpty())
-		{
-			float ExpReward = KillReward.TotalExpReward / MobaHeros.Num();
-			for(auto& MobaHero : MobaHeros)
-			{
-				MobaHero.AddExp(ExpReward);
-			}
+			MobaHero->AddExp(ExpReward);
 		}
 	}
 }
@@ -836,4 +893,5 @@ void AMobaGameState::AddTeamKillCount(const ETeamType TeamType, const int32 Kill
 		});
 	}
 }
+
 
