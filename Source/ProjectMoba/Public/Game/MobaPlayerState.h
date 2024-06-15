@@ -28,6 +28,7 @@ DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
 DECLARE_DELEGATE_TwoParams(FTeamKillCountDelegate, int32/*FriendlyKillCount*/, int32/*EnemyKillCount*/)
 DECLARE_DELEGATE_OneParam(FBuffInfoDelegate,const TArray<FBuffNetPackage>&)
 DECLARE_DELEGATE_OneParam(FUpdateSkillLevelDelegate,const FSkillLevelUpNetPackage&)
+DECLARE_DELEGATE_OneParam(FShowKillLevelUpDelegate,const TArray<int32>&/** SlotID */)
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -66,13 +67,14 @@ public:
 	
 	FBuffInfoDelegate BuffInfoDelegate; //Buff信息
 	FUpdateSkillLevelDelegate UpdateSkillLevelDelegate; //更新技能等级
+	FShowKillLevelUpDelegate ShowSkillLevelUpDelegate; //显示技能升级UI
 #pragma endregion
 
 #pragma region DataTable数据读取 
 public:
 	const TArray<FSlotAsset*>* GetSlotAssets();
 	const FSlotAsset* GetSlotAssetFromDataID(const int32 DataID);
-	const FSlotAsset* GetSlotAssetFromSlotID(const int32 SlotID);
+	//const FSlotAsset* GetSlotAssetFromSlotID(const int32 SlotID);
 	
 	const TArray<FSlotAttribute*>* GetSlotAttributes();
 	FSlotAttribute* GetSlotAttributeFromDataID(const int32 DataID);
@@ -143,7 +145,9 @@ public:
 	void AddSkillSlotPoint(int32 SlotID);
 
 	//技能升级
-	void UpgradeSkillLevel(int32 SlotID);
+	void UpdateSkillLevel(int32 SlotID);
+
+	void ShowSkillLevelUpUI();
 #pragma endregion
 	
 #pragma region 助攻
@@ -217,6 +221,9 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateSkillLevel(const FSkillLevelUpNetPackage& SkillLevelUpNetPackage);
+
+	UFUNCTION(Client, Reliable)
+	void Client_ShowSkillLevelUp(const TArray<int32>& SlotIDs);
 
 	//------------------通用-------------------//
 	UFUNCTION(Client, Reliable)

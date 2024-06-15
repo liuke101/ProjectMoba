@@ -12,7 +12,7 @@ FSlotAttributeValue::FSlotAttributeValue()
 
 FSlotAttribute::FSlotAttribute()
 	: AttributeType(ESlotAttributeType::ESAT_Permanent)
-	, Level(1)
+	, Level(0)
 	, Time(1)
 	, BuffDataID(INDEX_NONE)
 	, AddLevelDataID(INDEX_NONE)
@@ -26,5 +26,4 @@ void FSlotAttribute::UpdateLevel()
 	{
 		Level++;
 	}
-	
 }

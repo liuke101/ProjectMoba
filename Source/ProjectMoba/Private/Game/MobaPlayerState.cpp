@@ -279,14 +279,14 @@ const FSlotAsset* AMobaPlayerState::GetSlotAssetFromDataID(const int32 DataID)
 	return nullptr;
 }
 
-const FSlotAsset* AMobaPlayerState::GetSlotAssetFromSlotID(const int32 SlotID) 
-{
-	if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
-	{
-		return GetSlotAssetFromDataID(SlotAttribute->DataID);
-	}
-	return nullptr;
-}
+// const FSlotAsset* AMobaPlayerState::GetSlotAssetFromSlotID(const int32 SlotID) 
+// {
+// 	if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+// 	{
+// 		return GetSlotAssetFromDataID(SlotAttribute->DataID);
+// 	}
+// 	return nullptr;
+// }
 
 const TArray<FSlotAttribute*>* AMobaPlayerState::GetSlotAttributes()
 {
@@ -316,7 +316,7 @@ FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromSlotID(const int32 SlotID)
 {
 	if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
 	{
-		return (*PlayerDataComponent->SlotAttributes.Get())[SlotID];
+		return (*PlayerDataComponent->SlotAttributes)[SlotID];
 	}
 	return nullptr;
 }
@@ -403,7 +403,6 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 				(*PlayerDataComponent->SlotAttributes)[SlotID]->AddLevelAttribute = AddLevelAttribute;
 			}
 		}
-		
 		
 		return true;
 	}
@@ -712,7 +711,7 @@ void AMobaPlayerState::AddSkillSlotPoint(int32 SlotID)
 	}
 }
 
-void AMobaPlayerState::UpgradeSkillLevel(int32 SlotID)
+void AMobaPlayerState::UpdateSkillLevel(int32 SlotID)
 {
 	//lambda 获取角色等级
 	auto GetCharacterLevel = [&]()->int32
@@ -732,7 +731,7 @@ void AMobaPlayerState::UpgradeSkillLevel(int32 SlotID)
 	//如果有技能点
 	if(GetPlayerDataComponent()->SkillPoint >= 1)
 	{
-		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromDataID(GetSkillDataIDFromSlotID(SlotID)))
 		{
 			if(SkillSlotAttribute->Level < 3) //技能最大等级为3
  			{
@@ -810,6 +809,42 @@ void AMobaPlayerState::UpgradeSkillLevel(int32 SlotID)
 			}
 		}
 	}
+}
+
+void AMobaPlayerState::ShowSkillLevelUpUI()
+{
+	//收集要关闭升级按钮的SkillSlotID
+	TArray<int32> SlotIDs;
+
+	for(auto& Tmp : *GetSkillSlots())
+	{
+		if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromDataID(Tmp.Value.DataID))
+		{
+			//如果已经满级，需要关闭升级按钮
+			if(SlotAttribute->Level >= 3)
+			{
+				SlotIDs.Add(Tmp.Key);
+				continue;
+			}
+			//如果没有满级
+			else
+			{
+				//如果有限制条件
+				if(SlotAttribute->LimitCondition.IsValidIndex(0))
+				{
+					int32 LimitLevel = SlotAttribute->LimitCondition[0];
+					//如果不满足限制等级，需要关闭升级按钮
+					if(SlotAttribute->Level < LimitLevel)
+					{
+						SlotIDs.Add(Tmp.Key);
+						continue;
+					}
+				}
+			}
+		}
+	}
+	
+	Client_ShowSkillLevelUp(SlotIDs);
 }
 
 TArray<FAssistPlayer> AMobaPlayerState::GetAssistPlayers() const
@@ -934,6 +969,20 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	{
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
+}
+
+void AMobaPlayerState::Client_ShowSkillLevelUp_Implementation(const TArray<int32>& SlotIDs)
+{
+	if(!ShowSkillLevelUpDelegate.ExecuteIfBound(SlotIDs))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定ShowSkillLevelUpDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_ShowSkillLevelUp(SlotIDs);
+		});
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "UI/UI_Bar.h"
 #include "UI_SkillBar.generated.h"
 
+struct FSkillLevelUpNetPackage;
 class UUI_SkillSlot;
 class UHorizontalBox;
 /**
@@ -24,8 +25,12 @@ protected:
 
 	UFUNCTION()
 	void UpdateSkillLevelUI(const FSkillLevelUpNetPackage& InPackage);
+
+	UFUNCTION()
+	void ShowSkillLevelUpUI(const TArray<int32>& SlotIDs);
 public:
 	virtual UPanelWidget* GetSlotLayoutPanel() override;
+
 
 private:
 		

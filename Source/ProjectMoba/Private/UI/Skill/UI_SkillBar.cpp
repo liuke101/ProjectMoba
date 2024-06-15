@@ -60,10 +60,14 @@ void UUI_SkillBar::InitSlotLayout(const TArray<int32>& SlotIDs)
 void UUI_SkillBar::BindDelegate()
 {
 	Super::BindDelegate();
-
+	
 	if(MobaPlayerState)
 	{
+		// SkillSlot的技能等级点和升级按钮
 		MobaPlayerState->UpdateSkillLevelDelegate.BindUObject(this, &UUI_SkillBar::UpdateSkillLevelUI);
+
+		// 升级提示
+		MobaPlayerState->ShowSkillLevelUpDelegate.BindUObject(this, &UUI_SkillBar::ShowSkillLevelUpUI);
 	}
 	else
 	{
@@ -95,10 +99,36 @@ void UUI_SkillBar::UpdateSkillLevelUI(const FSkillLevelUpNetPackage& InPackage)
 		if(InPackage.bHideAllSlot)
 		{
 			InSlot->GetUpdateLevelButton()->SetVisibility(ESlateVisibility::Hidden);
-			return false;
 		}
 		return true;
 	});
+}
+
+void UUI_SkillBar::ShowSkillLevelUpUI(const TArray<int32>& SlotIDs)
+{
+	//先全部显示
+	CallAllSlot<UUI_SkillSlot>([&](UUI_SkillSlot *InSlot)
+	{
+		InSlot->GetUpdateLevelButton()->SetVisibility(ESlateVisibility::Visible);
+		InSlot->GetUpdateLevelButton()->SetIsEnabled(true);
+		
+		return true;
+	});
+
+	//关掉对应的button
+	for(auto& SlotID : SlotIDs)
+	{
+		CallAllSlot<UUI_SkillSlot>([&](UUI_SkillSlot *InSlot)
+		{
+			if(InSlot->GetSlotID() == SlotID)
+			{
+				InSlot->GetUpdateLevelButton()->SetIsEnabled(false);
+				
+				return false;
+			}
+			return true;
+		});
+	}
 }
 
 UPanelWidget* UUI_SkillBar::GetSlotLayoutPanel()

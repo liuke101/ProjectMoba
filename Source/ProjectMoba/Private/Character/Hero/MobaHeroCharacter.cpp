@@ -142,16 +142,19 @@ void AMobaHeroCharacter::AddExp(float InExp)
 					
 					CharacterAttribute->UpdateLevel();
 
-					//技能点增加
-					if(AMobaPlayerState* MobaPlayerState = GetPlayerState<AMobaPlayerState>())
+				
+					if(AMobaPlayerState* MobaPlayerState = MethodUnit::GetMobaPlayerStateFromPlayerID(GetWorld(), GetPlayerID()))
 					{
+						//技能点增加
 						MobaPlayerState->GetPlayerDataComponent()->SkillPoint++;
 
-						//TODO:现实技能加点UI
+						//显示技能升级UI
+						MobaPlayerState->ShowSkillLevelUpUI();
 					}
 					
 					MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_All);
-					
+
+					//更新血条
 					Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
 
 					

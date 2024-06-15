@@ -4,10 +4,8 @@
 #include "UI/Skill/UI_SkillSlot.h"
 
 #include "EnhancedInputComponent.h"
-#include "ThreadManage.h"
 #include "Blueprint/DragDropOperation.h"
 #include "Character/MobaPlayerController.h"
-#include "Common/MethodUnit.h"
 #include "Components/Button.h"
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MobaType.h"
@@ -18,6 +16,12 @@ static int32 SkillSlotKeyIndex = 0;
 void UUI_SkillSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	//初始隐藏
+	UpdateLevelButton->SetVisibility(ESlateVisibility::Hidden);
+
+	//绑定委托
+	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
 
 	//绑定输入
 	if(AMobaPlayerController* MobaPlayerController = Cast<AMobaPlayerController>(GetWorld()->GetFirstPlayerController()))
@@ -61,8 +65,6 @@ void UUI_SkillSlot::NativeConstruct()
 	{
 		SkillSlotKeyIndex = 0;
 	}
-
-	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
 }
 
 void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -96,8 +98,13 @@ void UUI_SkillSlot::OnClickedUpdateLevelButton()
 {
 	if(UpdateLevelButton)
 	{
-		
+		if(MobaPlayerState)
+		{
+			MobaPlayerState->UpdateSkillLevel(GetSlotID());
+		}
 	}
+
+	//BUG:第二次点击升级按钮，没有反应
 }
 
 bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
