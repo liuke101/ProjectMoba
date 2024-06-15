@@ -178,7 +178,6 @@ AMobaCharacter* FAITargetRefs::GetTarget()
 {
 	AMobaCharacter* ClosestTarget = nullptr;
 	//1. 优先选择 被引用的次数最低的目标
-	
 	const int32 MinRefCount = GetMinRefCount();
 	
 	if(MinRefCount != INT_MAX)

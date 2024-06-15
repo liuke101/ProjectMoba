@@ -35,6 +35,9 @@ public:
 	//结束更新CD
 	virtual void EndUpdateCD();
 
+	FORCEINLINE UButton* GetClickButton() const {return ClickButton;}
+	
+
 #pragma region UI组件
 	// 键位设置
 	void SetKeyName(const FString& NewKeyName) const;

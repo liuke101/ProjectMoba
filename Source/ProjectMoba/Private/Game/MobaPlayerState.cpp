@@ -731,12 +731,13 @@ void AMobaPlayerState::UpdateSkillLevel(int32 SlotID)
 	//如果有技能点
 	if(GetPlayerDataComponent()->SkillPoint >= 1)
 	{
+
+		//BUG:直接修改了数据表，而不是cache中的数据。但是使用GetSlotAttributeFromSLotID(SLotID）获取数据为空
 		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromDataID(GetSkillDataIDFromSlotID(SlotID)))
 		{
 			if(SkillSlotAttribute->Level < 3) //技能最大等级为3
  			{
 				GetPlayerDataComponent()->SkillPoint--;
-				SkillSlotAttribute->Level++;
 				SkillSlotAttribute->UpdateLevel();
 
 				SkillLevelUpNetPackage.SlotID = SlotID;

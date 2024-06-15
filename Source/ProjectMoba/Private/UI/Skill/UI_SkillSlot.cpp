@@ -17,8 +17,10 @@ void UUI_SkillSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	//初始隐藏
+	//初始隐藏升级按钮
 	UpdateLevelButton->SetVisibility(ESlateVisibility::Hidden);
+	//关闭技能按钮
+	GetClickButton()->SetIsEnabled(false);
 
 	//绑定委托
 	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
@@ -74,13 +76,16 @@ void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UUI_SkillSlot::OnClickedWidget()
 {
-	//如果当前Slot不在CD中
-	if(MobaPlayerState)
+	if(GetClickButton()->GetIsEnabled())
 	{
-		if(MobaPlayerState->IsCDValid(GetSlotID()))
+		//如果当前Slot不在CD中
+		if(MobaPlayerState)
 		{
-			//通知服务器使用技能
-			MobaPlayerState->Server_Use(GetSlotID());
+			if(MobaPlayerState->IsCDValid(GetSlotID()))
+			{
+				//通知服务器使用技能
+				MobaPlayerState->Server_Use(GetSlotID());
+			}
 		}
 	}
 }

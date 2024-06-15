@@ -123,7 +123,7 @@ struct FSlotAttribute : public FMobaTableBase
 	int32 BuffDataID; //使用此ID查询该表用于BUff的属性
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
-	int32 AddLevelDataID; //使用此ID查询该表用于BUff的属性
+	int32 AddLevelDataID; //使用此ID查询该表属性
 
 	const FSlotAttribute* AddLevelAttribute;
 

@@ -27,9 +27,9 @@ void AMobaPlayerAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(AMobaCharacter* OwnerCharacter = Cast<AMobaCharacter>(GetCharacter()))
+	if(!bAutoFindTarget)
 	{
-		if(!bAutoFindTarget)
+		if(AMobaCharacter* OwnerCharacter = Cast<AMobaCharacter>(GetCharacter()))
 		{
 			FVector TargetLocation  = GetTargetLocation(GetPawn());
 			if(TargetLocation != FVector::ZeroVector)
