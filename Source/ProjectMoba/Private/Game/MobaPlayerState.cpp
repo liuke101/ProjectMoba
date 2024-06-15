@@ -171,7 +171,7 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 						//根据属性变化量 更新UI
 						for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 						{
-							if(FSlotAttribute* BuffSlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+							if(const FSlotAttribute* BuffSlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
 							{
 								//只计算持续性Buff
 								if(BuffSlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
@@ -228,7 +228,7 @@ void AMobaPlayerState::Tick_Server_UpdateSlotCD(float DeltaSeconds)
 				{
 				
 				}
-				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+				if(const FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
 				{
 					//持续型物品buff
 					if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
@@ -279,15 +279,6 @@ const FSlotAsset* AMobaPlayerState::GetSlotAssetFromDataID(const int32 DataID)
 	return nullptr;
 }
 
-// const FSlotAsset* AMobaPlayerState::GetSlotAssetFromSlotID(const int32 SlotID) 
-// {
-// 	if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
-// 	{
-// 		return GetSlotAssetFromDataID(SlotAttribute->DataID);
-// 	}
-// 	return nullptr;
-// }
-
 const TArray<FSlotAttribute*>* AMobaPlayerState::GetSlotAttributes()
 {
 	if(CacheSlotAttributes.IsEmpty())
@@ -314,10 +305,12 @@ FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromDataID(const int32 DataID)
 
 FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromSlotID(const int32 SlotID) const
 {
+	//BUG: SlotAttributes 为空
 	if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
 	{
 		return (*PlayerDataComponent->SlotAttributes)[SlotID];
 	}
+	
 	return nullptr;
 }
 
@@ -379,11 +372,11 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 		//如果不为空，直接替换
 		if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
 		{
-			*(*PlayerDataComponent->SlotAttributes)[SlotID] = *SlotAttribute;
+			*(*PlayerDataComponent->SlotAttributes.Get())[SlotID] = *SlotAttribute;
 		}
 		else //否则直接添加
 		{
-			PlayerDataComponent->SlotAttributes->Add(SlotID, *SlotAttribute);
+			PlayerDataComponent->SlotAttributes->Add(SlotID, *SlotAttribute); //注意这里解引用了，所以SlotAttribute里面存的是拷贝
 		}
 
 		//如果属性类型为持续性，则认为是Buff, 通知客户端更新BuffBar
@@ -395,12 +388,15 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 			}
 		}
 
-		//设置升级的属性
+		//设置升级的属性, 如何升级通过AddLevelDataID读表获取
 		if(SlotAttribute->AddLevelDataID != INDEX_NONE)
 		{
 			if(const FSlotAttribute* AddLevelAttribute = GetSlotAttributeFromDataID(SlotAttribute->AddLevelDataID))
 			{
-				(*PlayerDataComponent->SlotAttributes)[SlotID]->AddLevelAttribute = AddLevelAttribute;
+				if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
+				{
+					(*PlayerDataComponent->SlotAttributes)[SlotID]->AddLevelAttribute = AddLevelAttribute;
+				}
 			}
 		}
 		
@@ -664,13 +660,17 @@ void AMobaPlayerState::InitSkillSlot()
 					Tmp.Value.Number = INDEX_NONE;
 					Tmp.Value.CD = 0.f;
 					SlotID = Tmp.Key;
+					
 					break;
 				}
 			}
 
-			if(SlotID != INDEX_NONE && AddSlotAttributes(SlotID, Skill.DataID))
+			if(SlotID != INDEX_NONE)
 			{
-				Client_UpdateSlot(SlotID, PlayerDataComponent->SkillSlots[SlotID]);
+				if(AddSlotAttributes(SlotID, Skill.DataID))
+				{
+					Client_UpdateSlot(SlotID, PlayerDataComponent->SkillSlots[SlotID]);
+				}
 			}
 		};
 
@@ -726,20 +726,18 @@ void AMobaPlayerState::UpdateSkillLevel(int32 SlotID)
 		return INDEX_NONE;
 	};
 
-	FSkillLevelUpNetPackage SkillLevelUpNetPackage;
-
 	//如果有技能点
 	if(GetPlayerDataComponent()->SkillPoint >= 1)
 	{
-
-		//BUG:直接修改了数据表，而不是cache中的数据。但是使用GetSlotAttributeFromSLotID(SLotID）获取数据为空
-		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromDataID(GetSkillDataIDFromSlotID(SlotID)))
+		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromSlotID(SlotID))
 		{
 			if(SkillSlotAttribute->Level < 3) //技能最大等级为3
- 			{
+			{
 				GetPlayerDataComponent()->SkillPoint--;
 				SkillSlotAttribute->UpdateLevel();
 
+				//收集数据包
+				FSkillLevelUpNetPackage SkillLevelUpNetPackage;
 				SkillLevelUpNetPackage.SlotID = SlotID;
 				SkillLevelUpNetPackage.Level = SkillSlotAttribute->Level;
 
@@ -761,13 +759,12 @@ void AMobaPlayerState::UpdateSkillLevel(int32 SlotID)
 						//没有技能点，通知客户端全部隐藏升级界面
 						if(GetPlayerDataComponent()->SkillPoint <= 0)
 						{
-							
+						
 							SkillLevelUpNetPackage.bHideAllSlot = true;
 							SkillLevelUpNetPackage.bEnableCurrentSlot = true;
 						}
 						else //有可用技能点
 						{
-							//有限制条件
 							if(!SkillSlotAttribute->LimitCondition.IsValidIndex(0))
 							{
 								LimitLevel = SkillSlotAttribute->LimitCondition[0];
@@ -782,15 +779,14 @@ void AMobaPlayerState::UpdateSkillLevel(int32 SlotID)
 									SkillLevelUpNetPackage.bEnableCurrentSlot = false;
 								}
 							}
-							// 无限制条件
 							else 
 							{
 								SkillLevelUpNetPackage.bHideAllSlot = false;
-								SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+								SkillLevelUpNetPackage.bEnableCurrentSlot = false;
 							}
 						}
 					}
-					
+				
 				}
 				else //没有限制条件，即小技能
 				{
@@ -950,7 +946,7 @@ void AMobaPlayerState::GetBuffNetPackages(TArray<FBuffNetPackage>& OutBuffNetPac
 	{
 		for(auto& Tmp : PlayerDataComponent->SlotCDQueue)
 		{
-			if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
+			if(const FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
 			{
 				if(SlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
 				{
@@ -999,11 +995,6 @@ void AMobaPlayerState::Client_UpdateSkillLevel_Implementation(const FSkillLevelU
 			Client_UpdateSkillLevel(SkillLevelUpNetPackage);
 		});
 	}
-}
-
-void AMobaPlayerState::Client_AddGold_Implementation(int32 InGold)
-{
-	
 }
 
 void AMobaPlayerState::Client_UpdateBuffInfo_Implementation(const TArray<FBuffNetPackage>& BuffNetPackages)
@@ -1282,7 +1273,7 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 			AddSlotAttributes(SlotID, SlotData->DataID);
 		}
 
-		if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+		if(const FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
 		{
 			SlotData->CD = SlotAttribute->CD.Value;
 			PlayerDataComponent->SlotCDQueue.Add(SlotID, SlotData);

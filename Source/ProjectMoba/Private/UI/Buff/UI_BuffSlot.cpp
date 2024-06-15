@@ -26,7 +26,6 @@ void UUI_BuffSlot::UpdateCD(int32 InSlotID, float InMaxCD)
 
 	if (AMobaPlayerState *InPlayerState = MethodUnit::GetMobaPlayerState(GetWorld()))
 	{
-		//BUG: 无法获取Asset
 		if (const FSlotAsset* Asset = InPlayerState->GetSlotAssetFromDataID(InSlotID)) //这里的SLotID实际上是DataID
 		{
 			UpdateIcon(Asset->SlotIcon);

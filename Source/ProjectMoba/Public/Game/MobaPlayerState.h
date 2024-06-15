@@ -74,11 +74,8 @@ public:
 public:
 	const TArray<FSlotAsset*>* GetSlotAssets();
 	const FSlotAsset* GetSlotAssetFromDataID(const int32 DataID);
-	//const FSlotAsset* GetSlotAssetFromSlotID(const int32 SlotID);
-	
 	const TArray<FSlotAttribute*>* GetSlotAttributes();
 	FSlotAttribute* GetSlotAttributeFromDataID(const int32 DataID);
-	FSlotAttribute* GetSlotAttributeFromSlotID(const int32 SlotID) const;
 #pragma endregion
 
 #pragma region Slot操作
@@ -86,6 +83,10 @@ public:
 	/** Attribute 替换或添加到空Slot */
 	bool AddSlotAttributes(int32 SlotID, int32 DataID);
 	bool AddSlotAttributes(int32 SlotID, const FSlotAttribute* SlotAttribute) ;
+	
+	//从PlayerDataComponent中读取已经加载到组件中的数据
+	FSlotAttribute* GetSlotAttributeFromSlotID(const int32 SlotID) const;
+	
 	/** 递归添加到空Slot */
 	bool RecursionAddSlotAttributes(int32 SlotID);
 	
@@ -273,9 +274,6 @@ public:
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateBuffInfo(const TArray<FBuffNetPackage>& BuffNetPackages);
 
-	//----------------击杀奖励----------------//
-	UFUNCTION(Client, Reliable)
-	void Client_AddGold(int32 InGold);
 
 	
 #pragma endregion

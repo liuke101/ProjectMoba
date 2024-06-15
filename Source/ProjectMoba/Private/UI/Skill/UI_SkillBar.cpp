@@ -25,6 +25,7 @@ void UUI_SkillBar::InitSlotLayout(const TArray<int32>& SlotIDs)
 
 	if(MobaPlayerState)
 	{
+		//TODO:由于SkillBar和InventoryBar共用了委托，SlotIDs这种包含了Inventory（Inventory先进行了初始化）我已我们不使用SlotIDs参数，而是重新获取SkillSlotID。 可以考虑将委托分开
 		TArray<int32> IDs;
 		MobaPlayerState->GetAllSkillSlotIDs(IDs);
 		

@@ -97,7 +97,7 @@ public:
 	TMap<int32, FSlotData> SkillSlots; //SlotID_To_SlotData
 
 private:
-	// 存储所有的Slot属性 
+	// 存储所有的Slot属性
 	TSharedPtr<FSlotAttributes> SlotAttributes;
 
 	// CD队列，专门计算技能、物品、装备、属性
