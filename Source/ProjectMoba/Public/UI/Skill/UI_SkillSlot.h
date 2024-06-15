@@ -6,6 +6,7 @@
 #include "UI/UI_Slot.h"
 #include "UI_SkillSlot.generated.h"
 
+struct FSkillLevelUpNetPackage;
 class UProgressBar;
 /**
  * 
@@ -23,7 +24,9 @@ public:
 	virtual void OnClickedWidget() override;
 	virtual void OnReleasedWidget() override;
 
-	virtual void BindDelegate() override;
+	FORCEINLINE UProgressBar* GetSkillLevelBar() const { return SKillLevelBar; }
+	FORCEINLINE UButton* GetUpdateLevelButton() const { return UpdateLevelButton; }
+	
 protected:
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> UpdateLevelButton;

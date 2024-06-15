@@ -126,6 +126,9 @@ struct FSlotAttribute : public FMobaTableBase
 	int32 AddLevelDataID; //使用此ID查询该表用于BUff的属性
 
 	const FSlotAttribute* AddLevelAttribute;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Slot Level")
+	TArray<int32> LimitCondition; 
 	
 	void UpdateLevel();
 	

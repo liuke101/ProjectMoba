@@ -59,3 +59,12 @@ FLookPlayerInfoNetPackage::FLookPlayerInfoNetPackage(): PlayerID(INDEX_NONE)
 FBuffNetPackage::FBuffNetPackage(): DataID(INDEX_NONE), MaxCD(1)
 {
 }
+
+FSkillLevelUpNetPackage::FSkillLevelUpNetPackage()
+	: Level(INDEX_NONE)
+	, SlotID(INDEX_NONE)
+	, bHideAllSlot(false)
+	, bEnableCurrentSlot(true)
+{
+	
+}

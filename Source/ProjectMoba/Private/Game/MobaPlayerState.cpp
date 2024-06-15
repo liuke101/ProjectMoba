@@ -712,6 +712,106 @@ void AMobaPlayerState::AddSkillSlotPoint(int32 SlotID)
 	}
 }
 
+void AMobaPlayerState::UpgradeSkillLevel(int32 SlotID)
+{
+	//lambda 获取角色等级
+	auto GetCharacterLevel = [&]()->int32
+	{
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		{
+			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+			{
+				return CharacterAttribute->Level;
+			}
+		}
+		return INDEX_NONE;
+	};
+
+	FSkillLevelUpNetPackage SkillLevelUpNetPackage;
+
+	//如果有技能点
+	if(GetPlayerDataComponent()->SkillPoint >= 1)
+	{
+		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+		{
+			if(SkillSlotAttribute->Level < 3) //技能最大等级为3
+ 			{
+				GetPlayerDataComponent()->SkillPoint--;
+				SkillSlotAttribute->Level++;
+				SkillSlotAttribute->UpdateLevel();
+
+				SkillLevelUpNetPackage.SlotID = SlotID;
+				SkillLevelUpNetPackage.Level = SkillSlotAttribute->Level;
+
+				//有限制条件，即大招
+				if(!SkillSlotAttribute->LimitCondition.IsEmpty())
+				{
+					int32 LimitLevel = SkillSlotAttribute->LimitCondition[0];
+					int32 CharacterLevel = GetCharacterLevel();
+					if(CharacterLevel == INDEX_NONE)
+					{
+						return;
+					}
+
+					//当角色等级达到限制等级时
+					if(CharacterLevel >= LimitLevel)
+					{
+						SkillSlotAttribute->LimitCondition.Remove(LimitLevel);
+
+						//没有技能点，通知客户端全部隐藏升级界面
+						if(GetPlayerDataComponent()->SkillPoint <= 0)
+						{
+							
+							SkillLevelUpNetPackage.bHideAllSlot = true;
+							SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+						}
+						else //有可用技能点
+						{
+							//有限制条件
+							if(!SkillSlotAttribute->LimitCondition.IsValidIndex(0))
+							{
+								LimitLevel = SkillSlotAttribute->LimitCondition[0];
+								if(CharacterLevel >= LimitLevel)
+								{
+									SkillLevelUpNetPackage.bHideAllSlot = false;
+									SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+								}
+								else
+								{
+									SkillLevelUpNetPackage.bHideAllSlot = false;
+									SkillLevelUpNetPackage.bEnableCurrentSlot = false;
+								}
+							}
+							// 无限制条件
+							else 
+							{
+								SkillLevelUpNetPackage.bHideAllSlot = false;
+								SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+							}
+						}
+					}
+					
+				}
+				else //没有限制条件，即小技能
+				{
+					if(GetPlayerDataComponent()->SkillPoint <= 0)
+					{
+						SkillLevelUpNetPackage.bHideAllSlot = true;
+						SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+					}
+					else
+					{
+						SkillLevelUpNetPackage.bHideAllSlot = false;
+						SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+					}
+				}
+
+				Client_UpdateSkillLevel(SkillLevelUpNetPackage);
+			}
+		}
+	}
+}
+
 TArray<FAssistPlayer> AMobaPlayerState::GetAssistPlayers() const
 {
 	return MobaAssitSystemComponent->GetAssistPlayers();
@@ -834,6 +934,20 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	{
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
+}
+
+void AMobaPlayerState::Client_UpdateSkillLevel_Implementation(const FSkillLevelUpNetPackage& SkillLevelUpNetPackage)
+{
+	if(!UpdateSkillLevelDelegate.ExecuteIfBound(SkillLevelUpNetPackage))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("未绑定UpdateSkillLevelDelegate委托"));
+		
+		//没绑定就延迟后再次尝试，直到成功
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			Client_UpdateSkillLevel(SkillLevelUpNetPackage);
+		});
 	}
 }
 

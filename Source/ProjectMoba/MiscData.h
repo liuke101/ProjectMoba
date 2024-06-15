@@ -120,7 +120,7 @@ struct FPlayerKDANetPackage
 	int32 MinionKillNum; //补兵数
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FPlayerInfoNetPackage
 {
 	GENERATED_BODY()
@@ -153,7 +153,7 @@ struct FPlayerTeamNetPackage
 };
 
 /** Toppanel 左键查看玩家信息 */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FLookPlayerInfoNetPackage
 {
 	GENERATED_BODY()
@@ -167,8 +167,8 @@ struct FLookPlayerInfoNetPackage
 	FSlotDataNetPackage SlotDataNetPackage;
 };
 
-
-USTRUCT()
+/** Buff 网络包 */	
+USTRUCT(BlueprintType)
 struct FBuffNetPackage
 {
 	GENERATED_BODY()
@@ -180,4 +180,26 @@ struct FBuffNetPackage
 
 	UPROPERTY()
 	float MaxCD;
+};
+
+/** 技能升级网络包 */
+USTRUCT(BlueprintType)
+struct FSkillLevelUpNetPackage
+{
+	GENERATED_BODY()
+
+	FSkillLevelUpNetPackage();
+	
+	UPROPERTY()
+	int32 Level;
+
+	UPROPERTY()
+	int32 SlotID;
+
+	UPROPERTY()
+	bool bHideAllSlot; //是否隐藏所有SLot
+	
+	UPROPERTY()
+	bool bEnableCurrentSlot; //是否开启当前Slot
+	
 };

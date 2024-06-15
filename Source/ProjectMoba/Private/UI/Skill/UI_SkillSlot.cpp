@@ -4,8 +4,10 @@
 #include "UI/Skill/UI_SkillSlot.h"
 
 #include "EnhancedInputComponent.h"
+#include "ThreadManage.h"
 #include "Blueprint/DragDropOperation.h"
 #include "Character/MobaPlayerController.h"
+#include "Common/MethodUnit.h"
 #include "Components/Button.h"
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MobaType.h"
@@ -59,6 +61,8 @@ void UUI_SkillSlot::NativeConstruct()
 	{
 		SkillSlotKeyIndex = 0;
 	}
+
+	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
 }
 
 void UUI_SkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -87,12 +91,6 @@ void UUI_SkillSlot::OnReleasedWidget()
 	}
 }
 
-void UUI_SkillSlot::BindDelegate()
-{
-	Super::BindDelegate();
-
-	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
-}
 
 void UUI_SkillSlot::OnClickedUpdateLevelButton()
 {

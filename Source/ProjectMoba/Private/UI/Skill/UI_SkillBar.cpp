@@ -4,8 +4,10 @@
 #include "UI/Skill/UI_SkillBar.h"
 
 #include "ThreadManage.h"
+#include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/ProgressBar.h"
 #include "Game/MobaPlayerState.h"
 #include "UI/Skill/UI_SkillSlot.h"
 
@@ -53,6 +55,50 @@ void UUI_SkillBar::InitSlotLayout(const TArray<int32>& SlotIDs)
 			}
 		}
 	}
+}
+
+void UUI_SkillBar::BindDelegate()
+{
+	Super::BindDelegate();
+
+	if(MobaPlayerState)
+	{
+		MobaPlayerState->UpdateSkillLevelDelegate.BindUObject(this, &UUI_SkillBar::UpdateSkillLevelUI);
+	}
+	else
+	{
+		GThread::GetCoroutines().BindLambda(0.3f, [&]()
+		{
+			BindDelegate();
+		});
+	}
+}
+
+void UUI_SkillBar::UpdateSkillLevelUI(const FSkillLevelUpNetPackage& InPackage)
+{
+	CallAllSlot<UUI_SkillSlot>([&](UUI_SkillSlot *InSlot)
+	{
+		//根据ID找到对应的Slot
+		if(InSlot->GetSlotID() == InPackage.SlotID)
+		{
+			InSlot->GetSkillLevelBar()->SetPercent(static_cast<float>(InPackage.Level) / 3.0f);
+			InSlot->GetUpdateLevelButton()->SetIsEnabled(InPackage.bEnableCurrentSlot);
+			
+			return false;
+		}
+		return true;
+	});
+
+	//隐藏所有button
+	CallAllSlot<UUI_SkillSlot>([&](UUI_SkillSlot *InSlot)
+	{
+		if(InPackage.bHideAllSlot)
+		{
+			InSlot->GetUpdateLevelButton()->SetVisibility(ESlateVisibility::Hidden);
+			return false;
+		}
+		return true;
+	});
 }
 
 UPanelWidget* UUI_SkillBar::GetSlotLayoutPanel()

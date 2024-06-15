@@ -27,6 +27,7 @@ DECLARE_DELEGATE_OneParam(FTeamInfoDelegate,const TArray<FPlayerTeamNetPackage>&
 DECLARE_DELEGATE_OneParam(FKDAInfoDelegate, const FPlayerKDANetPackage&)
 DECLARE_DELEGATE_TwoParams(FTeamKillCountDelegate, int32/*FriendlyKillCount*/, int32/*EnemyKillCount*/)
 DECLARE_DELEGATE_OneParam(FBuffInfoDelegate,const TArray<FBuffNetPackage>&)
+DECLARE_DELEGATE_OneParam(FUpdateSkillLevelDelegate,const FSkillLevelUpNetPackage&)
 
 UCLASS()
 class PROJECTMOBA_API AMobaPlayerState : public APlayerState
@@ -64,6 +65,7 @@ public:
 	FTeamKillCountDelegate TeamKillCountDelegate; //队伍击杀数
 	
 	FBuffInfoDelegate BuffInfoDelegate; //Buff信息
+	FUpdateSkillLevelDelegate UpdateSkillLevelDelegate; //更新技能等级
 #pragma endregion
 
 #pragma region DataTable数据读取 
@@ -139,6 +141,9 @@ public:
 
 	// 技能点
 	void AddSkillSlotPoint(int32 SlotID);
+
+	//技能升级
+	void UpgradeSkillLevel(int32 SlotID);
 #pragma endregion
 	
 #pragma region 助攻
@@ -210,6 +215,9 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_ReleaseSkillKey();
 
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateSkillLevel(const FSkillLevelUpNetPackage& SkillLevelUpNetPackage);
+
 	//------------------通用-------------------//
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateSlot(int32 SlotID, const FSlotData& NetSlotData);
@@ -269,6 +277,7 @@ public:
 public:
 	FORCEINLINE UPlayerDataComponent* GetPlayerDataComponent() const { return PlayerDataComponent; }
 	FORCEINLINE int64 GetPlayerID() const { return PlayerDataComponent->PlayerID; }
+	
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|Component")

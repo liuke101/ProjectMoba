@@ -20,6 +20,10 @@ protected:
 
 	virtual void InitSlotLayout(const TArray<int32>& SlotIDs) override;
 
+	virtual void BindDelegate() override;
+
+	UFUNCTION()
+	void UpdateSkillLevelUI(const FSkillLevelUpNetPackage& InPackage);
 public:
 	virtual UPanelWidget* GetSlotLayoutPanel() override;
 
