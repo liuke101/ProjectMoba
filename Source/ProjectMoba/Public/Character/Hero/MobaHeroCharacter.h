@@ -38,4 +38,7 @@ public:
 	
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_SpwanDrawGoldText(int32 Value, float Percent, const FLinearColor& Color, const FVector& Location);
+
+	// 增加经验值
+	void AddExp(float InExp);
 };

@@ -123,8 +123,55 @@ UAnimMontage* AMobaHeroCharacter::GetSkillMontageFromDataID(int32 SkillDataID) c
 	return nullptr;
 }
 
+void AMobaHeroCharacter::AddExp(float InExp)
+{
+	if(InExp!=0)
+	{
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		{
+			if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
+			{
+				CharacterAttribute->CurrentExp += InExp;
+
+				//如果升级
+				if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("升级"));
+					
+					CharacterAttribute->CurrentExp -= CharacterAttribute->MaxExp;
+					
+					CharacterAttribute->UpdateLevel();
+
+					//技能点增加
+					if(AMobaPlayerState* MobaPlayerState = GetPlayerState<AMobaPlayerState>())
+					{
+						MobaPlayerState->GetPlayerDataComponent()->SkillPoint++;
+
+						//TODO:现实技能加点UI
+					}
+					
+					MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_All);
+					
+					Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
+
+					
+					//如果升级后还能升级，则递归调用
+					if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
+					{
+						AddExp(CharacterAttribute->CurrentExp - CharacterAttribute->MaxExp);
+					}
+				}
+				else
+				{
+					MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_CurrentEXP);
+				}
+			}
+		}
+	}
+}
+
 void AMobaHeroCharacter::Multicast_SpwanDrawGoldText_Implementation(int32 Value, float Percent,
-	const FLinearColor& Color, const FVector& Location)
+                                                                    const FLinearColor& Color, const FVector& Location)
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{

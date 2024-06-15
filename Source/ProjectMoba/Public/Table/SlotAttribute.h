@@ -58,23 +58,20 @@ struct FSlotAttribute : public FMobaTableBase
 
 	FSlotAttribute();
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
-	int32 BuffDataID; //TODO: 使用此ID查询什么？
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
 	ESlotAttributeType AttributeType;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
 	int32 Level;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
 	float Time; //持续时间
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
 	FSlotAttributeValue CD; //道具或技能的冷却时间
 
 
-	/** 角色属性 */
+	/** 属性 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	FSlotAttributeValue CurrentHealth; //当前生命值
 	
@@ -119,4 +116,17 @@ struct FSlotAttribute : public FMobaTableBase
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	FSlotAttributeValue ExpReward; //被杀后的奖励经验值
+
+	
+	//ID
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
+	int32 BuffDataID; //使用此ID查询该表用于BUff的属性
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
+	int32 AddLevelDataID; //使用此ID查询该表用于BUff的属性
+
+	const FSlotAttribute* AddLevelAttribute;
+	
+	void UpdateLevel();
+	
 };

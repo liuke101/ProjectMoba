@@ -6,6 +6,7 @@
 #include "UI/UI_Slot.h"
 #include "UI_SkillSlot.generated.h"
 
+class UProgressBar;
 /**
  * 
  */
@@ -22,6 +23,17 @@ public:
 	virtual void OnClickedWidget() override;
 	virtual void OnReleasedWidget() override;
 
+	virtual void BindDelegate() override;
+protected:
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> UpdateLevelButton;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UProgressBar> SKillLevelBar;
+
+	UFUNCTION()
+	void OnClickedUpdateLevelButton();
+	
 protected:
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 };

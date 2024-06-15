@@ -73,7 +73,7 @@ public:
 	const FSlotAsset* GetSlotAssetFromSlotID(const int32 SlotID);
 	
 	const TArray<FSlotAttribute*>* GetSlotAttributes();
-	const FSlotAttribute* GetSlotAttributeFromDataID(const int32 DataID);
+	FSlotAttribute* GetSlotAttributeFromDataID(const int32 DataID);
 	FSlotAttribute* GetSlotAttributeFromSlotID(const int32 SlotID) const;
 #pragma endregion
 
@@ -136,6 +136,9 @@ public:
 	void InitSkillSlot();
 	void GetAllSkillSlotIDs(TArray<int32>& OutSlotIDs) const;
 	int32 GetSkillDataIDFromSlotID(int32 SlotID) const;
+
+	// 技能点
+	void AddSkillSlotPoint(int32 SlotID);
 #pragma endregion
 	
 #pragma region 助攻
@@ -158,7 +161,8 @@ public:
 
 #pragma region 击杀奖励
 	void  AddGold(int32 Gold);
-#pragma endregion	
+#pragma endregion
+
 	
 #pragma region RPC
 	//------------------数据-------------------
@@ -257,6 +261,7 @@ public:
 	//----------------击杀奖励----------------//
 	UFUNCTION(Client, Reliable)
 	void Client_AddGold(int32 InGold);
+
 	
 #pragma endregion
 

@@ -10,6 +10,7 @@ UPlayerDataComponent::UPlayerDataComponent()
 	, DeathNum(0)
 	, AssistNum(0)
 	, MinionKillNum(0)
+	, SkillPoint(1)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;

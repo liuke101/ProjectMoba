@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "Blueprint/DragDropOperation.h"
 #include "Character/MobaPlayerController.h"
+#include "Components/Button.h"
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MobaType.h"
 
@@ -86,8 +87,23 @@ void UUI_SkillSlot::OnReleasedWidget()
 	}
 }
 
+void UUI_SkillSlot::BindDelegate()
+{
+	Super::BindDelegate();
+
+	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
+}
+
+void UUI_SkillSlot::OnClickedUpdateLevelButton()
+{
+	if(UpdateLevelButton)
+	{
+		
+	}
+}
+
 bool UUI_SkillSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent,
-	UDragDropOperation* InOperation)
+                                 UDragDropOperation* InOperation)
 {
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 

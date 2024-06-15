@@ -299,7 +299,7 @@ const TArray<FSlotAttribute*>* AMobaPlayerState::GetSlotAttributes()
 	return &CacheSlotAttributes;
 }
 
-const FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromDataID(const int32 DataID)
+FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromDataID(const int32 DataID)
 {
 	for(auto& SlotAttribute : *GetSlotAttributes())
 	{
@@ -379,7 +379,7 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 		//如果不为空，直接替换
 		if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
 		{
-			*(*PlayerDataComponent->SlotAttributes.Get())[SlotID] = *SlotAttribute;
+			*(*PlayerDataComponent->SlotAttributes)[SlotID] = *SlotAttribute;
 		}
 		else //否则直接添加
 		{
@@ -394,6 +394,16 @@ bool AMobaPlayerState::AddSlotAttributes(int32 SlotID, const FSlotAttribute* Slo
 				MobaGameState->Multicast_UpdateBuff(GetPlayerID(), SlotAttribute->DataID, SlotAttribute->CD.Value); 
 			}
 		}
+
+		//设置升级的属性
+		if(SlotAttribute->AddLevelDataID != INDEX_NONE)
+		{
+			if(const FSlotAttribute* AddLevelAttribute = GetSlotAttributeFromDataID(SlotAttribute->AddLevelDataID))
+			{
+				(*PlayerDataComponent->SlotAttributes)[SlotID]->AddLevelAttribute = AddLevelAttribute;
+			}
+		}
+		
 		
 		return true;
 	}
@@ -642,6 +652,7 @@ void AMobaPlayerState::InitSkillSlot()
 {
 	if(const FCharacterAsset* CharacterAsset = MethodUnit::GetCharacterAssetFromPlayerID(GetWorld(), PlayerDataComponent->PlayerID))
 	{
+		//lambda
 		auto AddSlotToSkillBar = [&](const FCharacterSkill& Skill)
 		{
 			int SlotID = INDEX_NONE;
@@ -689,6 +700,17 @@ int32 AMobaPlayerState::GetSkillDataIDFromSlotID(int32 SlotID) const
 	return INDEX_NONE;
 }
 
+void AMobaPlayerState::AddSkillSlotPoint(int32 SlotID)
+{
+	int32 SKillDataID = GetSkillDataIDFromSlotID(SlotID);
+	if(SKillDataID != INDEX_NONE)
+	{
+		if(FSlotAttribute* SkillSlotAttribute= GetSlotAttributeFromDataID(SKillDataID))
+		{
+			SkillSlotAttribute->UpdateLevel();
+		}
+	}
+}
 
 TArray<FAssistPlayer> AMobaPlayerState::GetAssistPlayers() const
 {
@@ -769,6 +791,7 @@ void AMobaPlayerState::AddGold(int32 Gold)
 		MobaHeroCharacter->Multicast_SpwanDrawGoldText(Gold, 0.01f, FLinearColor::Yellow, MobaHeroCharacter->GetActorLocation());
 	}
 }
+
 
 void AMobaPlayerState::Client_UpdatePlayerData_Implementation(const int64& InPlayerID)
 {

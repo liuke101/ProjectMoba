@@ -85,6 +85,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
 	int32 MinionKillNum; //补兵数
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|PlayerData")
+	int32 SkillPoint; //技能点
 	
 	// 服务端物品栏x6
 	// 通过RPC状态同步到客户端,TMap不支持RPC，我们使用TArray来将其拆分, 为此我们创建了一个结构体FSlotDataNetPackage
