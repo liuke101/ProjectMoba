@@ -73,6 +73,15 @@ void AMobaAIController::MoveToLocation(const FVector& Destination)
 	}
 }
 
+FVector AMobaAIController::GetTargetLocation(AActor* RequestedBy) const
+{
+	if(GetBlackboardComponent())
+	{
+		return GetBlackboardComponent()->GetValueAsVector("Location");
+	}
+	return FVector::ZeroVector;
+}
+
 void AMobaAIController::StopAttackingRotate(bool bStopAttackRotate)
 {
 	if(GetBlackboardComponent())

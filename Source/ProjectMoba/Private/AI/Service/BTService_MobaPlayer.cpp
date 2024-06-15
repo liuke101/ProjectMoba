@@ -18,7 +18,7 @@
 
 void UBTService_MobaPlayer::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
+	ScheduleNextTick(OwnerComp, NodeMemory);
 	
 	if(Blackboard_Target.SelectedKeyType == UBlackboardKeyType_Object::StaticClass() &&
 		Blackboard_Distance.SelectedKeyType == UBlackboardKeyType_Float::StaticClass() &&
@@ -137,9 +137,5 @@ void UBTService_MobaPlayer::InitializeFromAsset(UBehaviorTree& Asset)
 
 	if(UBlackboardData* BBAsset = GetBlackboardAsset())
 	{
-		Blackboard_Target.ResolveSelectedKey(*BBAsset);
-		Blackboard_Distance.ResolveSelectedKey(*BBAsset);
-		Blackboard_Location.ResolveSelectedKey(*BBAsset);
-		Blackboard_Death.ResolveSelectedKey(*BBAsset);
 	}
 }

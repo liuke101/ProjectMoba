@@ -30,7 +30,9 @@ public:
 	virtual AMobaCharacter* GetTaskTarget(); //TaskTarget: 范围外的目标，最近的塔  最近的水晶
 	virtual AMobaCharacter* FindTarget();
 	
-	void MoveToLocation(const FVector& Destination);
+	virtual void MoveToLocation(const FVector& Destination);
+
+	virtual FVector GetTargetLocation(AActor* RequestedBy) const override;
 
 	void StopAttackingRotate(bool bStopAttackRotate);
 

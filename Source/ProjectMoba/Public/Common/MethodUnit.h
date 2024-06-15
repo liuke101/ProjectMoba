@@ -2,6 +2,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Character/MobaCharacter.h"
 #include "Character/MobaPawn.h"
 #include "Game/MobaPlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -57,6 +58,10 @@ namespace MethodUnit
 	
 	template<class T>
 	void ServerCallAllMobaHero(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement);
+
+	/** AI */
+	template<class T>
+	T* FindNearestTargetInRange(UWorld* InWorld, float Range, T* OwnerCharacter);
 
 }
 
@@ -149,6 +154,43 @@ void MethodUnit::ServerCallAllMobaHero(UWorld* InWorld, TFunction<EServerCallTyp
 		}
 		return EServerCallType::ECT_ProgressComplete;
 	});
+}
+
+template <class T>
+T* MethodUnit::FindNearestTargetInRange(UWorld* InWorld, float Range, T* OwnerCharacter)
+{
+	if(!InWorld || !OwnerCharacter || Range == 0) return nullptr;
+
+	T* ClosestEnemy = nullptr;
+	
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(InWorld, T::StaticClass(), FoundActors);
+	float TempDistance =  99999.0f;
+
+	//获取最近的距离敌人
+	for(auto& Actor : FoundActors)
+	{
+		if(Actor != OwnerCharacter) //排除自己
+		{
+			if(T* TargetCharacter = Cast<T>(Actor))
+			{
+				if(TargetCharacter->IsDead() || IsFriendly(OwnerCharacter,TargetCharacter)) continue;
+			
+				float Distance = FVector::Dist(Actor->GetActorLocation(), OwnerCharacter->GetActorLocation());
+				
+				if(Distance <= TempDistance)
+				{
+					TempDistance = Distance;
+					if(TempDistance <= Range)
+					{
+						ClosestEnemy = TargetCharacter;
+					}
+				}
+			}
+		}
+	}
+
+	return ClosestEnemy;
 }
 
 
