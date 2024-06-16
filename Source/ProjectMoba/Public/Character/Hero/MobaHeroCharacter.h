@@ -26,8 +26,8 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_StatusBar_PlayerName(const FString& PlayerName);
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_StatusBar_Level(const int32 Level);
+	// UFUNCTION(NetMulticast, Unreliable)
+	// void Multicast_StatusBar_Level(const int32 Level);
 	
 	/** 技能攻击 */
 	void SkillAttack(int32 SkillDataID);
@@ -41,4 +41,7 @@ public:
 
 	// 增加经验值
 	void AddExp(float InExp);
+
+	
+	
 };

@@ -2,7 +2,6 @@
 
 
 #include "Table/CharacterAttribute.h"
-
 #include "Component/PlayerDataComponent.h"
 #include "ProjectMoba/MobaMacro.h"
 
@@ -56,6 +55,9 @@ void FCharacterAttribute::UpdateLevel()
 		Level ++;
 		MaxHealth += (Level - 1) * AddLevelAttribute->MaxHealth.Value * Coefficient;
 		MaxMana += (Level - 1) * AddLevelAttribute->MaxMana.Value * Coefficient;
+		// 设置为升级满血满蓝
+		// CurrentHealth = MaxHealth;
+		// CurrentMana = MaxMana;
 		
 		PhysicalAttack += (Level - 1) * AddLevelAttribute->PhysicalAttack.Value * Coefficient;
 		Armor += (Level - 1) * AddLevelAttribute->Armor.Value * Coefficient;
@@ -73,6 +75,37 @@ void FCharacterAttribute::UpdateLevel()
 		ExpReward += (Level - 1) * AddLevelAttribute->ExpReward.Value * Coefficient;
 	}
 }
+
+bool FCharacterAttribute::CostHealth(float HealthCost)
+{
+	if(HealthCost <= 0.0f)
+	{
+		return false;
+	}
+	
+	if(CurrentHealth >= HealthCost)
+	{
+		CurrentHealth -= HealthCost;
+		return true;
+	}
+	return false;
+}
+
+bool FCharacterAttribute::CostMana(float ManaCost)
+{
+	if(ManaCost <= 0.0f)
+	{
+		return false;
+	}
+	
+	if(CurrentMana >= ManaCost)
+	{
+		CurrentMana -= ManaCost;
+		return true;
+	}
+	return false;
+}
+
 
 float FCharacterAttribute::GetHealthPercent() const
 {

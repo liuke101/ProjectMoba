@@ -35,6 +35,7 @@ struct FCharacterAttribute : public FMobaTableBase
 {
 	GENERATED_USTRUCT_BODY()
 
+public:
 	FCharacterAttribute();
 
 #pragma region 等级
@@ -49,8 +50,6 @@ struct FCharacterAttribute : public FMobaTableBase
 #pragma endregion 
 
 #pragma region 属性
-	
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	float MaxHealth; //最大生命值
 
@@ -119,6 +118,11 @@ struct FCharacterAttribute : public FMobaTableBase
 	void SetBuff(const TSharedRef<FSlotAttributes>& InBuff);
 
 	void UpdateLevel();
+
+	//生命值消耗
+	bool CostHealth(float HealthCost);
+	//法力值消耗
+	bool CostMana(float ManaCost);
 
 #pragma region Getter
 	float GetHealthPercent() const;

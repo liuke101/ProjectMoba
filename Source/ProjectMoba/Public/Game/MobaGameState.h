@@ -8,6 +8,7 @@
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+class AMobaCharacter;
 class AMobaPlayerState;
 class UMobaKillSystemComponent;
 class UMobaMinionSystemComponent;
@@ -98,6 +99,10 @@ public:
 	/** 客户端结束buff */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_EndBuff(int64 InPlayerID, int32 DataID);
+
+	/** 广播角色属性变化 */
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_CharacterAttributeChanged(AMobaCharacter* InCharacter, const ECharacterAttributeType CharacterAttributeType, float Value);
 	
 #pragma endregion
 	

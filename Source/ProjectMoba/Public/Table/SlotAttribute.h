@@ -117,6 +117,12 @@ struct FSlotAttribute : public FMobaTableBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Attribute")
 	FSlotAttributeValue ExpReward; //被杀后的奖励经验值
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cost")
+	float HealthCost; //生命消耗
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cost")
+	float ManaCost; //生命消耗
+
 	
 	//Buff 被动技能属性
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")

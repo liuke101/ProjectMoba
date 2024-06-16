@@ -1252,7 +1252,53 @@ void AMobaPlayerState::Server_UpdateInventory_Implementation(int32 MoveSlotID, i
 
 void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 {
-	if(FSlotData* SlotData = GetSlotData(SlotID))
+	FSlotData* SlotData = GetInventorySlotData(SlotID);
+
+	//如果SlotData为空，说明是技能，重新获取技能数据
+	if(!SlotData)
+	{
+		SlotData = GetSkillSlotData(SlotID);
+		if(SlotData)
+		{
+			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+			{
+				if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+				{
+					if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+					{
+						//如果技能消耗生命值
+						if(CharacterAttribute->CostHealth(SkillSlotAttribute->HealthCost))
+						{
+							//更新生命值
+							MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_CurrentHealth);
+							
+							if(AMobaHeroCharacter* MobaHeroCharacter = GetPawn<AMobaPawn>()->GetControlledMobaHero())
+							{
+								MobaGameState->Multicast_CharacterAttributeChanged(MobaHeroCharacter, ECharacterAttributeType::ECAT_CurrentHealth, CharacterAttribute->GetHealthPercent());
+							}
+						}
+						//如果技能消耗法力值
+						else if(CharacterAttribute->CostMana(SkillSlotAttribute->ManaCost))
+						{
+							MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_CurrentMana);
+							
+							if(AMobaHeroCharacter* MobaHeroCharacter = GetPawn<AMobaPawn>()->GetControlledMobaHero())
+							{
+								MobaGameState->Multicast_CharacterAttributeChanged(MobaHeroCharacter, ECharacterAttributeType::ECAT_CurrentMana, CharacterAttribute->GetManaPercent());
+							}
+						}
+						else//蓝量低于技能消耗法力值，则无法释放技能
+						{
+							//TODO: 提示音
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	if(SlotData)
 	{
 		//不等于 INDEX_NONE时为 InventorySlot
 		if(SlotData->Number != INDEX_NONE)

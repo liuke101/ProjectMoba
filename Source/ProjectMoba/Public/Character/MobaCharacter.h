@@ -31,7 +31,7 @@ public:
 	/** 普通攻击 */
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
 	
-	bool IsDead();
+	bool IsDead() const;
 
 	//添加子弹弱引用
 	void AddBulletPtr(ABullet* InBullet);
@@ -111,6 +111,11 @@ public:
 	FORCEINLINE UArrowComponent* GetFirePointComponent() const { return FirePointComponent; }
 	FVector GetFirePointLocation() const;
 	FRotator GetFirePointRotation() const;
+
+	void SetHealthPercent(float HealthPercent) const;
+	void SetManaPercent(float ManaPercent) const;
+	void SetLevel(int32 Level) const;
+
 #pragma endregion
 
 protected:

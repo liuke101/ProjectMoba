@@ -15,7 +15,6 @@
 #include "Engine/World.h"
 #include "Game/MobaGameState.h"
 #include "Item/Bullet.h"
-#include "Layers/LayersSubsystem.h"
 #include "Net/UnrealNetwork.h"
 #include "ProjectMoba/GlobalVariable.h"
 #include "Table/CharacterAsset.h"
@@ -139,7 +138,7 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 	}
 }
 
-bool AMobaCharacter::IsDead()
+bool AMobaCharacter::IsDead() const
 {
 	if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
 	{
@@ -201,7 +200,8 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							}
 	
 							//更新UI
-							Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
+							MobaGameState->Multicast_CharacterAttributeChanged(this, ECharacterAttributeType::ECAT_CurrentHealth, CharacterAttribute->GetHealthPercent()); 
+							// Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
 							MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 			
 							//伤害字体
@@ -454,6 +454,44 @@ FRotator AMobaCharacter::GetFirePointRotation() const
 {
 	return FirePointComponent->GetComponentRotation();
 }
+
+
+void AMobaCharacter::SetHealthPercent(float HealthPercent) const
+{
+	//更新HealthBar
+	if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
+	{
+		StatusBarUI->SetHealthPercent(HealthPercent);
+	}
+	// 怪物的血条
+	else if(UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
+	{
+		StatusBarUI_Health->SetHealthPercent(HealthPercent);
+	}
+
+	//死亡后隐藏状态栏
+	if(HealthPercent <= 0.0f)
+	{
+		StatusBarComponent->SetVisibility(false);
+	}
+}
+
+void AMobaCharacter::SetManaPercent(float ManaPercent) const
+{
+	if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
+	{
+		StatusBarUI->SetManaPercent(ManaPercent);
+	}
+}
+
+void AMobaCharacter::SetLevel(int32 Level) const
+{
+	if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
+	{
+		StatusBarUI->SetLevel(Level);
+	}
+}
+
 
 void AMobaCharacter::AddBulletPtr(ABullet* InBullet)
 {

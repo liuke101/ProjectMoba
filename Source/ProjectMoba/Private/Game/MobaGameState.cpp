@@ -446,6 +446,54 @@ void AMobaGameState::Multicast_EndBuff_Implementation(int64 InPlayerID, int32 Da
 	}
 }
 
+void AMobaGameState::Multicast_CharacterAttributeChanged_Implementation(AMobaCharacter* InCharacter,
+	const ECharacterAttributeType CharacterAttributeType, float Value)
+{
+	if(GetLocalRole() != ROLE_Authority)
+	{
+		switch (CharacterAttributeType)
+		{
+		case ECharacterAttributeType::ECAT_All:
+			break;
+		case ECharacterAttributeType::ECAT_Level:
+			InCharacter->SetLevel(Value);
+			break;
+		case ECharacterAttributeType::ECAT_MaxHealth:
+		case ECharacterAttributeType::ECAT_CurrentHealth:
+			InCharacter->SetHealthPercent(Value);
+			break;
+		case ECharacterAttributeType::ECAT_MaxMana:
+		case ECharacterAttributeType::ECAT_CurrentMana:
+			InCharacter->SetManaPercent(Value);
+			break;
+		case ECharacterAttributeType::ECAT_PhysicalAttack:
+			break;
+		case ECharacterAttributeType::ECAT_Armor:
+			break;
+		case ECharacterAttributeType::ECAT_PhysicalPenetration:
+			break;
+		case ECharacterAttributeType::ECAT_MagicAttack:
+			break;
+		case ECharacterAttributeType::ECAT_MagicResistance:
+			break;
+		case ECharacterAttributeType::ECAT_MagicPenetration:
+			break;
+		case ECharacterAttributeType::ECAT_WalkSpeed:
+			break;
+		case ECharacterAttributeType::ECAT_AttackSpeed:
+			break;
+		case ECharacterAttributeType::ECAT_MaxEXP:
+			break;
+		case ECharacterAttributeType::ECAT_CurrentEXP:
+			break;
+		case ECharacterAttributeType::ECAT_CriticalRate:
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void AMobaGameState::SettleDeath(int64 KillerPlayerID, int64 KilledPlayerID)
 {
 	if(KillerPlayerID == KilledPlayerID) return;
