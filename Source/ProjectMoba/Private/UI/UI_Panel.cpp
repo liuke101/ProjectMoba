@@ -6,10 +6,6 @@
 #include "ThreadManage.h"
 #include "Game/MobaGameState.h"
 
-UUI_Panel::UUI_Panel()
-{
-	
-}
 
 void UUI_Panel::NativeConstruct()
 {

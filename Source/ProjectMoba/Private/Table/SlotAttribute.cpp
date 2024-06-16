@@ -15,8 +15,12 @@ FSlotAttribute::FSlotAttribute()
 	, Level(0)
 	, Time(1)
 	, BuffDataID(INDEX_NONE)
+	, ActiveSkillDataID(INDEX_NONE)
 	, AddLevelDataID(INDEX_NONE)
+	, BuffAttribute(nullptr)
+	, ActiveSkillAttribute(nullptr)
 	, AddLevelAttribute(nullptr)
+	
 {
 }
 

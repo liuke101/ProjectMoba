@@ -7,8 +7,10 @@
 #include "Blueprint/DragDropOperation.h"
 #include "Character/MobaPlayerController.h"
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MobaType.h"
+#include "UI/Tip/UI_Tip.h"
 
 
 static int32 SkillSlotKeyIndex = 0;
@@ -24,7 +26,7 @@ void UUI_SkillSlot::NativeConstruct()
 
 	//绑定委托
 	UpdateLevelButton->OnClicked.AddDynamic(this, &UUI_SkillSlot::OnClickedUpdateLevelButton);
-
+	
 	//绑定输入
 	if(AMobaPlayerController* MobaPlayerController = Cast<AMobaPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
@@ -99,13 +101,19 @@ void UUI_SkillSlot::OnReleasedWidget()
 }
 
 
+void UUI_SkillSlot::BindToolTip()
+{
+	GetClickButton()->SetToolTip(GetTip());
+	GetClickButton()->SetCursor(EMouseCursor::Hand);
+}
+
 void UUI_SkillSlot::OnClickedUpdateLevelButton()
 {
 	if(UpdateLevelButton)
 	{
 		if(MobaPlayerState)
 		{
-			MobaPlayerState->UpdateSkillLevel(GetSlotID());
+			MobaPlayerState->Server_UpdateSkillLevel(GetSlotID());
 		}
 	}
 

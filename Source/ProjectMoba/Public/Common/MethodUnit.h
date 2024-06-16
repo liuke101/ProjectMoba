@@ -39,6 +39,11 @@ namespace MethodUnit
 	 FCharacterAttribute* GetCharacterAttributeFromPlayerID(const UWorld* InWorld, int64 PlayerID);
 
 	const FSlotAttribute* GetSlotAttributeFromAnimMontage(AMobaPlayerState* PlayerState, const UAnimMontage* AnimMontage);
+
+	/** ToolTip */
+	FText SlotAttributeValueToText(const FSlotAttributeValue* SlotAttributeValue, const FString& ColorTag, const FString& Description);
+	FText GetBaseAttributeDescription(const FSlotAttribute* SlotAttribute);
+	FText GetAttributeDescription(UWorld* InWorld, int32 DataID);
 	
 	/** 服务器调用 */
 	template<class T>

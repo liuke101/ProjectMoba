@@ -118,15 +118,22 @@ struct FSlotAttribute : public FMobaTableBase
 	FSlotAttributeValue ExpReward; //被杀后的奖励经验值
 
 	
-	//ID
+	//Buff 被动技能属性
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
 	int32 BuffDataID; //使用此ID查询该表用于BUff的属性
-	
+
+	//技能 主动技能属性
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
-	int32 AddLevelDataID; //使用此ID查询该表属性
+	int32 ActiveSkillDataID; 
 
+	//升级属性
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Slot Class")
+	int32 AddLevelDataID;
+
+	const FSlotAttribute* BuffAttribute;
+	const FSlotAttribute* ActiveSkillAttribute;
 	const FSlotAttribute* AddLevelAttribute;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Slot Level")
 	TArray<int32> LimitCondition; 
 	

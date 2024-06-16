@@ -84,8 +84,8 @@ public:
 	bool AddSlotAttributes(int32 SlotID, int32 DataID);
 	bool AddSlotAttributes(int32 SlotID, const FSlotAttribute* SlotAttribute) ;
 	
-	//从PlayerDataComponent中读取已经加载到组件中的数据
-	FSlotAttribute* GetSlotAttributeFromSlotID(const int32 SlotID) const;
+	//从PlayerDataComponent中读取已经加载到组件中的数据，只有在服务器才能获取成功
+	FSlotAttribute* GetSlotAttributeFromSlotID(const int32 SlotID) const; 
 	
 	/** 递归添加到空Slot */
 	bool RecursionAddSlotAttributes(int32 SlotID);
@@ -144,9 +144,6 @@ public:
 
 	// 技能点
 	void AddSkillSlotPoint(int32 SlotID);
-
-	//技能升级
-	void UpdateSkillLevel(int32 SlotID);
 
 	void ShowSkillLevelUpUI();
 #pragma endregion
@@ -220,11 +217,17 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_ReleaseSkillKey();
 
+	//技能升级
+	UFUNCTION(Server, reliable)
+	void Server_UpdateSkillLevel(int32 SlotID);
+
 	UFUNCTION(Client, Reliable)
 	void Client_UpdateSkillLevel(const FSkillLevelUpNetPackage& SkillLevelUpNetPackage);
 
 	UFUNCTION(Client, Reliable)
 	void Client_ShowSkillLevelUp(const TArray<int32>& SlotIDs);
+	
+	
 
 	//------------------通用-------------------//
 	UFUNCTION(Client, Reliable)

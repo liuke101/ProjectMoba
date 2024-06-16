@@ -305,7 +305,6 @@ FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromDataID(const int32 DataID)
 
 FSlotAttribute* AMobaPlayerState::GetSlotAttributeFromSlotID(const int32 SlotID) const
 {
-	//BUG: SlotAttributes 为空
 	if(PlayerDataComponent->SlotAttributes->Contains(SlotID))
 	{
 		return (*PlayerDataComponent->SlotAttributes)[SlotID];
@@ -711,103 +710,6 @@ void AMobaPlayerState::AddSkillSlotPoint(int32 SlotID)
 	}
 }
 
-void AMobaPlayerState::UpdateSkillLevel(int32 SlotID)
-{
-	//lambda 获取角色等级
-	auto GetCharacterLevel = [&]()->int32
-	{
-		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
-		{
-			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
-			{
-				return CharacterAttribute->Level;
-			}
-		}
-		return INDEX_NONE;
-	};
-
-	//如果有技能点
-	if(GetPlayerDataComponent()->SkillPoint >= 1)
-	{
-		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromSlotID(SlotID))
-		{
-			if(SkillSlotAttribute->Level < 3) //技能最大等级为3
-			{
-				GetPlayerDataComponent()->SkillPoint--;
-				SkillSlotAttribute->UpdateLevel();
-
-				//收集数据包
-				FSkillLevelUpNetPackage SkillLevelUpNetPackage;
-				SkillLevelUpNetPackage.SlotID = SlotID;
-				SkillLevelUpNetPackage.Level = SkillSlotAttribute->Level;
-
-				//有限制条件，即大招
-				if(!SkillSlotAttribute->LimitCondition.IsEmpty())
-				{
-					int32 LimitLevel = SkillSlotAttribute->LimitCondition[0];
-					int32 CharacterLevel = GetCharacterLevel();
-					if(CharacterLevel == INDEX_NONE)
-					{
-						return;
-					}
-
-					//当角色等级达到限制等级时
-					if(CharacterLevel >= LimitLevel)
-					{
-						SkillSlotAttribute->LimitCondition.Remove(LimitLevel);
-
-						//没有技能点，通知客户端全部隐藏升级界面
-						if(GetPlayerDataComponent()->SkillPoint <= 0)
-						{
-						
-							SkillLevelUpNetPackage.bHideAllSlot = true;
-							SkillLevelUpNetPackage.bEnableCurrentSlot = true;
-						}
-						else //有可用技能点
-						{
-							if(!SkillSlotAttribute->LimitCondition.IsValidIndex(0))
-							{
-								LimitLevel = SkillSlotAttribute->LimitCondition[0];
-								if(CharacterLevel >= LimitLevel)
-								{
-									SkillLevelUpNetPackage.bHideAllSlot = false;
-									SkillLevelUpNetPackage.bEnableCurrentSlot = true;
-								}
-								else
-								{
-									SkillLevelUpNetPackage.bHideAllSlot = false;
-									SkillLevelUpNetPackage.bEnableCurrentSlot = false;
-								}
-							}
-							else 
-							{
-								SkillLevelUpNetPackage.bHideAllSlot = false;
-								SkillLevelUpNetPackage.bEnableCurrentSlot = false;
-							}
-						}
-					}
-				
-				}
-				else //没有限制条件，即小技能
-				{
-					if(GetPlayerDataComponent()->SkillPoint <= 0)
-					{
-						SkillLevelUpNetPackage.bHideAllSlot = true;
-						SkillLevelUpNetPackage.bEnableCurrentSlot = true;
-					}
-					else
-					{
-						SkillLevelUpNetPackage.bHideAllSlot = false;
-						SkillLevelUpNetPackage.bEnableCurrentSlot = true;
-					}
-				}
-
-				Client_UpdateSkillLevel(SkillLevelUpNetPackage);
-			}
-		}
-	}
-}
-
 void AMobaPlayerState::ShowSkillLevelUpUI()
 {
 	//收集要关闭升级按钮的SkillSlotID
@@ -966,6 +868,99 @@ void AMobaPlayerState::GetSlotNetPackage(TMap<int32, FSlotData>* InSlots, FSlotD
 	{
 		OutNetPackage.SlotIDs.Add(Tmp.Key);
 		OutNetPackage.SlotDatas.Add(Tmp.Value);
+	}
+}
+
+void AMobaPlayerState::Server_UpdateSkillLevel_Implementation(int32 SlotID)
+{
+	//lambda 获取角色等级
+	auto GetCharacterLevel = [&]()->int32
+	{
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		{
+			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+			{
+				return CharacterAttribute->Level;
+			}
+		}
+		return INDEX_NONE;
+	};
+
+	//如果有技能点
+	if(GetPlayerDataComponent()->SkillPoint >= 1)
+	{
+		if(FSlotAttribute* SkillSlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+		{
+			if(SkillSlotAttribute->Level < 3) //技能最大等级为3
+			{
+				GetPlayerDataComponent()->SkillPoint--;
+				SkillSlotAttribute->UpdateLevel();
+
+				//收集数据包
+				FSkillLevelUpNetPackage SkillLevelUpNetPackage;
+				SkillLevelUpNetPackage.SlotID = SlotID;
+				SkillLevelUpNetPackage.Level = SkillSlotAttribute->Level;
+
+				//BUG:大招UI无变化
+				//有限制条件，即大招
+				if(!SkillSlotAttribute->LimitCondition.IsEmpty())
+				{
+					int32 LimitLevel = SkillSlotAttribute->LimitCondition[0];
+					int32 CharacterLevel = GetCharacterLevel();
+					
+					//当角色等级达到限制等级时
+					if(CharacterLevel >= LimitLevel)
+					{
+						SkillSlotAttribute->LimitCondition.Remove(LimitLevel);
+
+						//没有技能点，通知客户端全部隐藏升级界面
+						if(GetPlayerDataComponent()->SkillPoint <= 0)
+						{
+							SkillLevelUpNetPackage.bHideAllSlot = true;
+							SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+						}
+						else //有可用技能点
+						{
+							if(SkillSlotAttribute->LimitCondition.IsValidIndex(0))
+							{
+								LimitLevel = SkillSlotAttribute->LimitCondition[0];
+								if(CharacterLevel >= LimitLevel)
+								{
+									SkillLevelUpNetPackage.bHideAllSlot = false;
+									SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+								}
+								else
+								{
+									SkillLevelUpNetPackage.bHideAllSlot = false;
+									SkillLevelUpNetPackage.bEnableCurrentSlot = false;
+								}
+							}
+							else 
+							{
+								SkillLevelUpNetPackage.bHideAllSlot = false;
+								SkillLevelUpNetPackage.bEnableCurrentSlot = false;
+							}
+						}
+					}
+				
+				}
+				else //没有限制条件，即小技能
+				{
+					if(GetPlayerDataComponent()->SkillPoint <= 0)
+					{
+						SkillLevelUpNetPackage.bHideAllSlot = true;
+						SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+					}
+					else
+					{
+						SkillLevelUpNetPackage.bHideAllSlot = false;
+						SkillLevelUpNetPackage.bEnableCurrentSlot = true;
+					}
+				}
+
+				Client_UpdateSkillLevel(SkillLevelUpNetPackage);
+			}
+		}
 	}
 }
 

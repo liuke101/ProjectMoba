@@ -3,10 +3,12 @@
 
 #include "UI/Shop/Item/UI_ItemBase.h"
 
+#include "Common/MethodUnit.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Game/MobaPlayerState.h"
 #include "Table/SlotAsset.h"
+#include "UI/Tip/UI_Tip.h"
 
 void UUI_ItemBase::NativeConstruct()
 {
@@ -35,5 +37,25 @@ void UUI_ItemBase::UpdateSlot(const FSlotAsset* SlotAsset)
 	{
 		SetItemDataID(SlotAsset->DataID);
 		SetIcon(SlotAsset->SlotIcon);
+		
+		if(GetTip())
+		{
+			if(MobaPlayerState)
+			{
+				if(FSlotAttribute* SlotAttribute = MobaPlayerState->GetSlotAttributeFromDataID(SlotAsset->DataID))
+				{
+					//获取基础属性描述
+					FText BaseAttribute = MethodUnit::GetBaseAttributeDescription(SlotAttribute);
+					GetTip()->SetRichTextAction(BaseAttribute);
+					//获取主动技能描述
+					FText ActiveAttribute = MethodUnit::GetAttributeDescription(GetWorld(), SlotAttribute->ActiveSkillDataID);
+					GetTip()->SetRichTextActive(ActiveAttribute);
+					//获取被动技能描述
+					FText PassiveAttribute = MethodUnit::GetAttributeDescription(GetWorld(), SlotAttribute->BuffDataID);
+					GetTip()->SetRichTextPassive(PassiveAttribute);
+				}
+			}
+			
+		}
 	}
 }

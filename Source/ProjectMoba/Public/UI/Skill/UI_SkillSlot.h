@@ -28,14 +28,18 @@ public:
 	FORCEINLINE UButton* GetUpdateLevelButton() const { return UpdateLevelButton; }
 	
 protected:
+
+	virtual void BindToolTip() override;
+	
+	UFUNCTION()
+	void OnClickedUpdateLevelButton();
+
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UButton> UpdateLevelButton;
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UProgressBar> SKillLevelBar;
-
-	UFUNCTION()
-	void OnClickedUpdateLevelButton();
+	
 	
 protected:
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;

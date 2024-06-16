@@ -8,7 +8,9 @@
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Game/MobaPlayerState.h"
 #include "Game/MobaGameState.h"
+#include "UI/Tip/UI_Tip.h"
 #include "UI/MobaHUD.h"
+
 
 void UMobaUIBase::NativeConstruct()
 {
@@ -18,6 +20,7 @@ void UMobaUIBase::NativeConstruct()
 	InitMobaPlayerState();
 	
 	BindDelegate();
+	BindToolTip();
 }
 
 AMobaHUD* UMobaUIBase::GetMobaHUD() const
@@ -65,10 +68,25 @@ UWidgetAnimation* UMobaUIBase::GetNameWidgetAnimation(const FString& WidgetAnima
 	return nullptr;
 }
 
+UUI_Tip* UMobaUIBase::GetTip()
+{
+	if(!Tip && TipClass)
+	{
+		Tip = CreateWidget<UUI_Tip>(GetWorld(), TipClass);
+	}
+
+	return Tip;
+}
+
 void UMobaUIBase::BindDelegate()
 {
 }
 
 void UMobaUIBase::RemoveDelegate()
 {
+}
+
+void UMobaUIBase::BindToolTip()
+{
+	
 }

@@ -15,8 +15,6 @@ class PROJECTMOBA_API UUI_Panel : public UMobaUIBase
 {
 	GENERATED_BODY()
 public:
-	UUI_Panel();
-	
 	virtual void NativeConstruct() override;
 	virtual void BindDelegate() override;
 

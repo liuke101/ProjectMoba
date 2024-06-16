@@ -12,6 +12,7 @@
 #include "Game/MobaPlayerState.h"
 #include "ProjectMoba/MiscData.h"
 #include "ProjectMoba/MobaType.h"
+#include "UI/Tip/UI_Tip.h"
 
 #if PLATFORM_WINDOWS
 #pragma optimize("",off) 
@@ -22,7 +23,7 @@ static int32 InventorySlotKeyIndex = 0;
 void UUI_InventorySlot::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+	
 	//绑定输入
 	if(AMobaPlayerController* MobaPlayerController = Cast<AMobaPlayerController>(GetWorld()->GetFirstPlayerController()))
 	{
@@ -148,9 +149,16 @@ int32 UUI_InventorySlot::GetSlotNumber() const
 	return INDEX_NONE;
 }
 
-UWidget * UUI_InventorySlot::GetInventoryTip()
+UUI_Tip* UUI_InventorySlot::GetTip()
 {
-	return nullptr;
+	return Super::GetTip();
+}
+
+void UUI_InventorySlot::BindToolTip()
+{
+	//绑定 Tool Tip Widget
+	GetClickButton()->SetToolTip(GetTip());
+	GetClickButton()->SetCursor(EMouseCursor::Hand);
 }
 
 FReply UUI_InventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

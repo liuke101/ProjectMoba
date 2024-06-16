@@ -29,12 +29,14 @@ protected:
 	virtual void OnClickedWidget() override;
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	
+
+	virtual void BindToolTip() override;
 public:
 	void SetItemIntroduction(const FText&InContent);
 	void SetItemName(const FName& InName);
 	void SetItemGold(const int32 InGold);
 
+	
 private:
 	
 	UPROPERTY(meta = (BindWidget))

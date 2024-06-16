@@ -31,12 +31,14 @@ public:
 	FORCEINLINE int32 GetItemDataID() const { return ItemDataID; }
 	FORCEINLINE void SetItemDataID(int32 DataID) { ItemDataID = DataID; }
 
+	FORCEINLINE UImage* GetItemIcon() const { return ItemIcon; }
+	FORCEINLINE UButton* GetItemButton() const { return ItemButton; }
 private:
 	UPROPERTY(meta = (BindWidget))
-	UImage* ItemIcon;
+	TObjectPtr<UImage> ItemIcon;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* ItemButton;
+	TObjectPtr<UButton> ItemButton;
 	
 	int32 ItemDataID;
 };

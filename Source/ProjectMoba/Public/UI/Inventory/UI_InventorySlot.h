@@ -6,6 +6,8 @@
 #include "UI/UI_Slot.h"
 #include "UI_InventorySlot.generated.h"
 
+class UUI_Tip;
+class UUI_IconDragDrop;
 class UImage;
 class UTextBlock;
 class UButton;
@@ -41,9 +43,8 @@ public:
 	//获取SlotData数量
 	int32 GetSlotNumber() const;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Tip)
-	UWidget* GetInventoryTip();
-
+	virtual UUI_Tip* GetTip() override;
+	virtual void BindToolTip() override;
 protected:
 	//操作
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;
@@ -59,11 +60,11 @@ private:
 
 	//拖拽显示图标类
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	TSubclassOf<class UUI_IconDragDrop> IconDragDrogClass;
+	TSubclassOf<UUI_IconDragDrop> IconDragDrogClass;
 
 	//提示类
 	UPROPERTY(EditDefaultsOnly, Category = UI)
-	TSubclassOf<class UUI_InventoryTip> InventoryTipClass;
+	TSubclassOf<UUI_Tip> InventoryTipClass;
 	
 	bool bDrag = false;
 };

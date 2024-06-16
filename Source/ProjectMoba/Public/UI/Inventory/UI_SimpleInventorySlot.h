@@ -20,6 +20,9 @@ protected:
 public:
 	void UpdateSlot(const FSlotData& SlotData) const;
 	virtual void ResetSlot() override;
+
+protected:
+	virtual void BindToolTip() override;
 private:
 	//数量
 	UPROPERTY(meta = (BindWidget))

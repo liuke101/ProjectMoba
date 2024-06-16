@@ -64,6 +64,7 @@ void UUI_Shop::NativeConstruct()
 	// 默认隐藏商城
 	SetVisibility(ESlateVisibility::Hidden);
 
+	// 更新所有Item, 相当于初始化
 	UpdateItem(ESlotType::EST_All);
 }
 

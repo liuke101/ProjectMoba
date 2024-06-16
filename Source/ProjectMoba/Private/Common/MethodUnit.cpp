@@ -3,6 +3,7 @@
 
 #include "Common/MethodUnit.h"
 
+#include "NiagaraRibbonRendererProperties.h"
 #include "Character/MobaCharacter.h"
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
@@ -107,6 +108,102 @@ const FSlotAttribute* MethodUnit::GetSlotAttributeFromAnimMontage(AMobaPlayerSta
 
 	return nullptr;
 }
+
+FText MethodUnit::SlotAttributeValueToText(const FSlotAttributeValue* SlotAttributeValue, const FString& ColorTag, const FString& Description)
+{
+	if(SlotAttributeValue->Value != 0.0f)
+	{
+		if(SlotAttributeValue->GainType == ESlotAttributeGainType::ESAGT_Add)
+		{
+			if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Value)
+			{
+				TArray<FStringFormatArg> Args;
+				Args.Add(FStringFormatArg(ColorTag)); //0
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value))); //1
+				Args.Add(FStringFormatArg(Description)); //2
+ 
+				FString Str = FString::Format(TEXT("值增加, <{0}>+{1}</> {2}"), Args);
+				
+				return FText::FromString(Str);
+			}
+			else if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Percent)
+			{
+				TArray<FStringFormatArg> Args;
+				Args.Add(FStringFormatArg(ColorTag)); //0
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); //1
+				Args.Add(FStringFormatArg(Description)); //2
+ 
+				FString Str = FString::Format(TEXT("百分比增加, <{0}>+{1}%</> {2}"), Args);
+				return FText::FromString(Str);
+			}
+		}
+		else if(SlotAttributeValue->GainType == ESlotAttributeGainType::ESAGT_Substract)
+		{
+			if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Value)
+			{
+				TArray<FStringFormatArg> Args;
+				Args.Add(FStringFormatArg(ColorTag)); //0
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value))); //1
+				Args.Add(FStringFormatArg(Description)); //2
+ 
+				FString Str = FString::Format(TEXT("值减少, <{0}>-{1}</> {2}"), Args);
+				
+				return FText::FromString(Str);
+			}
+			else if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Percent)
+			{
+				TArray<FStringFormatArg> Args;
+				Args.Add(FStringFormatArg(ColorTag)); //0
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); //1
+				Args.Add(FStringFormatArg(Description)); //2
+ 
+				FString Str = FString::Format(TEXT("百分比减少, <{0}>-{1}%</> {2}"), Args);
+				return FText::FromString(Str);
+			}
+		}
+	}
+	return FText::FromString(TEXT(""));
+}
+
+FText MethodUnit::GetBaseAttributeDescription(const FSlotAttribute* SlotAttribute)
+{
+	if(SlotAttribute)
+	{
+		FText CurrentHealth = SlotAttributeValueToText(&SlotAttribute->CurrentHealth, TEXT("Red"), TEXT("当前生命值"));
+		FText MaxHealth = SlotAttributeValueToText(&SlotAttribute->MaxHealth, TEXT("Red"), TEXT("最大生命值"));
+		FText CurrentMana = SlotAttributeValueToText(&SlotAttribute->CurrentMana, TEXT("Blue"), TEXT("当前魔法值"));
+		FText MaxMana = SlotAttributeValueToText(&SlotAttribute->MaxMana, TEXT("Blue"), TEXT("最大魔法值"));
+		FText PhysicalAttack = SlotAttributeValueToText(&SlotAttribute->PhysicalAttack, TEXT("Yellow"), TEXT("物理攻击"));
+		FText Armor = SlotAttributeValueToText(&SlotAttribute->Armor, TEXT("Yellow"), TEXT("护甲"));
+		FText PhysicalPenetration = SlotAttributeValueToText(&SlotAttribute->PhysicalPenetration, TEXT("Yellow"), TEXT("物理穿透"));
+		FText MagicAttack = SlotAttributeValueToText(&SlotAttribute->MagicAttack, TEXT("Purple"), TEXT("魔法攻击"));
+		FText MagicResistance = SlotAttributeValueToText(&SlotAttribute->MagicResistance, TEXT("Purple"), TEXT("魔抗"));
+		FText MagicPenetration = SlotAttributeValueToText(&SlotAttribute->MagicPenetration, TEXT("Purple"), TEXT("魔法穿透"));
+		FText WalkSpeed = SlotAttributeValueToText(&SlotAttribute->WalkSpeed, TEXT("Green"), TEXT("移动速度"));
+		FText AttackSpeed = SlotAttributeValueToText(&SlotAttribute->AttackSpeed, TEXT("Green"), TEXT("攻击速度"));
+		FText CriticalRate = SlotAttributeValueToText(&SlotAttribute->CriticalRate, TEXT("Orange"), TEXT("暴击率"));
+		
+		return FText::Format(CurrentHealth, MaxHealth, CurrentMana, MaxMana, PhysicalAttack, Armor, PhysicalPenetration, MagicAttack, MagicResistance, MagicPenetration, WalkSpeed, AttackSpeed, CriticalRate);
+	}
+	
+	return FText::FromString(TEXT(""));
+}
+
+FText MethodUnit::GetAttributeDescription(UWorld* InWorld, int32 DataID)
+{
+	if(DataID != INDEX_NONE)
+	{
+		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState(InWorld))
+		{
+			if(FSlotAttribute* SlotAttribute = MobaPlayerState->GetSlotAttributeFromDataID(DataID))
+			{
+				return GetBaseAttributeDescription(SlotAttribute);
+			}
+		}
+	}
+	return FText::FromString(TEXT(""));
+}
+
 
 AMobaPawn* MethodUnit::GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID)
 {
