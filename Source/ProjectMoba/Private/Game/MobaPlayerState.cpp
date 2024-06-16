@@ -72,7 +72,7 @@ void AMobaPlayerState::BeginPlay()
 			Client_InitSkillSlots(NetSkillPackage); //客户端初始化技能栏
 			
 			InitSkillSlot();//服务端初始化技能栏
-
+			ShowSkillLevelUpUI();  //初始角色允许升级技能，默认技能点为1
 			
 			if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 			{
@@ -85,6 +85,8 @@ void AMobaPlayerState::BeginPlay()
 					CharacterAttribute->SetBuff(PlayerDataComponent->SlotAttributes.ToSharedRef());
 				}
 			}
+
+			
 		});
 	}
 }

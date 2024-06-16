@@ -31,7 +31,7 @@ public:
 
 	virtual void UpdateSlot() override;
 
-	virtual UUI_Tip* GetTip() override;
+	virtual UUI_Tip* GetTip() override; //BUG 不显示技能信息
 
 	//更新CacheSlotAttribute的等级
 	void CacheSlotAttributeUpdateLevel();

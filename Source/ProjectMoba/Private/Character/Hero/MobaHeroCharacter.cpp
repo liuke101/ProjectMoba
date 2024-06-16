@@ -51,7 +51,7 @@ void AMobaHeroCharacter::InitCharacter()
 	 	{
 	 		if(const AMobaPlayerState* MobaPlayerState = InPawn->GetPlayerState<AMobaPlayerState>())
 	 		{
-	 			MultiCastStatusBar_PlayerName(MobaPlayerState->GetPlayerDataComponent()->PlayerName.ToString());
+	 			Multicast_StatusBar_PlayerName(MobaPlayerState->GetPlayerDataComponent()->PlayerName.ToString());
 	 		}
 	 		return MethodUnit::EServerCallType::ECT_ProgressComplete;
 	 	}
@@ -60,11 +60,11 @@ void AMobaHeroCharacter::InitCharacter()
 
 	if(FCharacterAttribute* CharacterAttribute = MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), GetPlayerID()))
 	{
-		MultiCastStatusBar_Level(CharacterAttribute->Level);
+		Multicast_StatusBar_Level(CharacterAttribute->Level);
 	}
 }
 
-void AMobaHeroCharacter::MultiCastStatusBar_PlayerName_Implementation(const FString& PlayerName)
+void AMobaHeroCharacter::Multicast_StatusBar_PlayerName_Implementation(const FString& PlayerName)
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{
@@ -75,7 +75,7 @@ void AMobaHeroCharacter::MultiCastStatusBar_PlayerName_Implementation(const FStr
 	}
 }
 
-void AMobaHeroCharacter::MultiCastStatusBar_Level_Implementation(const int32 Level)
+void AMobaHeroCharacter::Multicast_StatusBar_Level_Implementation(const int32 Level)
 {
 	if(GetLocalRole() != ROLE_Authority)
 	{
@@ -157,7 +157,9 @@ void AMobaHeroCharacter::AddExp(float InExp)
 					//更新血条
 					Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
 
-					
+					//更新等级
+					Multicast_StatusBar_Level(CharacterAttribute->Level);
+
 					//如果升级后还能升级，则递归调用
 					if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)
 					{
