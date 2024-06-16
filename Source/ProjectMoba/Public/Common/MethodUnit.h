@@ -47,6 +47,9 @@ namespace MethodUnit
 	FText GetAttributeDescription(const FSlotAttribute* SlotAttribute);
 	
 	void SetToolTip(UUI_Tip* Tip, const FSlotAttribute* SlotAttribute, const FSlotAsset* SlotAsset);
+
+	//服务器、客户端注册SlotAttribute
+	void RegisterSlotAttribute(AMobaPlayerState* PlayerState, FSlotAttribute* SlotAttribute); 
 	
 	
 	/** 服务器调用 */

@@ -137,7 +137,7 @@ const FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromCharacterID(
 	return nullptr;
 }
 
-int32 AMobaGameState::GetSkillDataIDFromAnimMontage(const UAnimMontage* AnimMontage)
+int32 AMobaGameState::GetSkillDataIDFroSkillMontage(const UAnimMontage* AnimMontage)
 {
 	int32 DataID = INDEX_NONE;
 	for(auto& Asset : *GetCachedCharacterAssets())
@@ -162,17 +162,34 @@ int32 AMobaGameState::GetSkillDataIDFromAnimMontage(const UAnimMontage* AnimMont
 	return DataID;
 }
 
+const FCharacterAsset* AMobaGameState::GetCharacterAssetFromSkillDataID(const int32 SkillDataID)
+{
+	for(auto& Asset : *GetCachedCharacterAssets())
+	{
+		if(Asset->W_Skill.DataID == SkillDataID)
+		{
+			return Asset;
+		}
+		else if(Asset->E_Skill.DataID == SkillDataID)
+		{
+			return Asset;
+		}
+		else if(Asset->R_Skill.DataID == SkillDataID)
+		{
+			return Asset;
+		}
+		else if(Asset->F_Skill.DataID == SkillDataID)
+		{
+			return Asset;
+		}
+	}
+	
+	return nullptr;
+}
+
 FCharacterAttribute* AMobaGameState::GetCharacterAttributeFromPlayerID(const int64 PlayerID)
 {
 	return CharacterAttributes.Find(PlayerID);
-	// for(auto& MAP : CharacterAttributes)
-	// {
-	// 	if(MAP.Key == PlayerID)
-	// 	{
-	// 		return &MAP.Value;
-	// 	}
-	// }
-	// return nullptr;
 }
 
 void AMobaGameState::UpdateCharacterLocation(const int64 PlayerID, const FVector& Location)

@@ -98,7 +98,7 @@ const FSlotAttribute* MethodUnit::GetSlotAttributeFromAnimMontage(AMobaPlayerSta
 		//根据AnimMontage获取技能的DataID
 		if(AMobaGameState* MobaGameState = GetMobaGameState(PlayerState->GetWorld()))
 		{
-			SkillDataID = MobaGameState->GetSkillDataIDFromAnimMontage(AnimMontage);
+			SkillDataID = MobaGameState->GetSkillDataIDFroSkillMontage(AnimMontage);
 		}
 
 		//根据DataID获取SlotAttribute
@@ -212,6 +212,36 @@ void MethodUnit::SetToolTip(UUI_Tip* Tip, const FSlotAttribute* SlotAttribute, c
 			//获取被动技能描述
 			FText PassiveAttribute = MethodUnit::GetAttributeDescription( SlotAttribute->BuffAttribute);
 			Tip->SetRichTextPassive(PassiveAttribute);
+		}
+	}
+}
+
+void MethodUnit::RegisterSlotAttribute(AMobaPlayerState* PlayerState, FSlotAttribute* SlotAttribute)
+{
+	//addlevel
+	if(SlotAttribute->AddLevelDataID != INDEX_NONE)
+	{
+		if(const FSlotAttribute* AddLevelAttribute = PlayerState->GetSlotAttributeFromDataID(SlotAttribute->AddLevelDataID))
+		{
+			SlotAttribute->AddLevelAttribute = AddLevelAttribute;
+		}
+	}
+
+	//buff 被动
+	if(SlotAttribute->BuffDataID != INDEX_NONE)
+	{
+		if(const FSlotAttribute* BuffAttribute = PlayerState->GetSlotAttributeFromDataID(SlotAttribute->BuffDataID))
+		{
+			SlotAttribute->BuffAttribute = BuffAttribute;
+		}
+	}
+
+	//主动
+	if(SlotAttribute->ActiveSkillDataID != INDEX_NONE)
+	{
+		if(const FSlotAttribute* ActiveSkillAttribute = PlayerState->GetSlotAttributeFromDataID(SlotAttribute->ActiveSkillDataID))
+		{
+			SlotAttribute->ActiveSkillAttribute = ActiveSkillAttribute;
 		}
 	}
 }

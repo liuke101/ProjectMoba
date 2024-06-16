@@ -14,9 +14,10 @@ void UUI_SimpleInventorySlot::NativeConstruct()
 
 void UUI_SimpleInventorySlot::UpdateSlot(const FSlotData* SlotData)
 {
+	//SlotData是服务器传来的数据包
 	if(SlotData)
 	{
-		ClientCacheSlotData = *SlotData;
+		ClientCacheSlotData = *SlotData; //缓存数据包
 		
 		UpdateIcon(SlotData->SlotIcon);
 		SetTextNumber(SlotNumber, SlotData->Number);

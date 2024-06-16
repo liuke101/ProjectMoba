@@ -89,6 +89,7 @@ void UUI_SkillBar::UpdateSkillLevelUI(const FSkillLevelUpNetPackage& InPackage)
 			InSlot->GetSkillLevelBar()->SetPercent(static_cast<float>(InPackage.Level) / 3.0f);
 			InSlot->GetUpdateLevelButton()->SetIsEnabled(InPackage.bEnableCurrentSlot);
 			InSlot->GetClickButton()->SetIsEnabled(true);
+			InSlot->CacheSlotAttributeUpdateLevel();
 			return false;
 		}
 		return true;
