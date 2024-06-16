@@ -22,13 +22,13 @@ void UUI_Item::UpdateSlot(const FSlotAsset* SlotAsset)
 	{
 		SetItemName(SlotAsset->SlotName);
 		SetItemGold(SlotAsset->SlotGold);
-		SetItemIntroduction(SlotAsset->SlotIntroduction);
+		SetItemDescription(SlotAsset->SlotDescription);
 	}
 }
 
-void UUI_Item::SetItemIntroduction(const FText& InContent)
+void UUI_Item::SetItemDescription(const FText& InContent)
 {
-	ItemIntroduction->SetText(InContent);
+	ItemDescription->SetText(InContent);
 }
 
 void UUI_Item::SetItemName(const FName& InName)
@@ -60,10 +60,4 @@ FReply UUI_Item::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoi
 	}
 
 	return FReply::Handled();
-}
-
-void UUI_Item::BindToolTip()
-{
-	GetItemButton()->SetToolTip(GetTip());
-	GetItemButton()->SetCursor(EMouseCursor::Hand);
 }

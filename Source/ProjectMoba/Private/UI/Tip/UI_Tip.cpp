@@ -4,6 +4,7 @@
 #include "UI/Tip/UI_Tip.h"
 
 #include "Components/RichTextBlock.h"
+#include "Components/TextBlock.h"
 
 void UUI_Tip::NativeConstruct()
 {
@@ -28,4 +29,14 @@ void UUI_Tip::SetRichTextActive(const FText& InText) const
 void UUI_Tip::SetRichTextPassive(const FText& InText) const
 {
 	RichTextPassive->SetText(InText);
+}
+
+void UUI_Tip::SetTextDescription(const FText& InText) const
+{
+	TextDescription->SetText(InText);
+}
+
+void UUI_Tip::SetTextName(const FText& InText) const
+{
+	TextName->SetText(InText);
 }

@@ -28,7 +28,7 @@ struct FSlotAsset : public FMobaTableBase
 	int32 SlotGold;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Slot Asset")
-	FText SlotIntroduction;
+	FText SlotDescription;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Slot Asset")
 	TArray<ESlotType> SlotType;

@@ -34,7 +34,7 @@ void UUI_PlayersInfo::UpdateSlot(const FPlayerTeamNetPackage& PlayerTeamNetPacka
 	CallAllSlot<UUI_SimpleInventorySlot>([&](UUI_SimpleInventorySlot* InSlot)->bool
 	{
 		InSlot->SetSlotID(PlayerTeamNetPackage.SlotDataNetPackage.SlotIDs[i]);
-		InSlot->UpdateSlot(PlayerTeamNetPackage.SlotDataNetPackage.SlotDatas[i]);
+		InSlot->UpdateSlot(&PlayerTeamNetPackage.SlotDataNetPackage.SlotDatas[i]);
 		i++;
 		return true;
 	});

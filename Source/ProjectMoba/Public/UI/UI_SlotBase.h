@@ -29,8 +29,6 @@ public:
 	//设置唯一ID, SlotID指的是格子的ID，而不是用于获取DataTable数据的dtID
 	FORCEINLINE void SetSlotID(const int32 InID) { BuildSlot.SlotID = InID; }
 	FORCEINLINE int32 GetSlotID() const { return BuildSlot.SlotID; }
-
-	FORCEINLINE UImage* GetSlotIcon() const { return SlotIcon; }
 	
 #pragma region UI组件
 	/// 更新Icon

@@ -26,13 +26,11 @@ public:
 	UWidgetAnimation* GetNameWidgetAnimation(const FString& WidgetAnimationName) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Moba|UI")
-	virtual UUI_Tip* GetTip();  //绑定在Tool Tip Widget
+	virtual UUI_Tip* GetTip();  //在蓝图中绑定Tool Tip Widget
 
 protected:
 	virtual void BindDelegate();
 	virtual void RemoveDelegate();
-	//绑定Tool Tip Widget
-	virtual void BindToolTip();
 
 public:
 

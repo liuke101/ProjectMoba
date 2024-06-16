@@ -8,6 +8,8 @@
 #include "Component/PlayerDataComponent.h"
 #include "Game/MobaGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Table/SlotAsset.h"
+#include "UI/Tip/UI_Tip.h"
 
 AMobaGameState* MethodUnit::GetMobaGameState(const UWorld* InWorld)
 {
@@ -109,8 +111,10 @@ const FSlotAttribute* MethodUnit::GetSlotAttributeFromAnimMontage(AMobaPlayerSta
 	return nullptr;
 }
 
-FText MethodUnit::SlotAttributeValueToText(const FSlotAttributeValue* SlotAttributeValue, const FString& ColorTag, const FString& Description)
+FString MethodUnit::SlotAttributeValueToString(const FSlotAttributeValue* SlotAttributeValue, const FString& AttrbuteName, const FString& ColorTag)
 {
+	FString Str = "";
+	
 	if(SlotAttributeValue->Value != 0.0f)
 	{
 		if(SlotAttributeValue->GainType == ESlotAttributeGainType::ESAGT_Add)
@@ -118,23 +122,20 @@ FText MethodUnit::SlotAttributeValueToText(const FSlotAttributeValue* SlotAttrib
 			if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Value)
 			{
 				TArray<FStringFormatArg> Args;
-				Args.Add(FStringFormatArg(ColorTag)); //0
-				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value))); //1
-				Args.Add(FStringFormatArg(Description)); //2
+				Args.Add(FStringFormatArg(AttrbuteName));  //0
+				Args.Add(FStringFormatArg(ColorTag));  //1
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value)));  //2
  
-				FString Str = FString::Format(TEXT("值增加, <{0}>+{1}</> {2}"), Args);
-				
-				return FText::FromString(Str);
+				Str = FString::Format(TEXT("{0} 属性值 <{1}>+{2}</>\n"), Args);
 			}
 			else if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Percent)
 			{
 				TArray<FStringFormatArg> Args;
-				Args.Add(FStringFormatArg(ColorTag)); //0
-				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); //1
-				Args.Add(FStringFormatArg(Description)); //2
- 
-				FString Str = FString::Format(TEXT("百分比增加, <{0}>+{1}%</> {2}"), Args);
-				return FText::FromString(Str);
+				Args.Add(FStringFormatArg(AttrbuteName)); 
+				Args.Add(FStringFormatArg(ColorTag)); 
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); 
+				
+				Str = FString::Format(TEXT("{0} 属性百分比 <{1}>+{2}%</>\n"), Args);
 			}
 		}
 		else if(SlotAttributeValue->GainType == ESlotAttributeGainType::ESAGT_Substract)
@@ -142,68 +143,78 @@ FText MethodUnit::SlotAttributeValueToText(const FSlotAttributeValue* SlotAttrib
 			if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Value)
 			{
 				TArray<FStringFormatArg> Args;
-				Args.Add(FStringFormatArg(ColorTag)); //0
-				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value))); //1
-				Args.Add(FStringFormatArg(Description)); //2
+				Args.Add(FStringFormatArg(AttrbuteName));  //0
+				Args.Add(FStringFormatArg(ColorTag));  //1
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value)));  //2
  
-				FString Str = FString::Format(TEXT("值减少, <{0}>-{1}</> {2}"), Args);
-				
-				return FText::FromString(Str);
+				Str = FString::Format(TEXT("{0} 属性值 <{1}>-{2}</>\n"), Args);
 			}
 			else if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Percent)
 			{
 				TArray<FStringFormatArg> Args;
-				Args.Add(FStringFormatArg(ColorTag)); //0
-				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); //1
-				Args.Add(FStringFormatArg(Description)); //2
- 
-				FString Str = FString::Format(TEXT("百分比减少, <{0}>-{1}%</> {2}"), Args);
-				return FText::FromString(Str);
+				Args.Add(FStringFormatArg(AttrbuteName)); 
+				Args.Add(FStringFormatArg(ColorTag)); 
+				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); 
+				
+				Str = FString::Format(TEXT("{0} 属性百分比 <{1}>-{2}%</>\n"), Args);
 			}
 		}
 	}
-	return FText::FromString(TEXT(""));
+	return Str;
 }
 
-FText MethodUnit::GetBaseAttributeDescription(const FSlotAttribute* SlotAttribute)
+FText MethodUnit::GetAttributeDescription(const FSlotAttribute* SlotAttribute)
 {
 	if(SlotAttribute)
 	{
-		FText CurrentHealth = SlotAttributeValueToText(&SlotAttribute->CurrentHealth, TEXT("Red"), TEXT("当前生命值"));
-		FText MaxHealth = SlotAttributeValueToText(&SlotAttribute->MaxHealth, TEXT("Red"), TEXT("最大生命值"));
-		FText CurrentMana = SlotAttributeValueToText(&SlotAttribute->CurrentMana, TEXT("Blue"), TEXT("当前魔法值"));
-		FText MaxMana = SlotAttributeValueToText(&SlotAttribute->MaxMana, TEXT("Blue"), TEXT("最大魔法值"));
-		FText PhysicalAttack = SlotAttributeValueToText(&SlotAttribute->PhysicalAttack, TEXT("Yellow"), TEXT("物理攻击"));
-		FText Armor = SlotAttributeValueToText(&SlotAttribute->Armor, TEXT("Yellow"), TEXT("护甲"));
-		FText PhysicalPenetration = SlotAttributeValueToText(&SlotAttribute->PhysicalPenetration, TEXT("Yellow"), TEXT("物理穿透"));
-		FText MagicAttack = SlotAttributeValueToText(&SlotAttribute->MagicAttack, TEXT("Purple"), TEXT("魔法攻击"));
-		FText MagicResistance = SlotAttributeValueToText(&SlotAttribute->MagicResistance, TEXT("Purple"), TEXT("魔抗"));
-		FText MagicPenetration = SlotAttributeValueToText(&SlotAttribute->MagicPenetration, TEXT("Purple"), TEXT("魔法穿透"));
-		FText WalkSpeed = SlotAttributeValueToText(&SlotAttribute->WalkSpeed, TEXT("Green"), TEXT("移动速度"));
-		FText AttackSpeed = SlotAttributeValueToText(&SlotAttribute->AttackSpeed, TEXT("Green"), TEXT("攻击速度"));
-		FText CriticalRate = SlotAttributeValueToText(&SlotAttribute->CriticalRate, TEXT("Orange"), TEXT("暴击率"));
+		FString CurrentHealth = SlotAttributeValueToString(&SlotAttribute->CurrentHealth, TEXT("当前生命值"), TEXT("Red"));
+		FString MaxHealth = SlotAttributeValueToString(&SlotAttribute->MaxHealth, TEXT("最大生命值"), TEXT("Red"));
+		FString CurrentMana = SlotAttributeValueToString(&SlotAttribute->CurrentMana, TEXT("当前魔法值"), TEXT("Blue"));
+		FString MaxMana = SlotAttributeValueToString(&SlotAttribute->MaxMana, TEXT("最大魔法值"), TEXT("Blue"));
+		FString PhysicalAttack = SlotAttributeValueToString(&SlotAttribute->PhysicalAttack, TEXT("物理攻击"), TEXT("Yellow"));
+		FString Armor = SlotAttributeValueToString(&SlotAttribute->Armor, TEXT("护甲"), TEXT("Yellow"));
+		FString PhysicalPenetration = SlotAttributeValueToString(&SlotAttribute->PhysicalPenetration, TEXT("物理穿透"), TEXT("Yellow"));
+		FString MagicAttack = SlotAttributeValueToString(&SlotAttribute->MagicAttack, TEXT("魔法攻击"), TEXT("Purple"));
+		FString MagicResistance = SlotAttributeValueToString(&SlotAttribute->MagicResistance, TEXT("魔抗"), TEXT("Purple"));
+		FString MagicPenetration = SlotAttributeValueToString(&SlotAttribute->MagicPenetration, TEXT("魔法穿透"), TEXT("Purple"));
+		FString WalkSpeed = SlotAttributeValueToString(&SlotAttribute->WalkSpeed, TEXT("移动速度"), TEXT("Green"));
+		FString AttackSpeed = SlotAttributeValueToString(&SlotAttribute->AttackSpeed, TEXT("攻击速度"), TEXT("Green"));
+		FString CriticalRate = SlotAttributeValueToString(&SlotAttribute->CriticalRate, TEXT("暴击率"), TEXT("Orange"));
 		
-		return FText::Format(CurrentHealth, MaxHealth, CurrentMana, MaxMana, PhysicalAttack, Armor, PhysicalPenetration, MagicAttack, MagicResistance, MagicPenetration, WalkSpeed, AttackSpeed, CriticalRate);
+		//合并所有非空字符串
+		FString Str = CurrentHealth + MaxHealth + CurrentMana + MaxMana + PhysicalAttack + Armor + PhysicalPenetration + MagicAttack + MagicResistance + MagicPenetration + WalkSpeed + AttackSpeed + CriticalRate;
+		return FText::FromString(Str);
 	}
 	
 	return FText::FromString(TEXT(""));
 }
 
-FText MethodUnit::GetAttributeDescription(UWorld* InWorld, int32 DataID)
+
+void MethodUnit::SetToolTip(UUI_Tip* Tip, const FSlotAttribute* SlotAttribute, const FSlotAsset* SlotAsset)
 {
-	if(DataID != INDEX_NONE)
+	if(Tip)
 	{
-		if(AMobaPlayerState* MobaPlayerState = GetMobaPlayerState(InWorld))
+		if(SlotAsset)
 		{
-			if(FSlotAttribute* SlotAttribute = MobaPlayerState->GetSlotAttributeFromDataID(DataID))
-			{
-				return GetBaseAttributeDescription(SlotAttribute);
-			}
+			//名称  描述
+			Tip->SetTextName(FText::FromName(SlotAsset->SlotName));
+			Tip->SetTextDescription(SlotAsset->SlotDescription);
+		}
+
+		if(SlotAttribute)
+		{
+			//获取基础属性描述
+			FText BaseAttribute = MethodUnit::GetAttributeDescription(SlotAttribute);
+			Tip->SetRichTextAction(BaseAttribute);
+			//获取主动技能描述
+			FText ActiveAttribute = MethodUnit::GetAttributeDescription(SlotAttribute->ActiveSkillAttribute);
+			Tip->SetRichTextActive(ActiveAttribute);
+			//获取被动技能描述
+			FText PassiveAttribute = MethodUnit::GetAttributeDescription( SlotAttribute->BuffAttribute);
+			Tip->SetRichTextPassive(PassiveAttribute);
 		}
 	}
-	return FText::FromString(TEXT(""));
 }
-
 
 AMobaPawn* MethodUnit::GetMobaPawnFromPlayerID(UWorld* InWorld, int64 PlayerID)
 {

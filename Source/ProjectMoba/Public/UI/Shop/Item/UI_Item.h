@@ -30,9 +30,8 @@ protected:
 
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
-	virtual void BindToolTip() override;
 public:
-	void SetItemIntroduction(const FText&InContent);
+	void SetItemDescription(const FText& InContent);
 	void SetItemName(const FName& InName);
 	void SetItemGold(const int32 InGold);
 
@@ -46,5 +45,5 @@ private:
 	UTextBlock* ItemName;
 
 	UPROPERTY(meta = (BindWidget))
-	UTextBlock* ItemIntroduction;
+	UTextBlock* ItemDescription;
 };

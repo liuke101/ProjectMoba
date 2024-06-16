@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/UI_Slot.h"
+#include "UI/Interface/UI_TipInterface.h"
 #include "UI_InventorySlot.generated.h"
 
 class UUI_Tip;
@@ -15,7 +16,7 @@ class UButton;
  * 
  */
 UCLASS()
-class PROJECTMOBA_API UUI_InventorySlot : public UUI_Slot
+class PROJECTMOBA_API UUI_InventorySlot : public UUI_Slot, public IUI_TipInterface
 {
 	GENERATED_BODY()
 
@@ -44,7 +45,6 @@ public:
 	int32 GetSlotNumber() const;
 
 	virtual UUI_Tip* GetTip() override;
-	virtual void BindToolTip() override;
 protected:
 	//操作
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;

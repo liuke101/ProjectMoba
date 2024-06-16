@@ -28,8 +28,6 @@ public:
 	FORCEINLINE UButton* GetUpdateLevelButton() const { return UpdateLevelButton; }
 	
 protected:
-
-	virtual void BindToolTip() override;
 	
 	UFUNCTION()
 	void OnClickedUpdateLevelButton();

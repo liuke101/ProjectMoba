@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 
 
+class UUI_Tip;
 class AMobaPlayerState;
 struct FCharacterAttribute;
 struct FCharacterAsset;
@@ -40,10 +41,13 @@ namespace MethodUnit
 
 	const FSlotAttribute* GetSlotAttributeFromAnimMontage(AMobaPlayerState* PlayerState, const UAnimMontage* AnimMontage);
 
-	/** ToolTip */
-	FText SlotAttributeValueToText(const FSlotAttributeValue* SlotAttributeValue, const FString& ColorTag, const FString& Description);
-	FText GetBaseAttributeDescription(const FSlotAttribute* SlotAttribute);
-	FText GetAttributeDescription(UWorld* InWorld, int32 DataID);
+	/** UI */
+	// ToolTip 
+	FString SlotAttributeValueToString(const FSlotAttributeValue* SlotAttributeValue, const FString& AttrbuteName, const FString& ColorTag);
+	FText GetAttributeDescription(const FSlotAttribute* SlotAttribute);
+	
+	void SetToolTip(UUI_Tip* Tip, const FSlotAttribute* SlotAttribute, const FSlotAsset* SlotAsset);
+	
 	
 	/** 服务器调用 */
 	template<class T>

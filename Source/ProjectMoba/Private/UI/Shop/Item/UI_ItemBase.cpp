@@ -44,15 +44,7 @@ void UUI_ItemBase::UpdateSlot(const FSlotAsset* SlotAsset)
 			{
 				if(FSlotAttribute* SlotAttribute = MobaPlayerState->GetSlotAttributeFromDataID(SlotAsset->DataID))
 				{
-					//获取基础属性描述
-					FText BaseAttribute = MethodUnit::GetBaseAttributeDescription(SlotAttribute);
-					GetTip()->SetRichTextAction(BaseAttribute);
-					//获取主动技能描述
-					FText ActiveAttribute = MethodUnit::GetAttributeDescription(GetWorld(), SlotAttribute->ActiveSkillDataID);
-					GetTip()->SetRichTextActive(ActiveAttribute);
-					//获取被动技能描述
-					FText PassiveAttribute = MethodUnit::GetAttributeDescription(GetWorld(), SlotAttribute->BuffDataID);
-					GetTip()->SetRichTextPassive(PassiveAttribute);
+					MethodUnit::SetToolTip(Tip, SlotAttribute, SlotAsset);
 				}
 			}
 			

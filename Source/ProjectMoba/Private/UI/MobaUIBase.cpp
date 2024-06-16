@@ -20,7 +20,6 @@ void UMobaUIBase::NativeConstruct()
 	InitMobaPlayerState();
 	
 	BindDelegate();
-	BindToolTip();
 }
 
 AMobaHUD* UMobaUIBase::GetMobaHUD() const
@@ -84,9 +83,4 @@ void UMobaUIBase::BindDelegate()
 
 void UMobaUIBase::RemoveDelegate()
 {
-}
-
-void UMobaUIBase::BindToolTip()
-{
-	
 }

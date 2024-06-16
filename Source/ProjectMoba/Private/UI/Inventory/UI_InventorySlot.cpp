@@ -151,14 +151,15 @@ int32 UUI_InventorySlot::GetSlotNumber() const
 
 UUI_Tip* UUI_InventorySlot::GetTip()
 {
-	return Super::GetTip();
-}
-
-void UUI_InventorySlot::BindToolTip()
-{
-	//绑定 Tool Tip Widget
-	GetClickButton()->SetToolTip(GetTip());
-	GetClickButton()->SetCursor(EMouseCursor::Hand);
+	if(MobaPlayerState)
+	{
+		if(VerifyTip(MobaPlayerState,Super::GetTip(), GetSlotID()))
+		{
+			return Tip;
+		}
+	}
+	
+	return  nullptr;
 }
 
 FReply UUI_InventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

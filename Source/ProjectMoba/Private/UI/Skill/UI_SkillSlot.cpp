@@ -100,13 +100,6 @@ void UUI_SkillSlot::OnReleasedWidget()
 	}
 }
 
-
-void UUI_SkillSlot::BindToolTip()
-{
-	GetClickButton()->SetToolTip(GetTip());
-	GetClickButton()->SetCursor(EMouseCursor::Hand);
-}
-
 void UUI_SkillSlot::OnClickedUpdateLevelButton()
 {
 	if(UpdateLevelButton)

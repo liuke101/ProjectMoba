@@ -42,13 +42,13 @@ void UUI_CharacterInfo_TopPanel::BindDelegate()
 				CallAllSlot<UUI_SimpleInventorySlot>([&](UUI_SimpleInventorySlot* InSlot)
 				{
 					InSlot->SetSlotID(InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotIDs[i]);
-					InSlot->UpdateSlot(InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotDatas[i]);
+					InSlot->UpdateSlot(&InLookPlayerInfoNetPackage.SlotDataNetPackage.SlotDatas[i]);
 					i++;
 					return true;
 				});
 			}
 
-			SetVisibility(ESlateVisibility::HitTestInvisible);
+			SetVisibility(ESlateVisibility::Visible);
 		});
 
 		// 绑定隐藏TopPanel委托

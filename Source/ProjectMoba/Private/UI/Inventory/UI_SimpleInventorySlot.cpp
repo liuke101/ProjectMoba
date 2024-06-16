@@ -3,9 +3,7 @@
 
 #include "UI/Inventory/UI_SimpleInventorySlot.h"
 
-#include "Components/Image.h"
 #include "ProjectMoba/MiscData.h"
-#include "UI/Tip/UI_Tip.h"
 
 void UUI_SimpleInventorySlot::NativeConstruct()
 {
@@ -14,10 +12,15 @@ void UUI_SimpleInventorySlot::NativeConstruct()
 	
 }
 
-void UUI_SimpleInventorySlot::UpdateSlot(const FSlotData& SlotData) const
+void UUI_SimpleInventorySlot::UpdateSlot(const FSlotData* SlotData)
 {
-	UpdateIcon(SlotData.SlotIcon);
-	SetTextNumber(SlotNumber, SlotData.Number);
+	if(SlotData)
+	{
+		ClientCacheSlotData = *SlotData;
+		
+		UpdateIcon(SlotData->SlotIcon);
+		SetTextNumber(SlotNumber, SlotData->Number);
+	}
 }
 
 void UUI_SimpleInventorySlot::ResetSlot()
@@ -27,8 +30,14 @@ void UUI_SimpleInventorySlot::ResetSlot()
 	SetSlotID(INDEX_NONE);
 }
 
-void UUI_SimpleInventorySlot::BindToolTip()
+UUI_Tip* UUI_SimpleInventorySlot::GetTip()
 {
-	GetSlotIcon()->SetToolTip(GetTip());
-	GetSlotIcon()->SetCursor(EMouseCursor::Hand);
+	if(MobaPlayerState)
+	{
+		if(VerifyTip(MobaPlayerState, Super::GetTip(), GetSlotID(), &ClientCacheSlotData))
+		{
+			return Tip;
+		}
+	}
+	return nullptr;
 }
