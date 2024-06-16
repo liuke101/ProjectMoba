@@ -200,8 +200,8 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 							}
 	
 							//更新UI
-							MobaGameState->Multicast_CharacterAttributeChanged(this, ECharacterAttributeType::ECAT_CurrentHealth, CharacterAttribute->GetHealthPercent()); 
-							// Multicast_StatusBar_Health(CharacterAttribute->GetHealthPercent()); //血条
+							MobaGameState->Multicast_CharacterAttributeChanged(this, ECharacterAttributeType::ECAT_CurrentHealth, CharacterAttribute->GetHealthPercent()); //血条
+							
 							MobaGameState->RequestUpdateCharacterAttribute(PlayerID, PlayerID,ECharacterAttributeType::ECAT_CurrentHealth);//属性面板
 			
 							//伤害字体
@@ -281,24 +281,6 @@ void AMobaCharacter::Multicast_StatusBar_Implementation(float HealthPercent, flo
 		{
 			StatusBarUI_Health->SetHealthPercent(HealthPercent);
 		}
-	}
-	
-}
-
-void AMobaCharacter::Multicast_StatusBar_Health_Implementation(float HealthPercent)
-{
-	if(GetLocalRole() != ROLE_Authority)
-	{
-		//更新HealthBar
-		if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
-		{
-			StatusBarUI->SetHealthPercent(HealthPercent);
-		}
-		// 怪物的血条
-		else if(UUI_StatusBar_Health* StatusBarUI_Health = Cast<UUI_StatusBar_Health>(StatusBarComponent->GetUserWidgetObject()))
-		{
-			StatusBarUI_Health->SetHealthPercent(HealthPercent);
-		}
 
 		//死亡后隐藏状态栏
 		if(HealthPercent <= 0.0f)
@@ -306,18 +288,7 @@ void AMobaCharacter::Multicast_StatusBar_Health_Implementation(float HealthPerce
 			StatusBarComponent->SetVisibility(false);
 		}
 	}
-}
-
-void AMobaCharacter::Multicast_StatusBar_Mana_Implementation(float ManaPercent)
-{
-	if(GetLocalRole() != ROLE_Authority)
-	{
-		//更新ManaBar
-		if(UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
-		{
-			StatusBarUI->SetManaPercent(ManaPercent);
-		}
-	}
+	
 }
 
 void AMobaCharacter::InitHealthBarColorfromTeamType()

@@ -64,7 +64,6 @@ void AMobaHeroCharacter::InitCharacter()
 	{
 		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 		{
-			//Multicast_StatusBar_Level(CharacterAttribute->Level);
 			MobaGameState->Multicast_CharacterAttributeChanged(this, ECharacterAttributeType::ECAT_Level, CharacterAttribute->Level);
 		}
 	}
@@ -159,12 +158,11 @@ void AMobaHeroCharacter::AddExp(float InExp)
 					//更新整包
 					MobaGameState->RequestUpdateCharacterAttribute( GetPlayerID(),  GetPlayerID(),ECharacterAttributeType::ECAT_All);
 
-					//更新血条
+					//更新状态栏
 					Multicast_StatusBar(CharacterAttribute->GetHealthPercent(), CharacterAttribute->GetManaPercent());
 
 					//更新等级
 					MobaGameState->Multicast_CharacterAttributeChanged(this, ECharacterAttributeType::ECAT_Level, CharacterAttribute->Level);
-					//Multicast_StatusBar_Level(CharacterAttribute->Level);
 
 					//如果升级后还能升级，则递归调用
 					if(CharacterAttribute->CurrentExp >= CharacterAttribute->MaxExp)

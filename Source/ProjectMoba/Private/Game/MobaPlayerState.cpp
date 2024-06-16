@@ -31,20 +31,24 @@ void AMobaPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/** 获取基地商店位置 */
+	/** 获取基地商店位置和血池位置 */
 	TArray<AActor*> SpawnPointArrays;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACharacterSpawnPoint::StaticClass() , SpawnPointArrays);
 
 	for(auto& Tmp : SpawnPointArrays)
 	{
-		if(ACharacterSpawnPoint* ShopSpawnPoint = Cast<ACharacterSpawnPoint>(Tmp))
+		if(ACharacterSpawnPoint* SpawnPoint = Cast<ACharacterSpawnPoint>(Tmp))
 		{
-			if(ShopSpawnPoint->GetCharacterType() == ECharacterType::ECT_HomeShop && ShopSpawnPoint->GetTeamType() == PlayerDataComponent->TeamType)
+			if(SpawnPoint->GetCharacterType() == ECharacterType::ECT_HomeShop && SpawnPoint->GetTeamType() == PlayerDataComponent->TeamType)
 			{
-				HomeShopLocation = ShopSpawnPoint->GetActorLocation();
-				break;
+				HomeShopLocation = SpawnPoint->GetActorLocation();
+				DrawDebugSphere(GetWorld(), HomeShopLocation, HomeShopRange, 32, FColor::Yellow, true);
 			}
-			
+			else if(SpawnPoint->GetCharacterType() == ECharacterType::ECT_Pool && SpawnPoint->GetTeamType() == PlayerDataComponent->TeamType)
+			{
+				PoolLocation = SpawnPoint->GetActorLocation();
+				DrawDebugSphere(GetWorld(), PoolLocation, PoolRange, 32, FColor::Green, true);
+			}
 		}
 	}
 
@@ -78,14 +82,13 @@ void AMobaPlayerState::BeginPlay()
 			{
 				//初始化属性(整包更新)
 				MobaGameState->RequestUpdateCharacterAttribute(GetPlayerID(), GetPlayerID(), ECharacterAttributeType::ECAT_All);
-
-				// 注册BUFF
-				if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
-				{
-					CharacterAttribute->SetBuff(PlayerDataComponent->SlotAttributes.ToSharedRef());
-				}
 			}
 
+			// 注册BUFF
+			if(FCharacterAttribute* CharacterAttribute = GetOwnerCharacterAttribute())
+			{
+				CharacterAttribute->SetBuff(PlayerDataComponent->SlotAttributes.ToSharedRef());
+			}
 			
 		});
 	}
@@ -100,6 +103,7 @@ void AMobaPlayerState::Tick(float DeltaSeconds)
 		Tick_Server_AddGoldPerSecond(DeltaSeconds);
 		Tick_Server_CheckDistanceFromHomeShop(DeltaSeconds);
 		Tick_Server_UpdateBuff(DeltaSeconds);
+		Tick_Server_ContinuousRecovery(DeltaSeconds);
 		
 		Tick_Server_UpdateSlotCD(DeltaSeconds);
 	}
@@ -123,7 +127,7 @@ void AMobaPlayerState::Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds)
 	for(auto& Tmp : PlayerDataComponent->SaleSlotDistanceQueue)
 	{
 		//如果角色距离商店大于1000，则无法原价取消，只能打折出售
-		if(Distance >= 1000.0f)
+		if(Distance >= HomeShopRange)
 		{
 			Tmp.Value->bCancelBuy = false;
 			Client_UpdateSlot(Tmp.Key, *Tmp.Value);
@@ -147,7 +151,7 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 	{
 		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 		{
-			if(FCharacterAttribute* CharacterAttribute = MethodUnit::GetCharacterAttributeFromPlayerID(GetWorld(), GetPlayerID()))
+			if(FCharacterAttribute* CharacterAttribute = GetOwnerCharacterAttribute())
 			{
 				if(AMobaPawn* MobaPawn = Cast<AMobaPawn>(GetPawn()))
 				{
@@ -254,6 +258,66 @@ void AMobaPlayerState::Tick_Server_UpdateSlotCD(float DeltaSeconds)
 		for(auto& RemoveSlotID : RemoveSlotIDs)
 		{
 			PlayerDataComponent->SlotCDQueue.Remove(RemoveSlotID);
+		}
+	}
+}
+
+void AMobaPlayerState::Tick_Server_ContinuousRecovery(float DeltaSeconds)
+{
+	RecoveryTime += DeltaSeconds;
+	if(RecoveryTime >= 1.0f)
+	{
+		RecoveryTime = 0.0f;
+
+
+		if(AMobaHeroCharacter* MobaHero = GetPawn<AMobaPawn>()->GetControlledMobaHero())
+		{
+			if(FCharacterAttribute* CharacterAttribute = GetOwnerCharacterAttribute())
+			{
+				//lambda
+				auto Multicast_UI = [&](ECharacterAttributeType CharacterAttributeType, float Value)
+				{
+					if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+					{
+						//状态栏
+						MobaGameState->Multicast_CharacterAttributeChanged(MobaHero, CharacterAttributeType, Value);
+						
+						//面板
+						MobaGameState->RequestUpdateCharacterAttribute(GetPlayerID(), GetPlayerID(), CharacterAttributeType);
+					}
+				};
+
+				
+				float HpRecoveryAmount = 0.0f;
+				float MpRecoveryAmount = 0.0f;
+
+				//检测血池
+				float Distance = FVector::Dist(MobaHero->GetActorLocation(), PoolLocation);
+				if(Distance <= PoolRange) // 目前血池回复量有点大，后续调整
+				{
+					HpRecoveryAmount = CharacterAttribute->GetMaxHealth() * (1.1f - Distance/1000.0f); 
+					MpRecoveryAmount = CharacterAttribute->GetMaxMana() * (1.1f - Distance/1000.0f);
+				}
+				else //血池外的恢复量， 后续应改成和属性相关
+				{
+					HpRecoveryAmount = 2.0f;
+					MpRecoveryAmount = 1.5f;
+				}
+				
+
+				//回复
+				if(CharacterAttribute->CurrentHealth < CharacterAttribute->MaxHealth)
+				{
+					CharacterAttribute->CurrentHealth = FMath::Clamp(CharacterAttribute->CurrentHealth + HpRecoveryAmount, 0.0f, CharacterAttribute->MaxHealth);
+					Multicast_UI(ECharacterAttributeType::ECAT_CurrentHealth, CharacterAttribute->GetHealthPercent());
+				}
+				
+				if(CharacterAttribute->CurrentMana < CharacterAttribute->MaxMana)
+				{
+					CharacterAttribute->CurrentMana = FMath::Clamp(CharacterAttribute->CurrentMana + MpRecoveryAmount, 0.0f, CharacterAttribute->MaxMana);
+					Multicast_UI(ECharacterAttributeType::ECAT_CurrentMana, CharacterAttribute->GetManaPercent());
+				}
+			}
 		}
 	}
 }
@@ -804,6 +868,15 @@ void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
 	
 }
 
+FCharacterAttribute* AMobaPlayerState::GetOwnerCharacterAttribute() const
+{
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		return MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID());
+	}
+	return nullptr;
+}
+
 void AMobaPlayerState::GetPlayerKDANetPackage(FPlayerKDANetPackage& OutPlayerKDANetPackage)
 {
 	OutPlayerKDANetPackage.KillNum = GetPlayerDataComponent()->KillNum;
@@ -878,12 +951,9 @@ void AMobaPlayerState::Server_UpdateSkillLevel_Implementation(int32 SlotID)
 	//lambda 获取角色等级
 	auto GetCharacterLevel = [&]()->int32
 	{
-		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		if(FCharacterAttribute* CharacterAttribute = GetOwnerCharacterAttribute())
 		{
-			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
-			{
-				return CharacterAttribute->Level;
-			}
+			return CharacterAttribute->Level;
 		}
 		return INDEX_NONE;
 	};

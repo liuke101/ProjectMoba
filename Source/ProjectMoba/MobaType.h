@@ -26,6 +26,7 @@ enum class ECharacterType : uint8
 
 	//商店
 	ECT_HomeShop UMETA(DisplayName="HomeShop"), //基地商店
+	ECT_Pool UMETA(DisplayName="Pool"), //血池
 };
 
 /** 队伍类型 */

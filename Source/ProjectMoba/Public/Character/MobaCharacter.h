@@ -63,10 +63,6 @@ public:
 	/** 状态栏广播 */
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_StatusBar(float HealthPercent, float ManaPercent);
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_StatusBar_Health(float HealthPercent);
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_StatusBar_Mana(float ManaPercent);
 	
 	void InitHealthBarColorfromTeamType(); //跟据队伍类型初始化血条颜色
 	

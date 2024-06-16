@@ -48,6 +48,7 @@ private:
 	void Tick_Server_CheckDistanceFromHomeShop(float DeltaSeconds); // 服务器检查距离商店的距离
 	void Tick_Server_UpdateBuff(float DeltaSeconds); // 服务器Buff
 	void Tick_Server_UpdateSlotCD(float DeltaSeconds); // 服务器更新CD 技能、物品、buff
+	void Tick_Server_ContinuousRecovery(float DeltaSeconds); // 服务器持续恢复血量蓝量、血池回血
 #pragma endregion
 	
 #pragma region Delegate
@@ -158,6 +159,9 @@ public:
 
 #pragma region 角色属性信息
 	void UpdateCharacterInfo(const int64& InPlayerID);
+
+	//获取本地玩家控制的角色属性
+	FCharacterAttribute* GetOwnerCharacterAttribute() const;
 #pragma endregion
 
 #pragma region 游戏信息
@@ -285,8 +289,7 @@ public:
 public:
 	FORCEINLINE UPlayerDataComponent* GetPlayerDataComponent() const { return PlayerDataComponent; }
 	FORCEINLINE int64 GetPlayerID() const { return PlayerDataComponent->PlayerID; }
-	
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Moba|Component")
 	TObjectPtr<UPlayerDataComponent> PlayerDataComponent;
@@ -307,9 +310,15 @@ private:
 	TObjectPtr<UMobaAssistSystemComponent> MobaAssitSystemComponent;
 	
 	float GoldTime = 0.0f; //金币时间
-	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
 	float BuffTime = 0.0f; //Buff时间
+	float RecoveryTime = 0.0f; //恢复时间
+	
+	FVector HomeShopLocation = FVector::ZeroVector; //商店位置
+	FVector PoolLocation = FVector::ZeroVector; //血池位置
 
-
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Config", meta=(AllowPrivateAccess))
+	float HomeShopRange = 200.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Config", meta=(AllowPrivateAccess))
+	float PoolRange = 500.0f;
 #pragma endregion 
 };
