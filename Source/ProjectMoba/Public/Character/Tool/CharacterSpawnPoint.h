@@ -20,6 +20,7 @@ public:
 public:
 	FORCEINLINE ETeamType GetTeamType() const { return TeamType; }
 	FORCEINLINE ECharacterType GetCharacterType() const { return CharacterType; }
+	FORCEINLINE float GetSpawnTime() const { return SpawnTime; }
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Type")
@@ -28,5 +29,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Type")
 	ECharacterType CharacterType = ECharacterType::ECT_None;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Type")
+	float SpawnTime;
 };

@@ -8,10 +8,11 @@
 #include "Table/CharacterAttribute.h"
 #include "MobaGameState.generated.h"
 
+class UMobaSpawnMonsterComponent;
 class AMobaCharacter;
 class AMobaPlayerState;
 class UMobaKillSystemComponent;
-class UMobaMinionSystemComponent;
+class UMobaSpawnMinionComponent;
 class UMobaMinionSystem;
 struct FMobaAssitSystem;
 struct FAssistPlayer;
@@ -141,7 +142,7 @@ private:
 
 	/** 击杀系统 */
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
-	TObjectPtr<UMobaKillSystemComponent> MobaKillSystemComponent;
+	TObjectPtr<UMobaKillSystemComponent> KillSystemComponent;
 	//FMobaKillSystem MobaKillSystem;
 	
 	/** 团队杀敌数 */
@@ -150,5 +151,8 @@ private:
 	/** 小兵系统 */
 	//TObjectPtr<UMobaMinionSystem> MobaMinionSystem;
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
-	TObjectPtr<UMobaMinionSystemComponent> MobaMinionSystemComponent;
+	TObjectPtr<UMobaSpawnMinionComponent> SpawnMinionComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
+	TObjectPtr<UMobaSpawnMonsterComponent> SpawnMonsterComponent;
 };

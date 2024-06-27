@@ -151,7 +151,7 @@ public:
 	
 #pragma region 助攻
 	/** 助攻 */
-	UMobaAssistSystemComponent* GetMobaAssistSystemComponent() const { return MobaAssitSystemComponent; }
+	UMobaAssistSystemComponent* GetMobaAssistSystemComponent() const { return AssitSystemComponent; }
 	FORCEINLINE TArray<FAssistPlayer> GetAssistPlayers() const;
 	void AddAssistPlayer(const int64& InPlayerID) const;
 	const FAssistPlayer* GetLastAssistPlayer() const; //获取最后一个助攻玩家
@@ -307,7 +307,7 @@ private:
 	
 	/** 助攻系统 */
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
-	TObjectPtr<UMobaAssistSystemComponent> MobaAssitSystemComponent;
+	TObjectPtr<UMobaAssistSystemComponent> AssitSystemComponent;
 	
 	float GoldTime = 0.0f; //金币时间
 	float BuffTime = 0.0f; //Buff时间

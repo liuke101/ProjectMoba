@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "ProjectMoba/MobaType.h"
-#include "MobaMinionSystemComponent.generated.h"
+#include "MobaSpawnActorComponent.h"
+#include "MobaSpawnMinionComponent.generated.h"
 
 
 class ACharacterSpawnPoint;
 class AMobaCharacter;
 
+/** 小兵生成器 */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECTMOBA_API UMobaMinionSystemComponent : public UActorComponent
+class PROJECTMOBA_API UMobaSpawnMinionComponent : public UMobaSpawnActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	UMobaMinionSystemComponent();
+	UMobaSpawnMinionComponent();
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,13 +25,14 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+protected:
+	virtual void InitSpawnPoint(TArray<ACharacterSpawnPoint*> SpawnPoints) override;
+	
 	void SpawnWarriorMinion();
 	void SpawnRemoteMinion();
 	void SpawnBigMinion();
 	void SpawnSuperMinion();
 
-private:
-	void SpawnMinion(int32 CharacterID, TArray<FVector>& Locations, ETeamType TeamType) const;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|MinionSystem")

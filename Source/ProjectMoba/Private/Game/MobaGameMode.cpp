@@ -55,14 +55,14 @@ void AMobaGameMode::SpawnMinionsOnServer() const
 				{
 					continue;
 				}
-				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WildMonster)
-				{
-					CharacterID = 33330;
-				}
-				else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_BossMonster)
-				{
-					CharacterID = 33331;
-				}
+				// else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WildMonster)
+				// {
+				// 	CharacterID = 33330;
+				// }
+				// else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_BossMonster)
+				// {
+				// 	CharacterID = 33331;
+				// }
 				
 				
 				if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
@@ -104,7 +104,7 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 				//TODO:断线重连
 
 				
-				MobaGameState->MobaKillSystemComponent->AddKiller(PlayerDataComponent->PlayerID);
+				MobaGameState->KillSystemComponent->AddKiller(PlayerDataComponent->PlayerID);
 			
 			}
 		}

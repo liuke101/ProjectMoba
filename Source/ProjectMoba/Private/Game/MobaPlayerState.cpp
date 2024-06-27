@@ -24,7 +24,7 @@ AMobaPlayerState::AMobaPlayerState()
 	
 	PlayerDataComponent = CreateDefaultSubobject<UPlayerDataComponent>(TEXT("PlayerDataComponent"));
 	
-	MobaAssitSystemComponent = CreateDefaultSubobject<UMobaAssistSystemComponent>(TEXT("MobaAssitComponent"));
+	AssitSystemComponent = CreateDefaultSubobject<UMobaAssistSystemComponent>(TEXT("MobaAssitComponent"));
 }
 
 void AMobaPlayerState::BeginPlay()
@@ -814,17 +814,17 @@ void AMobaPlayerState::ShowSkillLevelUpUI()
 
 TArray<FAssistPlayer> AMobaPlayerState::GetAssistPlayers() const
 {
-	return MobaAssitSystemComponent->GetAssistPlayers();
+	return AssitSystemComponent->GetAssistPlayers();
 }
 
 void AMobaPlayerState::AddAssistPlayer(const int64& InPlayerID) const
 {
-	MobaAssitSystemComponent->AddAssistPlayer(InPlayerID);
+	AssitSystemComponent->AddAssistPlayer(InPlayerID);
 }
 
 const FAssistPlayer* AMobaPlayerState::GetLastAssistPlayer() const
 {
-	return MobaAssitSystemComponent->GetLastAssistPlayer();
+	return AssitSystemComponent->GetLastAssistPlayer();
 }
 
 void AMobaPlayerState::UpdateCharacterInfo(const int64& InPlayerID)
