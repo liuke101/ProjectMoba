@@ -39,6 +39,7 @@ public:
 	TSubclassOf<ACharacter> DefaultCharacterClass;
 	
 	FORCEINLINE AMobaHeroCharacter* GetControlledMobaHero() const { return ControlledMobaHero; }
+	FORCEINLINE void SetControlledMobaHero(AMobaHeroCharacter* InControlledMobaHero) { ControlledMobaHero = InControlledMobaHero; }
 	
 	void SkillAttack(int32 SkillDataID) const;
 

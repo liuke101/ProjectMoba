@@ -32,7 +32,6 @@ void AMobaMonsterCharacter::InitCharacter()
 	{
 		MobaMonsterAIController->HomePoint = GetActorLocation();
 	}
-	
 }
 
 float AMobaMonsterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,

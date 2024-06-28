@@ -71,15 +71,18 @@ void UMobaSpawnMinionComponent::InitSpawnPoint(TArray<ACharacterSpawnPoint*> Spa
 
 void UMobaSpawnMinionComponent::SpawnWarriorMinion()
 {
+	
 	int CharacterID = 11110;
 	for(auto& RedLocation : RedLocations)
 	{
-		Spawn(CharacterID, RedLocation, ETeamType::ETT_Red);
+		int64 PlayerID = FMath::RandRange(0,999999);
+		Spawn(PlayerID, CharacterID, RedLocation, ETeamType::ETT_Red, GetCurrentLevel());
 	}
 
 	for(auto& BlueLocation: BlueLocations)
 	{
-		Spawn(CharacterID, BlueLocation, ETeamType::ETT_Blue);
+		int64 PlayerID = FMath::RandRange(0,999999);
+		Spawn(PlayerID, CharacterID, BlueLocation, ETeamType::ETT_Blue, GetCurrentLevel());
 	}
 }
 

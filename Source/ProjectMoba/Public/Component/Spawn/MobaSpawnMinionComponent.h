@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MobaSpawnActorComponent.h"
+#include "MobaSpawnAIComponent.h"
 #include "MobaSpawnMinionComponent.generated.h"
 
 
@@ -12,7 +12,7 @@ class AMobaCharacter;
 
 /** 小兵生成器 */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECTMOBA_API UMobaSpawnMinionComponent : public UMobaSpawnActorComponent
+class PROJECTMOBA_API UMobaSpawnMinionComponent : public UMobaSpawnAIComponent
 {
 	GENERATED_BODY()
 

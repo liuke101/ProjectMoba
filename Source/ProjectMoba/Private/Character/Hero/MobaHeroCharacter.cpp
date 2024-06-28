@@ -179,6 +179,13 @@ void AMobaHeroCharacter::AddExp(float InExp)
 	}
 }
 
+void AMobaHeroCharacter::Die()
+{
+	Super::Die();
+	
+	OnDieDelegate.ExecuteIfBound();
+}
+
 void AMobaHeroCharacter::Multicast_SpwanDrawGoldText_Implementation(int32 Value, float Percent,
                                                                     const FLinearColor& Color, const FVector& Location)
 {

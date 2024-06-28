@@ -2,7 +2,6 @@
 
 #include "Component/Spawn/MobaSpawnMonsterComponent.h"
 
-#include "ThreadManage.h"
 #include "Character/Monster/MobaMonsterCharacter.h"
 #include "Character/Tool/CharacterSpawnPoint.h"
 
@@ -95,16 +94,6 @@ void UMobaSpawnMonsterComponent::InitSpawnPoint(TArray<ACharacterSpawnPoint*> Sp
 			}
 		}
 	}
-
-	//60s后生成野怪
-	// GThread::GetCoroutines().BindLambda(60.0f, [&]()
-	// {
-	// 	for(auto& Tmp : MonsterGroups)
-	// 	{
-	// 		SpawnMonster(Tmp);
-	// 	}
-	// });
-	
 }
 
 void UMobaSpawnMonsterComponent::AllocationGroup(ACharacterSpawnPoint* SpawnPoint)
@@ -156,17 +145,19 @@ void UMobaSpawnMonsterComponent::SpawnMonster(FMonsterGroup& MonsterGroup)
 {
 	for(auto& Tmp : MonsterGroup.Monsters)
 	{
+		int64 PlayerID = FMath::RandRange(0,999999);
 		switch (MonsterGroup.CharacterType)
 		{
 		case ECharacterType::ECT_WildMonster:
-			Tmp.MonsterPtr = Spawn(33330, Tmp.SpawnPoint, ETeamType::ETT_Neutral);
+			Tmp.MonsterPtr = Spawn(PlayerID,33330, Tmp.SpawnPoint, ETeamType::ETT_Neutral,GetCurrentLevel());
 			break;
 		case ECharacterType::ECT_BossMonster:
-			Tmp.MonsterPtr = Spawn(33330, Tmp.SpawnPoint, ETeamType::ETT_Neutral);
+			Tmp.MonsterPtr = Spawn(PlayerID,33330, Tmp.SpawnPoint, ETeamType::ETT_Neutral,GetCurrentLevel());
 			break;
 		default:
 			break;
 		}
 	}
 }
+
 

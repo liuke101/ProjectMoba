@@ -138,6 +138,15 @@ void AMobaCharacter::NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget)
 	}
 }
 
+void AMobaCharacter::Die()
+{
+	//死亡2s后销毁
+	GThread::GetCoroutines().BindLambda(2.0f, [&]()
+	{
+		Destroy();
+	});
+}
+
 bool AMobaCharacter::IsDead() const
 {
 	if(FCharacterAttribute* CharacterAttribute = GetCharacterAttribute())
@@ -227,13 +236,7 @@ float AMobaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 								//移除小地图坐标
 								MobaGameState->RemoveCharacterLocation(PlayerID);
 								
-								//复活
-								//GThread::GetCoroutines().BindUObject(RebornTime, this, &AMobaCharacter::Multicast_Reborn);
-								//死亡2s后销毁
-								GThread::GetCoroutines().BindLambda(2.0f, [&]()
-								{
-									Destroy();
-								});
+								Die();
 							} 
 							else //受伤
 							{

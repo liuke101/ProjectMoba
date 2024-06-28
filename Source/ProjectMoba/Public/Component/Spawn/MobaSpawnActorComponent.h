@@ -29,9 +29,5 @@ public:
 protected:
 	virtual void InitSpawnPoint(TArray<ACharacterSpawnPoint*> SpawnPoints);
 	
-	AMobaCharacter* Spawn(int32 CharacterID, const FVector& Location, ETeamType TeamType) const;
-
-	
-
-	float CurrentLevel;
+	AMobaCharacter* Spawn(int64 PlayerID,int32 CharacterID, const FVector& Location, ETeamType TeamType, int32 Level=1) const;
 };

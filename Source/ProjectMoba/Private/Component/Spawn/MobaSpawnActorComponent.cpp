@@ -10,7 +10,6 @@
 
 
 UMobaSpawnActorComponent::UMobaSpawnActorComponent()
-	: CurrentLevel(1)
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -43,32 +42,6 @@ void UMobaSpawnActorComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
                                               FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	//随着时间升级
-	if(CurrentLevel<=18)
-	{
-		if(GetWorld()->GetRealTimeSeconds() >= 60 * 3.0f) //三分钟
-		{ 
-			CurrentLevel = 4;
-		}
-		else if(GetWorld()->GetRealTimeSeconds() >= 60 * 6.0f)
-		{
-			CurrentLevel = 8;
-		}
-		else if(GetWorld()->GetRealTimeSeconds() >= 60 * 10.0f)
-		{
-			CurrentLevel = 12;
-		}
-		else if(GetWorld()->GetRealTimeSeconds() >= 60 * 15.0f)
-		{
-			CurrentLevel = 16;
-		}
-		else if(GetWorld()->GetRealTimeSeconds() >= 60 * 20.0f)
-		{
-			CurrentLevel = 18;
-		}
-	}
-	
 }
 
 void UMobaSpawnActorComponent::InitSpawnPoint(TArray<ACharacterSpawnPoint*> SpawnPoints)
@@ -76,7 +49,7 @@ void UMobaSpawnActorComponent::InitSpawnPoint(TArray<ACharacterSpawnPoint*> Spaw
 }
 
 
-AMobaCharacter* UMobaSpawnActorComponent::Spawn(int32 CharacterID,  const FVector& Location, ETeamType TeamType) const
+AMobaCharacter* UMobaSpawnActorComponent::Spawn(int64 PlayerID, int32 CharacterID,  const FVector& Location, ETeamType TeamType,int32 Level) const
 {
 	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
@@ -86,8 +59,6 @@ AMobaCharacter* UMobaSpawnActorComponent::Spawn(int32 CharacterID,  const FVecto
 			{
 				if(AMobaCharacter* MobaCharacter = GetWorld()->SpawnActor<AMobaCharacter>(CharacterAsset->CharacterClass, Location, FRotator::ZeroRotator))
 				{
-					int64 PlayerID = FMath::RandRange(0, 1000000); 
-			
 					if(PlayerID!= INDEX_NONE)
 					{
 						MobaCharacter->RegisterCharacterOnServer(PlayerID, CharacterID, TeamType, CharacterAsset->CharacterType);
@@ -96,7 +67,7 @@ AMobaCharacter* UMobaSpawnActorComponent::Spawn(int32 CharacterID,  const FVecto
 
 					if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(PlayerID))
 					{
-						for(int32 i = 1; i < CurrentLevel; i++)
+						for(int32 i = 1; i < Level; i++)
 						{
 							CharacterAttribute->UpdateLevel();
 						}

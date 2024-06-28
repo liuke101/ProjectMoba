@@ -6,6 +6,7 @@
 #include "Character/MobaCharacter.h"
 #include "MobaHeroCharacter.generated.h"
 
+
 UCLASS()
 class PROJECTMOBA_API AMobaHeroCharacter : public AMobaCharacter
 {
@@ -41,6 +42,10 @@ public:
 
 	// 增加经验值
 	void AddExp(float InExp);
+
+public:
+	FSimpleDelegate OnDieDelegate;
+	virtual void Die() override;
 
 	
 	

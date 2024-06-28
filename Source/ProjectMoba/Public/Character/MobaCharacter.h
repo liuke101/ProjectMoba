@@ -30,8 +30,10 @@ protected:
 public:
 	/** 普通攻击 */
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
-	
+
+	virtual void Die();
 	bool IsDead() const;
+	
 
 	//添加子弹弱引用
 	void AddBulletPtr(ABullet* InBullet);

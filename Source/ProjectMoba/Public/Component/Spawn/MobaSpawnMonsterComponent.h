@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MobaSpawnActorComponent.h"
+#include "MobaSpawnAIComponent.h"
+#include "MobaSpawnPlayerComponent.h"
 #include "MobaSpawnMonsterComponent.generated.h"
 
 
@@ -37,7 +38,7 @@ struct FMonsterGroup
 
 /** 怪物生成器 */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECTMOBA_API UMobaSpawnMonsterComponent : public UMobaSpawnActorComponent
+class PROJECTMOBA_API UMobaSpawnMonsterComponent : public UMobaSpawnAIComponent
 {
 	GENERATED_BODY()
 
@@ -57,7 +58,6 @@ protected:
 	void AllocationGroup(ACharacterSpawnPoint* SpawnPoint);
 	
 	void SpawnMonster(FMonsterGroup& MonsterGroup);
-	
 
 protected:
 	TArray<FMonsterGroup> MonsterGroups;

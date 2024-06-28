@@ -2,7 +2,10 @@
 
 
 #include "Game/MobaGameMode.h"
+
+#include "ThreadManage.h"
 #include "Character/MobaCharacter.h"
+#include "Character/Hero/MobaHeroCharacter.h"
 #include "Character/Tool/CharacterSpawnPoint.h"
 #include "Common/MethodUnit.h"
 #include "Component/MobaKillSystemComponent.h"
@@ -55,15 +58,6 @@ void AMobaGameMode::SpawnMinionsOnServer() const
 				{
 					continue;
 				}
-				// else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_WildMonster)
-				// {
-				// 	CharacterID = 33330;
-				// }
-				// else if(CharacterSpawnPoint->GetCharacterType()==ECharacterType::ECT_BossMonster)
-				// {
-				// 	CharacterID = 33331;
-				// }
-				
 				
 				if(const FCharacterAsset* CharacterAsset = MobaGameState->GetCharacterAssetFromCharacterID(CharacterID))
 				{
@@ -100,12 +94,36 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 				//赋值playerID
 				//MobaPlayerState->GetPlayerDataComponent()->PlayerID = FMath::RandRange(0, 1000000); 
 				MobaPlayerState->Client_UpdatePlayerData(MobaPlayerState->GetPlayerDataComponent()->PlayerID);
-
-				//TODO:断线重连
-
 				
 				MobaGameState->KillSystemComponent->AddKiller(PlayerDataComponent->PlayerID);
-			
+
+				//TODO:断线重连、
+				//遍历场景内有没有和我们的ID一样的角色，如果有就控制它
+
+				//玩家生成
+				// 从txt读取角色ID，然后根据角色ID生成角色
+				
+				GThread::GetCoroutines().BindLambda(0.5f, [](AMobaGameState * InGameState,AMobaPlayerState* InPlayerState)
+				{
+					if(AMobaPawn* MobaPawn = InPlayerState->GetPawn<AMobaPawn>())
+					{
+						TArray<FString> NumberStrings;
+						FFileHelper::LoadFileToStringArray(NumberStrings, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); 
+						int32 CharacterID = FCString::Atoi(*NumberStrings[0]);
+
+						InPlayerState->GetPlayerDataComponent()->TeamType = static_cast<ETeamType>(FCString::Atoi(*NumberStrings[1]));
+
+						//生成英雄
+						if(AMobaHeroCharacter* Hero = Cast<AMobaHeroCharacter>(InGameState->SpawnPlayerComponent->SpawnCharater(InPlayerState->GetPlayerID(), CharacterID, InPlayerState->GetPlayerDataComponent()->TeamType)))
+						{
+							//控制该英雄
+							MobaPawn->SetControlledMobaHero(Hero);
+
+							//镜头变换到英雄位置
+							MobaPawn->SetActorLocation(Hero->GetActorLocation());
+						}
+					}
+				}, MobaGameState, MobaPlayerState);
 			}
 		}
 	}

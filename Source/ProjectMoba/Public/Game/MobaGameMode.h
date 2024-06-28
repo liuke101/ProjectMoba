@@ -27,6 +27,7 @@ protected:
 protected:
 	void SpawnMinionsOnServer() const;
 
+	/** 登录 */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	
 };

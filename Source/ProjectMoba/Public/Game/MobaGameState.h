@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Component/Spawn/MobaSpawnPlayerComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "ProjectMoba/MobaType.h"
 #include "Table/CharacterAttribute.h"
@@ -143,16 +144,19 @@ private:
 	/** 击杀系统 */
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
 	TObjectPtr<UMobaKillSystemComponent> KillSystemComponent;
-	//FMobaKillSystem MobaKillSystem;
 	
 	/** 团队杀敌数 */
 	TMap<ETeamType, int32> TeamKillCount;
 
-	/** 小兵系统 */
-	//TObjectPtr<UMobaMinionSystem> MobaMinionSystem;
+	/** 小兵生成 */
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
 	TObjectPtr<UMobaSpawnMinionComponent> SpawnMinionComponent;
 
+	/** 怪物生成 */
 	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
 	TObjectPtr<UMobaSpawnMonsterComponent> SpawnMonsterComponent;
+
+	/** 玩家生成 */
+	UPROPERTY(EditDefaultsOnly, Category = "Moba|Component")
+	TObjectPtr<UMobaSpawnPlayerComponent> SpawnPlayerComponent;
 };

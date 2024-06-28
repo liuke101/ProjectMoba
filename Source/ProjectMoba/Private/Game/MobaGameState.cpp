@@ -23,6 +23,7 @@ AMobaGameState::AMobaGameState()
 	KillSystemComponent = CreateDefaultSubobject<UMobaKillSystemComponent>(TEXT("MobaKillSystemComponent"));
 	SpawnMinionComponent = CreateDefaultSubobject<UMobaSpawnMinionComponent>(TEXT("MobaSpawnMinionComponent"));
 	SpawnMonsterComponent = CreateDefaultSubobject<UMobaSpawnMonsterComponent>(TEXT("MobaSpawnMonsterComponent"));
+	SpawnPlayerComponent = CreateDefaultSubobject<UMobaSpawnPlayerComponent>(TEXT("MobaSpawnPlayerComponent"));
 }
 
 void AMobaGameState::BeginPlay()
