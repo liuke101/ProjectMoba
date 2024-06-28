@@ -152,7 +152,7 @@ void UMobaSpawnMonsterComponent::SpawnMonster(FMonsterGroup& MonsterGroup)
 			Tmp.MonsterPtr = Spawn(PlayerID,33330, Tmp.SpawnPoint, ETeamType::ETT_Neutral,GetCurrentLevel());
 			break;
 		case ECharacterType::ECT_BossMonster:
-			Tmp.MonsterPtr = Spawn(PlayerID,33330, Tmp.SpawnPoint, ETeamType::ETT_Neutral,GetCurrentLevel());
+			Tmp.MonsterPtr = Spawn(PlayerID,33331, Tmp.SpawnPoint, ETeamType::ETT_Neutral,GetCurrentLevel());
 			break;
 		default:
 			break;
