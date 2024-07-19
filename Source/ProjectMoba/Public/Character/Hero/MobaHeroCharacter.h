@@ -26,9 +26,6 @@ public:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_StatusBar_PlayerName(const FString& PlayerName);
-
-	// UFUNCTION(NetMulticast, Unreliable)
-	// void Multicast_StatusBar_Level(const int32 Level);
 	
 	/** 技能攻击 */
 	void SkillAttack(int32 SkillDataID);
@@ -47,6 +44,4 @@ public:
 	FSimpleDelegate OnDieDelegate;
 	virtual void Die() override;
 
-	
-	
 };

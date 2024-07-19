@@ -34,17 +34,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	/** 相机与角色解耦 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Moba|Class")
-	TSubclassOf<ACharacter> DefaultCharacterClass;
-	
 	FORCEINLINE AMobaHeroCharacter* GetControlledMobaHero() const { return ControlledMobaHero; }
 	FORCEINLINE void SetControlledMobaHero(AMobaHeroCharacter* InControlledMobaHero) { ControlledMobaHero = InControlledMobaHero; }
 	
 	void SkillAttack(int32 SkillDataID) const;
-
 #pragma region RPC
-
+public:
 	UFUNCTION(Server, Reliable)
 	void Server_CharacterMoveTo(const FVector& Destination);
 
@@ -62,11 +57,10 @@ public:
 	UPlayerDataComponent* GetPlayerDataComponent() const;
 #pragma endregion
 	
-
 protected:
-	UPROPERTY() // 防止被GC回收
+	UPROPERTY() 
 	TObjectPtr<AMobaHeroCharacter> ControlledMobaHero;
-
+	
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> RootBox;

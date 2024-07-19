@@ -1,9 +1,6 @@
 ﻿
 
 #include "Character/MobaPawn.h"
-
-#include "SimpleDrawText.h"
-#include "Actor/DrawText.h"
 #include "AI/MobaAIController.h"
 #include "Camera/CameraComponent.h"
 #include "Character/MobaCharacter.h"
@@ -11,10 +8,8 @@
 #include "Common/MethodUnit.h"
 #include "Component/PlayerDataComponent.h"
 #include "Components/BoxComponent.h"
-#include "Game/MobaGameState.h"
 #include "Game/MobaPlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Table/CharacterAsset.h"
 
 
 AMobaPawn::AMobaPawn()
@@ -52,13 +47,10 @@ void AMobaPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 	if(GetLocalRole() == ROLE_Authority)
 	{
-		if(DefaultCharacterClass)
+		if(ControlledMobaHero)
 		{
-			if(ControlledMobaHero)
-			{
-				ControlledMobaHero->Destroy();
-				ControlledMobaHero = nullptr;
-			}
+			ControlledMobaHero->Destroy();
+			ControlledMobaHero = nullptr;
 		}
 	}
 }
@@ -98,7 +90,6 @@ int64 AMobaPawn::GetPlayerID()
 
 UPlayerDataComponent* AMobaPawn::GetPlayerDataComponent() const
 {
-	//if(AMobaPlayerState* MobaPlayerState = GetController()->GetPlayerState<AMobaPlayerState>())
 	if(AMobaPlayerState* MobaPlayerState = GetPlayerState<AMobaPlayerState>())
 	{
 		return MobaPlayerState->GetPlayerDataComponent();

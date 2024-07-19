@@ -51,6 +51,10 @@
 			"Name": "SimpleDrawText",
 			"Enabled": true,
 			"MarketplaceURL": "https://renzhai.net/150.html"
+		},
+		{
+			"Name": "SimpleMySQL",
+			"Enabled": true
 		}
 	]
 }

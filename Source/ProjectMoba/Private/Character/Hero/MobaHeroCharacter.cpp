@@ -80,18 +80,6 @@ void AMobaHeroCharacter::Multicast_StatusBar_PlayerName_Implementation(const FSt
 	}
 }
 
-// void AMobaHeroCharacter::Multicast_StatusBar_Level_Implementation(const int32 Level)
-// {
-// 	if(GetLocalRole() != ROLE_Authority)
-// 	{
-// 		if(const UUI_StatusBar* StatusBarUI = Cast<UUI_StatusBar>(StatusBarComponent->GetUserWidgetObject()))
-// 		{
-// 			StatusBarUI->SetLevel(Level); 
-// 		}
-// 	}
-// }
-
-
 void AMobaHeroCharacter::SkillAttack(int32 SkillDataID)
 {
 	if(UAnimMontage* Montage = GetSkillMontageFromDataID(SkillDataID))
