@@ -87,6 +87,7 @@ void AMobaCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void AMobaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	if(GetLocalRole()==ROLE_Authority)
 	{
 		SpawnDefaultController(); //生成AIController

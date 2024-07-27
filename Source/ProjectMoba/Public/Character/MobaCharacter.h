@@ -28,9 +28,9 @@ protected:
 
 #pragma region "战斗"
 public:
-	/** 普通攻击 */
+	// 普通攻击，由AIController驱动，仅运行在服务器
 	void NormalAttack(TWeakObjectPtr<AMobaCharacter> InTarget);
-
+	
 	virtual void Die();
 	bool IsDead() const;
 	

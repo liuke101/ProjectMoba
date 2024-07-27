@@ -3,7 +3,6 @@
 #include "UI/Inventory/UI_InventorySlot.h"
 
 #include "EnhancedInputComponent.h"
-#include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "UI/Inventory/DragDrop/UI_IconDragDrop.h"
@@ -230,11 +229,11 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 				if(TargetSlotData->DataID == INDEX_NONE)
 				{
 					// 其他数据由服务器处理，客户端只关心和表现相关的数据
-					BuildSlot.MaxCD = DraggedInventorySlot->BuildSlot.MaxCD;
+					MaxCD = DraggedInventorySlot->MaxCD;
 				}
 				else //如果目标Slot不为空，交换位置
 				{
-					Swap(DraggedInventorySlot->BuildSlot.MaxCD,BuildSlot.MaxCD);
+					Swap(DraggedInventorySlot->MaxCD,MaxCD);
 				}
 
 				//通知服务器更新数据

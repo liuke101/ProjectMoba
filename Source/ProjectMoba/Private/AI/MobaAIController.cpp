@@ -14,12 +14,8 @@ void AMobaAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	/** 仅在服务端运行行为树 */ 
-	if(GetLocalRole()==ROLE_Authority)
-	{
-		//延迟运行行为树，否则 UUBTDecorator_MobaAttackRange::InitializeMemory 获取角色属性时崩溃
-		GThread::GetCoroutines().BindUObject(0.2f, this, &AMobaAIController::InitMobaAIController);
-	}
+	//延迟运行行为树，否则 UUBTDecorator_MobaAttackRange::InitializeMemory 获取角色属性时崩溃
+	GThread::GetCoroutines().BindUObject(0.2f, this, &AMobaAIController::InitMobaAIController);
 }
 
 

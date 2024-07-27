@@ -54,7 +54,7 @@ void AMobaPlayerState::BeginPlay()
 
 	if(GetWorld()->IsNetMode(NM_DedicatedServer))
 	{
-		//创建Slot
+		//服务端创建Slot
 		for(int32 i = 0; i < 6; i++)
 		{
 			RecursionCreateInventorySlots();
@@ -63,7 +63,9 @@ void AMobaPlayerState::BeginPlay()
 		{
 			RecursionCreateSkillSlots();
 		}
-		
+
+
+		//客户端同步Slot
 		GThread::GetCoroutines().BindLambda(2.0f,[&]()
 		{
 			// 初始化Slot
@@ -1317,7 +1319,6 @@ void AMobaPlayerState::Server_UpdateInventory_Implementation(int32 MoveSlotID, i
 		Client_UpdateSlot(MoveSlotID, MoveInventorySlotData);
 		Client_UpdateSlot(TargetSlotID, TargetInventorySlotData);
 	}
-	
 }
 
 void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)

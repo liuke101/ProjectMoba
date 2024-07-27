@@ -29,7 +29,7 @@ void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			if(SlotData->CD > 0.0f)
 			{
 				SlotData->CD -= InDeltaTime;
-				DrawSlotCDMat(SlotData->CD / BuildSlot.MaxCD); //注意这里要除MaxCD
+				DrawSlotCDMat(SlotData->CD / MaxCD); //注意这里要除MaxCD
 				DrawSlotCDText(SlotData->CD);
 			
 				if(SlotData->CD <= 0.0f)
@@ -40,7 +40,6 @@ void UUI_Slot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			}
 		}
 	}
-	
 }
 
 void UUI_Slot::ResetSlot()
@@ -80,7 +79,7 @@ void UUI_Slot::StartUpdateCD()
 	{
 		if(const FSlotData* SlotData = MobaPlayerState->GetSlotData(GetSlotID()))
 		{
-			BuildSlot.MaxCD = SlotData->CD;
+			MaxCD = SlotData->CD;
 		}
 	}
 }

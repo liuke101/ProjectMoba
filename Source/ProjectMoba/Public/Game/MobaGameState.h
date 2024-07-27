@@ -73,7 +73,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool GetCharacterLocation(const int64 PlayerID, FVector& OutLocation) const;
-
+	
 	FORCEINLINE const TArray<FPlayerLocation>& GetPlayerLocations() const { return PlayerLocations; }
 
 	/** ID */

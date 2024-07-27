@@ -27,8 +27,8 @@ public:
 	virtual void ResetSlot();
 	
 	//设置唯一ID, SlotID指的是格子的ID，而不是用于获取DataTable数据的dtID
-	FORCEINLINE void SetSlotID(const int32 InID) { BuildSlot.SlotID = InID; }
-	FORCEINLINE int32 GetSlotID() const { return BuildSlot.SlotID; }
+	FORCEINLINE void SetSlotID(const int32 InID) { SlotID = InID; }
+	FORCEINLINE int32 GetSlotID() const { return SlotID; }
 	
 #pragma region UI组件
 	/// 更新Icon
@@ -43,16 +43,10 @@ protected:
 #pragma endregion
 	
 protected:
-	//Slot数据结构
-	struct FBuildSlot
-	{
-		FBuildSlot()
-			:MaxCD(1.f)
-			,SlotID(INDEX_NONE)
-		{}
-		float MaxCD;
-		int32 SlotID;
-	} BuildSlot;
+	//Slot数据
+	float MaxCD = 1.f;
+	int32 SlotID = INDEX_NONE;
+
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> SlotIcon;

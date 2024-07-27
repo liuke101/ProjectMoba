@@ -20,8 +20,8 @@ void UUI_BuffSlot::NativeConstruct()
 
 void UUI_BuffSlot::UpdateCD(int32 InSlotID, float InMaxCD)
 {
-	BuildSlot.MaxCD = InMaxCD;
-	BuildSlot.SlotID = InSlotID;
+	MaxCD = InMaxCD;
+	SlotID = InSlotID;
 	CurrentBuffCD = InMaxCD;
 
 	if (AMobaPlayerState *InPlayerState = MethodUnit::GetMobaPlayerState(GetWorld()))
@@ -38,7 +38,7 @@ void UUI_BuffSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
 	CurrentBuffCD -= InDeltaTime;
-	DrawSlotCDMat(CurrentBuffCD / BuildSlot.MaxCD);
+	DrawSlotCDMat(CurrentBuffCD / MaxCD);
 	if (CurrentBuffCD <= 0.f)
 	{
 		CurrentBuffCD = 0.f;

@@ -180,7 +180,6 @@ public:
 public:
 	UFUNCTION(Client, Reliable)
 	void Client_UpdatePlayerData(const int64& InPlayerID);
-
 	
 	void GetInventorySlotNetPackage(FSlotDataNetPackage& OutNetPackage);
 	void GetSkillSlotNetPackage(FSlotDataNetPackage& OutNetPackage);
