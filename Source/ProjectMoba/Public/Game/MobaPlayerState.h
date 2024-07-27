@@ -209,6 +209,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_CancelBuy(int32 SlotID, int32 DataID);
 
+	UFUNCTION(Server, Reliable)
+	void Server_Equip(int32 SlotID);
+
+	UFUNCTION(Server, Reliable)
+	void Server_UnEquip(int32 SlotID);
+
 	UFUNCTION(Client, Reliable)
 	void Client_InitInventorySlots(const FSlotDataNetPackage& SlotDataNetPackage);
 

@@ -152,6 +152,11 @@ float FCharacterAttribute::GetPhysicalPenetration() const
 	CALCULATE_ATTRIBUTE_VALUE(PhysicalPenetration);
 }
 
+float FCharacterAttribute::GetPhysicalAttack() const
+{
+	CALCULATE_ATTRIBUTE_VALUE(PhysicalAttack);
+}
+
 float FCharacterAttribute::GetMagicAttack() const
 {
 	CALCULATE_ATTRIBUTE_VALUE(MagicAttack);
@@ -189,16 +194,6 @@ float FCharacterAttribute::GetExpReward() const
 
 float FCharacterAttribute::GetGoldReward() const
 {
-	//击杀系统 联系到一起
-
-	//连续计算
-
-	//对方是不是死成鬼
-
 	return GoldReward;
 }
 
-float FCharacterAttribute::GetPhysicalAttack() const
-{
-	CALCULATE_ATTRIBUTE_VALUE(PhysicalAttack);
-}

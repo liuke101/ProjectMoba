@@ -162,18 +162,19 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 						BuffTime = 0.f;
 
 						//lambda 获取属性变化量
-						auto GetAttributeChangeValue = [&](const FSlotAttributeValue& InSlotAttribute, float &InNewValue, const ECharacterAttributeType& CharacterAttributeType)->float
+						auto GetAttributeChangeValue = [&](const FSlotAttributeValue& InSlotAttributeValue, float &InValue, const ECharacterAttributeType& CharacterAttributeType)->float
 						{
-							float LastValue = InNewValue;
+							float LastValue = InValue;
 							
-							InNewValue = CalculationUnit::GetSlotAttributeValue(InSlotAttribute, InNewValue);
-							if(InNewValue != LastValue)
+							InValue = CalculationUnit::GetAttributeValue(InValue,InSlotAttributeValue);
+							
+							if(InValue != LastValue)
 							{
 								//如果属性变化，则更新属性
 								MobaGameState->RequestUpdateCharacterAttribute(PlayerDataComponent->PlayerID, PlayerDataComponent->PlayerID, CharacterAttributeType);
 							}
 
-							return InNewValue - LastValue;
+							return InValue - LastValue;
 						};
 
 						//根据属性变化量 更新UI
@@ -181,7 +182,7 @@ void AMobaPlayerState::Tick_Server_UpdateBuff(float DeltaSeconds)
 						{
 							if(const FSlotAttribute* BuffSlotAttribute = GetSlotAttributeFromSlotID(Tmp.Key))
 							{
-								//只计算持续性Buff
+								//只计算持续性类型：该类型视为Buff
 								if(BuffSlotAttribute->AttributeType == ESlotAttributeType::ESAT_Continuous)
 								{
 									//广播增益数值
@@ -1252,6 +1253,7 @@ void AMobaPlayerState::Server_Buy_Implementation(int32 DataID)
 			if(AddSlotToInventory(DataID))
 			{
 				PlayerDataComponent->Gold -= SlotAsset->SlotGold;
+				Server_Equip(DataID);
 			}
 		}
 	}
@@ -1261,6 +1263,7 @@ void AMobaPlayerState::Server_Sell_Implementation(int32 SlotID, int32 DataID)
 {
 	//5折出售
 	Sell(SlotID, DataID, 0.5f);
+	Server_UnEquip(SlotID);
 }
 
 void AMobaPlayerState::Server_CancelBuy_Implementation(int32 SlotID, int32 DataID)
@@ -1412,6 +1415,43 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 
 	
 }
+
+void AMobaPlayerState::Server_Equip_Implementation(int32 SlotID)
+{
+	FSlotData* SlotData = GetInventorySlotData(SlotID);
+
+	if(SlotData)
+	{
+		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		{
+			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+			{
+				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+				{
+					//更新属性
+					auto UpdateAttributeValue = [&](const FSlotAttributeValue& InSlotAttributeValue, float &InValue, const ECharacterAttributeType& CharacterAttributeType)
+					{
+						float LastValue = InValue;
+							
+						InValue = CalculationUnit::GetAttributeValue(InValue,InSlotAttributeValue);
+							
+						if(InValue != LastValue)
+						{
+							//如果属性变化，则更新属性
+							MobaGameState->RequestUpdateCharacterAttribute(PlayerDataComponent->PlayerID, PlayerDataComponent->PlayerID, CharacterAttributeType);
+						}
+					};
+				}
+			}
+		}
+	}
+}
+
+void AMobaPlayerState::Server_UnEquip_Implementation(int32 SlotID)
+{
+}
+
+
 
 void AMobaPlayerState::Client_InitInventorySlots_Implementation(const FSlotDataNetPackage& SlotDataNetPackage)
 {

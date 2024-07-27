@@ -23,5 +23,6 @@ namespace CalculationUnit
 	/** 对方给我造成的伤害 */
 	float GetTotalDamage( AMobaCharacter* InTarget, AMobaCharacter* InEnemy, const FSlotAttribute* SlotAttribute = nullptr);
 
-	float GetSlotAttributeValue(const FSlotAttributeValue& InSlotAttribute, float BaseAttributeValue);
+	/** 获取基础值与SlotAttributeValue计算后的值 */
+	float GetAttributeValue(float BaseAttributeValue, const FSlotAttributeValue& InSlotAttribute);
 }

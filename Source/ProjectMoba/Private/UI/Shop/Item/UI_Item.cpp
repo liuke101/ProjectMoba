@@ -1,8 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "UI/Shop/Item/UI_Item.h"
-#include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Table/SlotAsset.h"
 #include "UI/Tip/UI_Tip.h"
@@ -10,8 +8,6 @@
 void UUI_Item::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	
 }
 
 void UUI_Item::UpdateSlot(const FSlotAsset* SlotAsset)

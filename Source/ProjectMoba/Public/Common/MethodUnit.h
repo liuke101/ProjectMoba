@@ -81,7 +81,7 @@ namespace MethodUnit
 template <class T>
 void MethodUnit::ServerCallAllPlayerController(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
 {
-	// 令所有的PlayerController执行 void InImplement(T*) 函数
+	// 令所有的PlayerController执行InImplement函数
 	for(auto It = InWorld->GetPlayerControllerIterator(); It; ++It)
 	{
 		if(T* PlayerController = Cast<T>(*It))
@@ -97,8 +97,7 @@ void MethodUnit::ServerCallAllPlayerController(UWorld* InWorld, TFunction<EServe
 template <class T>
 void MethodUnit::ServerCallAllPlayerState(UWorld* InWorld, TFunction<EServerCallType(T*)> InImplement)
 {
-	// 令所有的PlayerController执行 Lambda 函数
-	// 通过该 Lambda 函数调用所有的PlayerState 执行 InImplement 函数
+	// 令所有的PlayerState执行 InImplement 函数
 	ServerCallAllPlayerController<APlayerController>(InWorld, [&](const APlayerController* PlayerController)->EServerCallType
 	{
 		if(T* PlayerState = PlayerController->GetPlayerState<T>())

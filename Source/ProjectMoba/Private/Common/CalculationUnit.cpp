@@ -14,7 +14,7 @@ float CalculationUnit::GetArmor( AMobaCharacter* InTarget,  AMobaCharacter* InEn
 			float PhysicalPenetration = InEnemyData->GetPhysicalPenetration();
 			if (SlotAttribute)
 			{
-				PhysicalPenetration = GetSlotAttributeValue(SlotAttribute->PhysicalPenetration, PhysicalPenetration);
+				PhysicalPenetration = GetAttributeValue(PhysicalPenetration,SlotAttribute->PhysicalPenetration);
 			}
 
 			return OriginalData->GetArmor() * (1.f - PhysicalPenetration / 100.f);
@@ -33,7 +33,7 @@ float CalculationUnit::GetMagicResistance(AMobaCharacter* InTarget,  AMobaCharac
 			float MagicPenetration = InEnemyData->GetMagicPenetration();
 			if (SlotAttribute)
 			{
-				MagicPenetration = GetSlotAttributeValue(SlotAttribute->MagicPenetration, MagicPenetration);
+				MagicPenetration = GetAttributeValue(MagicPenetration,SlotAttribute->MagicPenetration);
 			}
 
 			return OriginalData->GetMagicResistance() *(1.f - MagicPenetration / 100.f);
@@ -51,8 +51,8 @@ float CalculationUnit::GetAttack( AMobaCharacter* InOriginal, const FSlotAttribu
 		float CriticalStrike = OriginalData->GetCriticalRate();
 		if (SlotAttribute)
 		{
-			PhysicalAttack = GetSlotAttributeValue(SlotAttribute->PhysicalAttack, PhysicalAttack);
-			CriticalStrike = GetSlotAttributeValue(SlotAttribute->CriticalRate, CriticalStrike);
+			PhysicalAttack = GetAttributeValue(PhysicalAttack, SlotAttribute->PhysicalAttack);
+			CriticalStrike = GetAttributeValue(CriticalStrike, SlotAttribute->CriticalRate);
 		}
 
 		return PhysicalAttack * (1 + CriticalStrike) + OriginalData->Level;
@@ -80,7 +80,7 @@ float CalculationUnit::GetMagicDamage( AMobaCharacter* InTarget,  AMobaCharacter
 			float MagicAttackBaseValue = InEnemyData->GetMagicAttack();
 			if (SlotAttribute)
 			{
-				MagicAttackBaseValue = GetSlotAttributeValue(SlotAttribute->MagicAttack, MagicAttackBaseValue);
+				MagicAttackBaseValue = GetAttributeValue(MagicAttackBaseValue,SlotAttribute->MagicAttack);
 			}
 
 			return MagicAttackBaseValue * (100 / (100 + GetMagicResistance(InTarget, InEnemy, SlotAttribute)));
@@ -95,7 +95,7 @@ float CalculationUnit::GetTotalDamage( AMobaCharacter* InTarget,  AMobaCharacter
 	return GetPhysicalDamage(InTarget, InEnemy, SlotAttribute) + GetMagicDamage(InTarget, InEnemy, SlotAttribute);
 }
 
-float CalculationUnit::GetSlotAttributeValue(const FSlotAttributeValue& InSlotAttribute, float BaseAttributeValue)
+float CalculationUnit::GetAttributeValue(float BaseAttributeValue, const FSlotAttributeValue& InSlotAttribute)
 {
 
 	if(InSlotAttribute.ValueType == ESlotAttributeValueType::ESAVT_Value)
