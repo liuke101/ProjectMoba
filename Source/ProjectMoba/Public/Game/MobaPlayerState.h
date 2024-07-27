@@ -113,7 +113,7 @@ public:
 	/** 递归创建InventorySlot */
 	void RecursionCreateInventorySlots();
 	/** 根据DataID获取DataTable数据，然后添加到InventorySlot */
-	bool AddSlotToInventory(int32 DataID); 
+	int32 AddSlotToInventory(int32 DataID); 
 	/** 检查InventorySlot是否有空位 */
 	bool HasEmptyInventorySlot() const;
 	/** 查询对应InventorySlot是否有效, 有则返回true */
@@ -213,7 +213,7 @@ public:
 	void Server_Equip(int32 SlotID);
 
 	UFUNCTION(Server, Reliable)
-	void Server_UnEquip(int32 SlotID);
+	void Server_UnEquip(int32 DataID);
 
 	UFUNCTION(Client, Reliable)
 	void Client_InitInventorySlots(const FSlotDataNetPackage& SlotDataNetPackage);

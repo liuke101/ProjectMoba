@@ -512,8 +512,10 @@ void AMobaPlayerState::RecursionCreateInventorySlots()
 	RecursionCreatelSlots(PlayerDataComponent->InventorySlots, PlayerDataComponent->SkillSlots);
 }
 
-bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
+int32 AMobaPlayerState::AddSlotToInventory(int32 DataID)
 {
+	int32 SlotID = INDEX_NONE;
+	
 	if(const FSlotAsset* SlotAsset = GetSlotAssetFromDataID(DataID))
 	{
 		bool bIsExist = IsExistInInventory(DataID);
@@ -542,7 +544,6 @@ bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
 			return INDEX_NONE;
 		};
 
-		int32 SlotID = INDEX_NONE;
 		if(bIsConsumables) //如果是消耗品
 		{
 			if (bIsExist) //如果已经存在背包, 数量+1
@@ -589,10 +590,9 @@ bool AMobaPlayerState::AddSlotToInventory(int32 DataID)
 				Client_UpdateSlot(SlotID, PlayerDataComponent->InventorySlots[SlotID]);
 			}
 		}
-		return true;
 	}
 
-	return false;	
+	return SlotID;	
 }
 
 bool AMobaPlayerState::HasEmptyInventorySlot() const
@@ -680,6 +680,7 @@ void AMobaPlayerState::Sell(int32 SlotID, int32 DataID, float Discount)
 			{
 				SlotData->Reset();
 				PlayerDataComponent->SlotAttributes->Remove(SlotID);
+				Server_UnEquip(DataID);
 			}
 
 			//打折出售
@@ -1250,10 +1251,11 @@ void AMobaPlayerState::Server_Buy_Implementation(int32 DataID)
 	{
 		if(PlayerDataComponent->Gold >= SlotAsset->SlotGold)
 		{
-			if(AddSlotToInventory(DataID))
+			int32 SlotID = AddSlotToInventory(DataID);
+			if(SlotID != INDEX_NONE)
 			{
 				PlayerDataComponent->Gold -= SlotAsset->SlotGold;
-				Server_Equip(DataID);
+				Server_Equip(SlotID);
 			}
 		}
 	}
@@ -1263,7 +1265,6 @@ void AMobaPlayerState::Server_Sell_Implementation(int32 SlotID, int32 DataID)
 {
 	//5折出售
 	Sell(SlotID, DataID, 0.5f);
-	Server_UnEquip(SlotID);
 }
 
 void AMobaPlayerState::Server_CancelBuy_Implementation(int32 SlotID, int32 DataID)
@@ -1418,37 +1419,100 @@ void AMobaPlayerState::Server_Use_Implementation(int32 SlotID)
 
 void AMobaPlayerState::Server_Equip_Implementation(int32 SlotID)
 {
-	FSlotData* SlotData = GetInventorySlotData(SlotID);
-
-	if(SlotData)
+	//根据装备栏里的装备来更新属性
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
 	{
-		if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+		if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
 		{
-			if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+			if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID)) 
 			{
-				if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromSlotID(SlotID))
+				//更新属性
+				auto UpdateAttributeValue = [&](const FSlotAttributeValue& InSlotAttributeValue, float &InCharacterAttributeValue, const ECharacterAttributeType& CharacterAttributeType)
 				{
-					//更新属性
-					auto UpdateAttributeValue = [&](const FSlotAttributeValue& InSlotAttributeValue, float &InValue, const ECharacterAttributeType& CharacterAttributeType)
+					if(InSlotAttributeValue.Value > 0.0f)
 					{
-						float LastValue = InValue;
-							
-						InValue = CalculationUnit::GetAttributeValue(InValue,InSlotAttributeValue);
-							
-						if(InValue != LastValue)
+						float LastValue = InCharacterAttributeValue;
+						
+						//服务端属性更新
+						InCharacterAttributeValue = CalculationUnit::GetAttributeValue(InCharacterAttributeValue, InSlotAttributeValue);
+						
+						//客户端属性更新
+						if(InCharacterAttributeValue != LastValue)
 						{
-							//如果属性变化，则更新属性
 							MobaGameState->RequestUpdateCharacterAttribute(PlayerDataComponent->PlayerID, PlayerDataComponent->PlayerID, CharacterAttributeType);
 						}
-					};
-				}
+					}
+				};
+
+				//更新所有属性
+				UpdateAttributeValue(SlotAttribute->CurrentHealth, CharacterAttribute->CurrentHealth, ECharacterAttributeType::ECAT_CurrentHealth);
+				UpdateAttributeValue(SlotAttribute->CurrentMana, CharacterAttribute->CurrentMana, ECharacterAttributeType::ECAT_CurrentMana);
+				UpdateAttributeValue(SlotAttribute->MaxHealth, CharacterAttribute->MaxHealth, ECharacterAttributeType::ECAT_MaxHealth);
+				UpdateAttributeValue(SlotAttribute->MaxMana, CharacterAttribute->MaxMana, ECharacterAttributeType::ECAT_MaxMana);
+				UpdateAttributeValue(SlotAttribute->PhysicalAttack, CharacterAttribute->PhysicalAttack, ECharacterAttributeType::ECAT_PhysicalAttack);
+				UpdateAttributeValue(SlotAttribute->Armor, CharacterAttribute->Armor, ECharacterAttributeType::ECAT_Armor);
+				UpdateAttributeValue(SlotAttribute->PhysicalPenetration, CharacterAttribute->PhysicalPenetration, ECharacterAttributeType::ECAT_PhysicalPenetration);
+				UpdateAttributeValue(SlotAttribute->MagicAttack,
+					CharacterAttribute->MagicAttack, ECharacterAttributeType::ECAT_MagicAttack);
+				UpdateAttributeValue(SlotAttribute->MagicResistance,
+					CharacterAttribute->MagicResistance, ECharacterAttributeType::ECAT_MagicResistance);
+				UpdateAttributeValue(SlotAttribute->MagicPenetration,
+					CharacterAttribute->MagicPenetration, ECharacterAttributeType::ECAT_MagicPenetration);
+				UpdateAttributeValue(SlotAttribute->AttackSpeed, CharacterAttribute->AttackSpeed, ECharacterAttributeType::ECAT_AttackSpeed);
+				UpdateAttributeValue(SlotAttribute->WalkSpeed, CharacterAttribute->WalkSpeed, ECharacterAttributeType::ECAT_WalkSpeed);
+				UpdateAttributeValue(SlotAttribute->CriticalRate, CharacterAttribute->CriticalRate, ECharacterAttributeType::ECAT_CriticalRate);
 			}
 		}
 	}
 }
 
-void AMobaPlayerState::Server_UnEquip_Implementation(int32 SlotID)
+void AMobaPlayerState::Server_UnEquip_Implementation(int32 DataID)
 {
+	//装备栏里的装备已经不存在，要根据原先装备的DataID去查SlotAttribute表，减去属性
+	if(AMobaGameState* MobaGameState = MethodUnit::GetMobaGameState(GetWorld()))
+	{
+		if(FCharacterAttribute* CharacterAttribute = MobaGameState->GetCharacterAttributeFromPlayerID(GetPlayerID()))
+		{
+			if(FSlotAttribute* SlotAttribute = GetSlotAttributeFromDataID(DataID))
+			{
+				//更新属性
+				auto UpdateAttributeValue = [&](const FSlotAttributeValue& InSlotAttributeValue, float &InCharacterAttributeValue, const ECharacterAttributeType& CharacterAttributeType)
+				{
+					if(InSlotAttributeValue.Value > 0.0f)
+					{
+						float LastValue = InCharacterAttributeValue;
+
+						//服务端属性更新
+						InCharacterAttributeValue -= InSlotAttributeValue.Value;
+
+						//客户端属性更新
+						if(InCharacterAttributeValue != LastValue)
+						{
+							MobaGameState->RequestUpdateCharacterAttribute(PlayerDataComponent->PlayerID, PlayerDataComponent->PlayerID, CharacterAttributeType);
+						}
+					}
+				};
+
+				//更新所有属性
+				UpdateAttributeValue(SlotAttribute->CurrentHealth, CharacterAttribute->CurrentHealth, ECharacterAttributeType::ECAT_CurrentHealth);
+				UpdateAttributeValue(SlotAttribute->CurrentMana, CharacterAttribute->CurrentMana, ECharacterAttributeType::ECAT_CurrentMana);
+				UpdateAttributeValue(SlotAttribute->MaxHealth, CharacterAttribute->MaxHealth, ECharacterAttributeType::ECAT_MaxHealth);
+				UpdateAttributeValue(SlotAttribute->MaxMana, CharacterAttribute->MaxMana, ECharacterAttributeType::ECAT_MaxMana);
+				UpdateAttributeValue(SlotAttribute->PhysicalAttack, CharacterAttribute->PhysicalAttack, ECharacterAttributeType::ECAT_PhysicalAttack);
+				UpdateAttributeValue(SlotAttribute->Armor, CharacterAttribute->Armor, ECharacterAttributeType::ECAT_Armor);
+				UpdateAttributeValue(SlotAttribute->PhysicalPenetration, CharacterAttribute->PhysicalPenetration, ECharacterAttributeType::ECAT_PhysicalPenetration);
+				UpdateAttributeValue(SlotAttribute->MagicAttack,
+					CharacterAttribute->MagicAttack, ECharacterAttributeType::ECAT_MagicAttack);
+				UpdateAttributeValue(SlotAttribute->MagicResistance,
+					CharacterAttribute->MagicResistance, ECharacterAttributeType::ECAT_MagicResistance);
+				UpdateAttributeValue(SlotAttribute->MagicPenetration,
+					CharacterAttribute->MagicPenetration, ECharacterAttributeType::ECAT_MagicPenetration);
+				UpdateAttributeValue(SlotAttribute->AttackSpeed, CharacterAttribute->AttackSpeed, ECharacterAttributeType::ECAT_AttackSpeed);
+				UpdateAttributeValue(SlotAttribute->WalkSpeed, CharacterAttribute->WalkSpeed, ECharacterAttributeType::ECAT_WalkSpeed);
+				UpdateAttributeValue(SlotAttribute->CriticalRate, CharacterAttribute->CriticalRate, ECharacterAttributeType::ECAT_CriticalRate);
+			}
+		}
+	}
 }
 
 
