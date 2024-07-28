@@ -55,20 +55,20 @@ void AMobaPlayerState::BeginPlay()
 	if(GetWorld()->IsNetMode(NM_DedicatedServer))
 	{
 		//服务端创建Slot
+		//6x装备栏
 		for(int32 i = 0; i < 6; i++)
 		{
 			RecursionCreateInventorySlots();
 		}
+		//4x技能栏
 		for(int32 i = 0; i < 4; i++)
 		{
 			RecursionCreateSkillSlots();
 		}
 
-
-		//客户端同步Slot
 		GThread::GetCoroutines().BindLambda(2.0f,[&]()
 		{
-			// 初始化Slot
+			//客户端同步Slot
 			FSlotDataNetPackage NetInventoryPackage;
 			GetInventorySlotNetPackage(NetInventoryPackage);
 			Client_InitInventorySlots(NetInventoryPackage); //初始化背包

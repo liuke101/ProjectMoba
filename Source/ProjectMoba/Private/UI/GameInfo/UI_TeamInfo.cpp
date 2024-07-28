@@ -54,11 +54,11 @@ void UUI_TeamInfo::SpawnPlayerInfo(const TArray<FPlayerTeamNetPackage>& PlayerTe
 			{
 				UVerticalBoxSlot* GridSlot = nullptr;
 				//目前还没区分队伍
-				if(i % 2 == 0) //偶数在左列
+				if(i % 2 != 0) //奇数在左列
 				{
 					GridSlot = EnemyTeam->AddChildToVerticalBox(PlayerInfo);
 				}
-				else //奇数在右列
+				else //偶数在右列
 				{
 					GridSlot = FriendlyTeam->AddChildToVerticalBox(PlayerInfo);
 				}

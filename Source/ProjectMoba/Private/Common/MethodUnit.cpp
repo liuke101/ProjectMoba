@@ -126,7 +126,7 @@ FString MethodUnit::SlotAttributeValueToString(const FSlotAttributeValue* SlotAt
 				Args.Add(FStringFormatArg(ColorTag));  //1
 				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value)));  //2
  
-				Str = FString::Format(TEXT("{0} 属性值 <{1}>+{2}</>\n"), Args);
+				Str = FString::Format(TEXT("{0} <{1}>+{2}</>\n"), Args);
 			}
 			else if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Percent)
 			{
@@ -135,7 +135,7 @@ FString MethodUnit::SlotAttributeValueToString(const FSlotAttributeValue* SlotAt
 				Args.Add(FStringFormatArg(ColorTag)); 
 				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); 
 				
-				Str = FString::Format(TEXT("{0} 属性百分比 <{1}>+{2}%</>\n"), Args);
+				Str = FString::Format(TEXT("{0} <{1}>+{2}%</>\n"), Args);
 			}
 		}
 		else if(SlotAttributeValue->GainType == ESlotAttributeGainType::ESAGT_Substract)
@@ -147,7 +147,7 @@ FString MethodUnit::SlotAttributeValueToString(const FSlotAttributeValue* SlotAt
 				Args.Add(FStringFormatArg(ColorTag));  //1
 				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value)));  //2
  
-				Str = FString::Format(TEXT("{0} 属性值 <{1}>-{2}</>\n"), Args);
+				Str = FString::Format(TEXT("{0} <{1}>-{2}</>\n"), Args);
 			}
 			else if(SlotAttributeValue->ValueType == ESlotAttributeValueType::ESAVT_Percent)
 			{
@@ -156,7 +156,7 @@ FString MethodUnit::SlotAttributeValueToString(const FSlotAttributeValue* SlotAt
 				Args.Add(FStringFormatArg(ColorTag)); 
 				Args.Add(FStringFormatArg(static_cast<int32>(SlotAttributeValue->Value*100.0f))); 
 				
-				Str = FString::Format(TEXT("{0} 属性百分比 <{1}>-{2}%</>\n"), Args);
+				Str = FString::Format(TEXT("{0} <{1}>-{2}%</>\n"), Args);
 			}
 		}
 	}

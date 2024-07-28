@@ -95,7 +95,7 @@ public:
 	// 然后通过RPC状态同步到客户端,TMap不支持RPC，我们使用TArray来将其拆分, 为此我们创建了一个结构体 FSlotDataNetPackage
 	TMap<int32, FSlotData> InventorySlots; //SlotID_To_SlotData
 
-	// 服务端技能栏x4
+	// 技能栏x4
 	TMap<int32, FSlotData> SkillSlots; //SlotID_To_SlotData
 
 private:

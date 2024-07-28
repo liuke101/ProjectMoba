@@ -106,11 +106,11 @@ void UUI_Shop::UpdateItem(ESlotType SlotType)
 					{
 						GridSlot->SetRow(i / 2);
 					
-						if(i % 2 == 0) //偶数在左列
+						if(i % 2 != 0) //奇数在左列
 						{
 							GridSlot->SetColumn(0);
 						}
-						else //奇数在右列
+						else //偶数在右列
 						{
 							GridSlot->SetColumn(1);
 						}

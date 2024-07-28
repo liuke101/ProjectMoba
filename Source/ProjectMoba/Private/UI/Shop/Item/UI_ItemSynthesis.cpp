@@ -21,7 +21,7 @@ FVector2D FDrawSlot::FSlot::GetSize() const
 
 UUI_ItemSynthesis::UUI_ItemSynthesis()
 	: StartPosition(204.0f, 28.0f)
-	, IconSize(32.0, 32.0)
+	, IconSize(64.0, 64.0)
 	, LineTexture()
 {
 }
@@ -99,8 +99,8 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 	};
 
 	int32 NumberChildrens = SlotAsset->ChildrensDataID.Num();
+
 	FDrawSlot DrawSlot;
-	
 	//生成合成线
 	if(NumberChildrens == 1) //只有一个孩子
 	{
@@ -110,9 +110,10 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 	{
 		//如果只有两个孩子：首先生成一个倒T,然后两边分别生成一条横线，最后生成两个拐角
 		//如果有两个以上，每增加一个，在生成拐角前要多生成一条横线和一个T形线
+		SpawnLine(DrawSlot.Re_TLinePanel,LineTexture.Re_TLine); //倒T
 		SpawnLine(DrawSlot.LREndPanel, LineTexture.TurnLeft); //左拐角
 		SpawnLine(DrawSlot.LREndPanel, LineTexture.TurnRight); //右拐角
-		SpawnLine(DrawSlot.Re_TLinePanel,LineTexture.Re_TLine); //倒T
+		
 		
 		for(int32 i = 0; i < NumberChildrens - 2; ++i) //有3个以上孩子才会生成T型线
 		{
@@ -137,7 +138,6 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 	int32 ValidNumber = DrawSlot.HLinePanel.Num()+DrawSlot.VLinePanel.Num()+DrawSlot.TLinePanel.Num()+DrawSlot.Re_TLinePanel.Num()+DrawSlot.LREndPanel.Num();
 	
 	/** 排布 */
-	
 	if(NumberChildrens == 1)
 	{
 		FDrawSlot::FSlot NewVLineSlot;
@@ -156,6 +156,7 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 		NewPos = FVector2D(NewPos.X, NewPos.Y + NewVLineSlot.GetSize().Y);
 		NewItemSlot.SetPosition(NewPos);
 	}
+	//TODO:三个孩子时显示BUG
 	else if(NumberChildrens >= 2)
 	{
 		FDrawSlot::FSlot Re_TLineSlot;
@@ -168,8 +169,8 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 		Re_TLineSlot.SetPosition(NewPos);
 
 		float HorizontalWidth = DrawSlot.HLinePanel[0].GetSize().X;
-		FVector2D R = NewPos;
 		FVector2D L = NewPos;
+		FVector2D R = NewPos;
 
 		auto Add = [&](int32 i, TArray<FDrawSlot::FSlot>& PanelSlots, int32 InSlotLayer)
 		{
@@ -186,12 +187,12 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 			
 			float NestSpacing = HorizontalWidth/2.0f + NewLineSlot.GetSize().X/2.0f;
 			
-			if(i % 2 == 0) //偶数在左
+			if(i % 2 != 0) //奇数在左
 			{
 				L = FVector2D(L.X - NestSpacing, L.Y);
 				NewValidPosition = L;
 			}
-			else //奇数在右
+			else //偶数在右
 			{
 				R = FVector2D(R.X + NestSpacing, R.Y);
 				NewValidPosition = R;
@@ -207,7 +208,6 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 			{
 				RecursiveUpdateSlot(NewSlotAsset, NewItemPosition, InSlotLayer -= 2);
 			}
-			
 		};
 
 		// 绘制水平
@@ -215,36 +215,36 @@ void UUI_ItemSynthesis::RecursiveUpdateSlot(const FSlotAsset* SlotAsset, const F
 		{
 			FVector2D NewValidPosition = FVector2D::ZeroVector;
 
-			FDrawSlot::FSlot HLine;
-			if(!DrawSlot.HLinePanel.IsEmpty())
+			if(DrawSlot.HLinePanel.Num())
 			{
-				HLine = DrawSlot.HLinePanel.Pop();
-			}
-			
-			float NestSpacing = HLine.GetSize().X/2.0f + Re_TLineSlot.GetSize().X/2.0f;
-			if(i % 2 == 0) //偶数在左
-			{
-				L = FVector2D(L.X - NestSpacing, L.Y);
-				NewValidPosition = L;
-			}
-			else //奇数在右
-			{
-				R = FVector2D(R.X + NestSpacing, R.Y);
-				NewValidPosition = R;
+				FDrawSlot::FSlot HLine = DrawSlot.HLinePanel.Pop();
+				
+				float NestSpacing = HLine.GetSize().X/2.0f + Re_TLineSlot.GetSize().X/2.0f;
+				if(i % 2 != 0) //奇数在左
+				{
+					L = FVector2D(L.X - NestSpacing, L.Y);
+					NewValidPosition = L;
+				}
+				else //偶数在右
+				{
+					R = FVector2D(R.X + NestSpacing, R.Y);
+					NewValidPosition = R;
+				}
+
+				HLine.SetPosition(NewValidPosition);
 			}
 
-			HLine.SetPosition(NewValidPosition);
-
+			//绘制T型线
 			if(DrawSlot.TLinePanel.Num())
 			{
 				Add(i, DrawSlot.TLinePanel, SlotLayer);
 			}
+		}
 
-			//绘制拐点
-			for(int32 j = 0; j<2; j++)
-			{
-				Add(j, DrawSlot.LREndPanel, SlotLayer);
-			}
+		//绘制拐点
+		for(int32 j = 0; j<2; j++)
+		{
+			Add(j, DrawSlot.LREndPanel, SlotLayer);
 		}
 	}
 }

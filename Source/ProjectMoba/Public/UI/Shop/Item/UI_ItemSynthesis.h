@@ -22,7 +22,7 @@ struct FDrawEquipLine
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	UTexture2D* VerticalLine; //垂直线
 
-	//！！
+	//--
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	UTexture2D* HorizontalLine; //水平线
 
@@ -34,13 +34,15 @@ struct FDrawEquipLine
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	UTexture2D* Re_TLine; //倒T型线
 
+	//-|
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UTexture2D* TurnLeft; //左拐角
+	
 	//|-
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	UTexture2D* TurnRight; //右拐角
 
-	//-|
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	UTexture2D* TurnLeft; //左拐角
+	
 };
 
 struct FDrawSlot
