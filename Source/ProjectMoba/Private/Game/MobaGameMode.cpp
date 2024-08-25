@@ -91,8 +91,9 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 			{
 				
 				//TODO:拉取db服务器数据
-				//赋值playerID
-				//MobaPlayerState->GetPlayerDataComponent()->PlayerID = FMath::RandRange(0, 1000000); 
+				//随机playerID
+				MobaPlayerState->GetPlayerDataComponent()->PlayerID = FMath::RandRange(0, 1000000);
+				
 				MobaPlayerState->Client_UpdatePlayerData(MobaPlayerState->GetPlayerDataComponent()->PlayerID);
 				
 				MobaGameState->KillSystemComponent->AddKiller(PlayerDataComponent->PlayerID);
@@ -111,7 +112,9 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 						FFileHelper::LoadFileToStringArray(NumberStrings, *(FPaths::ProjectDir() / TEXT("CharacterID.txt"))); 
 						int32 CharacterID = FCString::Atoi(*NumberStrings[0]);
 
-						InPlayerState->GetPlayerDataComponent()->TeamType = static_cast<ETeamType>(FCString::Atoi(*NumberStrings[1]));
+						//InPlayerState->GetPlayerDataComponent()->TeamType = static_cast<ETeamType>(FCString::Atoi(*NumberStrings[1]));
+						//随机队伍
+						InPlayerState->GetPlayerDataComponent()->TeamType = FMath::RandBool() ? ETeamType::ETT_Red : ETeamType::ETT_Blue;
 
 						//生成英雄
 						if(AMobaHeroCharacter* Hero = Cast<AMobaHeroCharacter>(InGameState->SpawnPlayerComponent->SpawnCharater(InPlayerState->GetPlayerID(), CharacterID, InPlayerState->GetPlayerDataComponent()->TeamType)))
@@ -127,5 +130,4 @@ void AMobaGameMode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
-	
 }
